@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, StyleSheet } from 'react-native';
 import { globalStyles } from '../theme/globalStyles';
+import { useDispatch } from 'react-redux';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
 const SignIn = () => {
-  const [signInEmail, setSignInEmail] = useState('');
-  const [signInPassword, setSignInPassword] = useState('');
+  const [signInEmail, setSignInEmail] = useState('jeremy.guerlin@gmail.com');
+  const [signInPassword, setSignInPassword] = useState('Pass1234');
+
+  const dispatch = useDispatch()
 
   const handleSignIn = () => {
 		fetch(`${BACKEND_URL}/members/signin`, {

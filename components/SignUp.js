@@ -1,30 +1,34 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, StyleSheet } from 'react-native';
 import { globalStyles } from '../theme/globalStyles';
+import { useDispatch } from 'react-redux';
+import { login } from '../reducers/user';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
 const SignUp = () => {
 
-    const [signUpFirstName, setSignUpFirstName] = useState('');
-    const [signUpLastName, setSignUpLastName] = useState('');
-    const [signUpEmail, setSignUpEmail] = useState('');
-    const [signUpPassword, setSignUpPassword] = useState('');
-    const [signUpConfirm, setSignUpConfirm] = useState('');
+  const [signUpFirstName, setSignUpFirstName] = useState('Jérémy');
+  const [signUpLastName, setSignUpLastName] = useState('Guerlin');
+  const [signUpEmail, setSignUpEmail] = useState('jeremy.guerlin@gmail.com');
+  const [signUpPassword, setSignUpPassword] = useState('Pass1234');
+  const [signUpConfirm, setSignUpConfirm] = useState('Pass1234');
+
+  const dispatch = useDispatch()
 
   const handleSignUp = () => {
-    /*if (signUpPassword !== signUpConfirm) {
+    if (signUpPassword !== signUpConfirm) {
       alert('Les mots de passe ne correspondent pas.');
       return;
-    }*/
+    }
 
 		fetch(`${BACKEND_URL}/members/signup`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ firstName: signUpFirstName, lastName: signUpLastName, email: signUpEmail, password: signUpPassword }),
+			body: JSON.stringify({ firstName: signUpFirstName.trim(), lastName: signUpLastName.trim(), email: signUpEmail.trim(), password: signUpPassword.trim() }),
       }).then(response => response.json())
       .then(data => {
-        console.log(data)
+        console.log(data.result)
         if (data.result) {
           const { firstName, lastName, email, token } = data.member;
           dispatch(login({ firstName, lastName, email, token }));
