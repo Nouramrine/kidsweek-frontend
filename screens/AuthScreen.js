@@ -1,24 +1,24 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { globalStyles } from '../theme/globalStyles';
-import SignIn from '../components/SignIn';
-import SignUp from '../components/SignUp';
+import SignIn from './_partials/SignIn';
+import SignUp from './_partials/SignUp';
+import KWText from '../components/KWText';
 
 const AuthScreen = () => {
   const [isSignIn, setIsSignIn] = useState(true);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{isSignIn ? 'Connexion' : 'Inscription'}</Text>
+      <KWText type='h1'>{isSignIn ? 'Connexion' : 'Inscription'}</KWText>
 
       {isSignIn ? <SignIn /> : <SignUp />}
 
       <TouchableOpacity onPress={() => setIsSignIn(!isSignIn)} style={styles.switchContainer}>
-        <Text style={styles.switchText}>
+        <KWText type='link'>
           {isSignIn
             ? "Pas de compte ? S'inscrire"
             : 'Déjà un compte ? Se connecter'}
-        </Text>
+        </KWText>
       </TouchableOpacity>
     </View>
   );
@@ -33,18 +33,8 @@ const styles = StyleSheet.create({
     padding: 24,
     backgroundColor: '#fff',
   },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 24,
-  },
   switchContainer: {
     marginTop: 24,
     alignItems: 'center',
-  },
-  switchText: {
-    color: '#007BFF',
-    fontWeight: '600',
   },
 });
