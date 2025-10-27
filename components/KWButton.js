@@ -1,9 +1,9 @@
 import { Text, View, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 
-const KWButton = ({ children, ...props }) => {
+const KWButton = ({ title, onPress }) => {
     return (
-        <TouchableOpacity style={styles.button} onPress={props.onPress}>
-            <Text style={styles.text}>{props.title}</Text>
+        <TouchableOpacity style={styles.button} onPress={onPress}>
+            <Text style={styles.text}>{title}</Text>
         </TouchableOpacity>
     );
 };
