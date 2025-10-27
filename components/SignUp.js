@@ -8,11 +8,11 @@ const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
 const SignUp = () => {
   const dispatch = useDispatch();
-  const [signUpFirstName, setSignUpFirstName] = useState("");
-  const [signUpLastName, setSignUpLastName] = useState("");
-  const [signUpEmail, setSignUpEmail] = useState("");
-  const [signUpPassword, setSignUpPassword] = useState("");
-  const [signUpConfirm, setSignUpConfirm] = useState("");
+  const [signUpFirstName, setSignUpFirstName] = useState('Kids');
+  const [signUpLastName, setSignUpLastName] = useState("Week");
+  const [signUpEmail, setSignUpEmail] = useState('user@kidsweek.fr');
+  const [signUpPassword, setSignUpPassword] = useState('Pass1234');
+  const [signUpConfirm, setSignUpConfirm] = useState('Pass1234');
 
   const handleSignUp = () => {
     if (signUpPassword !== signUpConfirm) {

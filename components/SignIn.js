@@ -6,7 +6,7 @@ import { useDispatch } from 'react-redux';
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
 const SignIn = () => {
-  const [signInEmail, setSignInEmail] = useState('jeremy.guerlin@gmail.com');
+  const [signInEmail, setSignInEmail] = useState('user@kidsweek.fr');
   const [signInPassword, setSignInPassword] = useState('Pass1234');
 
   const dispatch = useDispatch()
