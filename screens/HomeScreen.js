@@ -15,6 +15,9 @@ const HomeScreen = () => {
   const activities = useSelector((state) => state.activities.value);
   const members = useSelector((state) => state.members.value);
   const user = useSelector((state) => state.user.value);
+
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
   return (
     <View style={styles.container}>
       <Text>Homepage</Text>
