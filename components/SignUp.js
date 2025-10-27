@@ -1,62 +1,91 @@
-import React, { useState } from 'react';
-import { View, TextInput, Button, StyleSheet } from 'react-native';
+import React, { useState } from "react";
+import { View, TextInput, Button, StyleSheet } from "react-native";
+import { globalStyles } from "../theme/globalStyles";
+import { useSelector, useDispatch } from "react-redux";
+import { login } from "../reducers/user";
+
+const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
 const SignUp = () => {
-
-    const [firstname, setFirstname] = useState('');
-    const [lastname, setLastname] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirm, setConfirm] = useState('');
+  const dispatch = useDispatch();
+  const [signUpFirstName, setSignUpFirstName] = useState("");
+  const [signUpLastName, setSignUpLastName] = useState("");
+  const [signUpEmail, setSignUpEmail] = useState("");
+  const [signUpPassword, setSignUpPassword] = useState("");
+  const [signUpConfirm, setSignUpConfirm] = useState("");
 
   const handleSignUp = () => {
-    if (password !== confirm) {
+    if (signUpPassword !== signUpConfirm) {
       alert('Les mots de passe ne correspondent pas.');
       return;
     }
 
-    console.log('Inscription avec', { firstname, lastname, email, password });
+    fetch(`${BACKEND_URL}/members/signup`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        firstName: signUpFirstName,
+        lastName: signUpLastName,
+        email: signUpEmail,
+        password: signUpPassword,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        if (data.result) {
+          const { firstName, lastName, email, token } = data.member;
+          dispatch(login({ firstName, lastName, email, token }));
+          setSignUpFirstName("");
+          setSignUpLastName("");
+          setSignUpEmail("");
+          setSignUpPassword("");
+          setSignUpConfirm("");
+          console.log("Inscription avec", {
+            firstName,
+            lastName,
+            email,
+            password,
+          });
+        }
+      });
   };
 
   return (
     <View>
       <TextInput
-        style={styles.input}
+        style={globalStyles.input}
         placeholder="Prénom"
-        value={firstname}
-        onChangeText={setFirstname}
-        autoCapitalize="none"
-        keyboardType="email-address"
+        value={signUpFirstName}
+        onChangeText={setSignUpFirstName}
       />
       <TextInput
-        style={styles.input}
+        style={globalStyles.input}
         placeholder="Nom"
-        value={lastname}
-        onChangeText={setLastname}
-        autoCapitalize="none"
-        keyboardType="email-address"
+        value={signUpLastName}
+        onChangeText={setSignUpLastName}
       />
       <TextInput
-        style={styles.input}
+        style={globalStyles.input}
         placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
+        value={signUpEmail}
+        onChangeText={setSignUpEmail}
         autoCapitalize="none"
         keyboardType="email-address"
       />
       <TextInput
-        style={styles.input}
+        style={globalStyles.input}
         placeholder="Mot de passe"
         secureTextEntry
-        value={password}
-        onChangeText={setPassword}
+        value={signUpPassword}
+        onChangeText={setSignUpPassword}
       />
       <TextInput
-        style={styles.input}
+        style={globalStyles.input}
         placeholder="Confirmer le mot de passe"
         secureTextEntry
-        value={confirm}
-        onChangeText={setConfirm}
+        value={signUpConfirm}
+        onChangeText={setSignUpConfirm}
       />
       <Button title="S'inscrire" onPress={handleSignUp} />
     </View>
@@ -68,7 +97,7 @@ export default SignUp;
 const styles = StyleSheet.create({
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
     borderRadius: 8,
     padding: 12,
     marginBottom: 12,
