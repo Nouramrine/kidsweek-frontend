@@ -92,7 +92,7 @@ const DisplayIsLogged = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {userData?.isLogged ? (
+        {!userData?.isLogged ? (
           <Stack.Screen name="auth" component={AuthScreen} />
         ) : (
           <Stack.Screen name="TabNavigator" component={TabNavigator} />

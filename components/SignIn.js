@@ -5,16 +5,16 @@ import { globalStyles } from '../theme/globalStyles';
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
 const SignIn = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [signInEmail, setSignInEmail] = useState('');
+  const [signInPassword, setSignInPassword] = useState('');
 
   const handleSignIn = () => {
     console.log('Connexion avec', { email, password });
 	
-		/*fetch(`${BACKEND_URL}/members/signin`, {
+		fetch(`${BACKEND_URL}/members/signin`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ email, password }),
+			body: JSON.stringify({ email: signInEmail, password: signInPassword }),
 		}).then(response => response.json())
 			.then(data => {
 				if (data.result) {
@@ -23,7 +23,7 @@ const SignIn = () => {
 					setEmail('');
 					setPassword('');
 				}
-			});*/
+			});
 	};
 
   return (
@@ -31,8 +31,8 @@ const SignIn = () => {
       <TextInput
         style={globalStyles.input}
         placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
+        value={signInEmail}
+        onChangeText={setSignInEmail}
         autoCapitalize="none"
         keyboardType="email-address"
       />
@@ -40,8 +40,8 @@ const SignIn = () => {
         style={globalStyles.input}
         placeholder="Mot de passe"
         secureTextEntry
-        value={password}
-        onChangeText={setPassword}
+        value={signInPassword}
+        onChangeText={setSignInPassword}
       />
       <Button title="Se connecter" onPress={handleSignIn} />
     </View>
