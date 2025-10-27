@@ -1,29 +1,39 @@
 import { Text, View, TextInput, StyleSheet } from 'react-native';
 
-const KWTextInput = ({ children, ...props }) => {
+const KWTextInput = ({ label, ...props }) => {
     return (
-        <View>
-            <Text style={styles.label}>{props.label}</Text>
-            <TextInput {...props} style={styles.textInput}>{children}</TextInput>
+        <View style={styles.container}>
+            <Text style={styles.label}>{label}</Text>
+            <View style={styles.inputWrapper}>
+                <TextInput {...props} style={styles.textInput} />
+            </View>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
+    container: {
+        marginVertical: 10,
+        position: 'relative',
+    },
     label: {
         position: 'absolute',
-        top: 0,
-        left: 10,
-        paddingHorizontal: 10,
+        top: -10,
+        left: 15,
         backgroundColor: 'white',
+        paddingHorizontal: 5,
         color: "#90CEDD",
+        fontWeight: 'bold',
+        zIndex: 1,
     },
-    textInput: {
-        marginVertical: 10,
-        padding: 10,
+    inputWrapper: {
         borderRadius: 10,
         borderWidth: 2,
         borderColor: "#90CEDD",
+    },
+    textInput: {
+        padding: 15,
+        paddingTop: 15,
     },
 });
 
