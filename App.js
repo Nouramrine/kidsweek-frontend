@@ -13,13 +13,15 @@ import HomeScreen from "./screens/HomeScreen";
 import LoginScreen from "./screens/LoginScreen";
 import ProfileScreen from "./screens/ProfileScreen";
 import user from "./reducers/user";
-import { persistStore, persistReducer } from "redux-persist";
 import { Provider } from "react-redux";
+import { persistStore, persistReducer } from "redux-persist";
+
 import { PersistGate } from "redux-persist/integration/react";
-import storage from "redux-persist/lib/storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
+
 const reducers = combineReducers({ user });
-const persistConfig = { key: "KidsWeek", storage };
+const persistConfig = { key: "KidsWeek", storage: AsyncStorage };
 const store = configureStore({
   reducer: persistReducer(persistConfig, reducers),
   middleware: (getDefaultMiddleware) =>
