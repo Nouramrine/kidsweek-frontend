@@ -48,19 +48,19 @@ const SignUp = () => {
   return (
     <View>
       <TextInput
-        style={kidsweek.input}
+        style={styles.input}
         placeholder="Prénom"
         value={signUpFirstName}
         onChangeText={setSignUpFirstName}
       />
       <TextInput
-        style={kidsweek.input}
+        style={styles.input}
         placeholder="Nom"
         value={signUpLastName}
         onChangeText={setSignUpLastName}
       />
       <TextInput
-        style={kidsweek.input}
+        style={styles.input}
         placeholder="Email"
         value={signUpEmail}
         onChangeText={setSignUpEmail}
@@ -68,14 +68,14 @@ const SignUp = () => {
         keyboardType="email-address"
       />
       <TextInput
-        style={kidsweek.input}
+        style={styles.input}
         placeholder="Mot de passe"
         secureTextEntry
         value={signUpPassword}
         onChangeText={setSignUpPassword}
       />
       <TextInput
-        style={kidsweek.input}
+        style={styles.input}
         placeholder="Confirmer le mot de passe"
         secureTextEntry
         value={signUpConfirm}
@@ -90,10 +90,6 @@ export default SignUp;
 
 const styles = StyleSheet.create({
   input: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 12,
+
   },
 });

@@ -1,7 +1,7 @@
 import { Text, View, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 
 const KWText = ({ children, ...props }) => {
-    const type = props.type | 'text'
+    const type = props.type || 'text'
     return (
         <Text style={styles[type]}>{children}</Text>
     );
@@ -13,6 +13,7 @@ const styles = StyleSheet.create({
         fontFamily: 'JosefinSans_400Regular',
     },
     h1: {
+        fontSize: 28,
         fontFamily: 'Gluten_500Medium',
         textAlign: 'center',
     },
