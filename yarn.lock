@@ -1270,6 +1270,13 @@
   dependencies:
     merge-options "^3.0.4"
 
+"@react-native-community/datetimepicker@8.4.4":
+  version "8.4.4"
+  resolved "https://registry.yarnpkg.com/@react-native-community/datetimepicker/-/datetimepicker-8.4.4.tgz#2160a808b596e85240cee2415be2eb2bd80d2e92"
+  integrity sha512-bc4ZixEHxZC9/qf5gbdYvIJiLZ5CLmEsC3j+Yhe1D1KC/3QhaIfGDVdUcid0PdlSoGOSEq4VlB93AWyetEyBSQ==
+  dependencies:
+    invariant "^2.2.4"
+
 "@react-native/assets-registry@0.81.5":
   version "0.81.5"
   resolved "https://registry.yarnpkg.com/@react-native/assets-registry/-/assets-registry-0.81.5.tgz#d22c924fa6f6d4a463c5af34ce91f38756c0fa7d"
@@ -2518,6 +2525,11 @@ expo-asset@~12.0.9:
   dependencies:
     "@expo/image-utils" "^0.8.7"
     expo-constants "~18.0.9"
+
+expo-checkbox@~5.0.7:
+  version "5.0.7"
+  resolved "https://registry.yarnpkg.com/expo-checkbox/-/expo-checkbox-5.0.7.tgz#0079a7956b1cea599405d71877e400430ffa3d13"
+  integrity sha512-oACH1MwJ5816ovT5bKQcaPr/5AAK3l+nlC9FxxAhtANXNBav+BjRJT1IqYTfp33b7+FMKx9ZkLmqJHfubolJrQ==
 
 expo-constants@~18.0.10, expo-constants@~18.0.9:
   version "18.0.10"

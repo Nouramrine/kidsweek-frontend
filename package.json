@@ -10,11 +10,13 @@
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.2.0",
+    "@react-native-community/datetimepicker": "8.4.4",
     "@react-navigation/bottom-tabs": "6",
     "@react-navigation/native": "6",
     "@react-navigation/native-stack": "6",
     "@reduxjs/toolkit": "^2.9.2",
     "expo": "^54.0.20",
+    "expo-checkbox": "~5.0.7",
     "expo-env": "^1.1.1",
     "expo-status-bar": "~3.0.8",
     "fetch-node": "^0.0.1",
