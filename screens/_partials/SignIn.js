@@ -3,6 +3,7 @@ import { View, TextInput, Button, StyleSheet } from 'react-native';
 import { useDispatch } from 'react-redux';
 import KWTextInput from '../../components/KWTextInput';
 import KWButton from '../../components/KWButton';
+import { login } from "../../reducers/user";
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -26,7 +27,8 @@ const SignIn = () => {
 					setEmail('');
 					setPassword('');
 				}
-			});
+			})
+      .catch((error) => console.log(error));
 	};
 
   return (
