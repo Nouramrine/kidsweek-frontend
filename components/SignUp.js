@@ -6,33 +6,34 @@ const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
 const SignUp = () => {
 
-    const [signUpFirstname, setSignUpFirstname] = useState('');
-    const [signUpLastname, setSignUpLastname] = useState('');
+    const [signUpFirstName, setSignUpFirstName] = useState('');
+    const [signUpLastName, setSignUpLastName] = useState('');
     const [signUpEmail, setSignUpEmail] = useState('');
     const [signUpPassword, setSignUpPassword] = useState('');
     const [signUpConfirm, setSignUpConfirm] = useState('');
 
   const handleSignUp = () => {
-    if (signUpPassword !== signUpConfirm) {
+    /*if (signUpPassword !== signUpConfirm) {
       alert('Les mots de passe ne correspondent pas.');
       return;
-    }
+    }*/
 
 		fetch(`${BACKEND_URL}/members/signup`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ firstname: signUpFirstname, lastname: signUpLastname, email: signUpEmail, password: signUpPassword }),
+			body: JSON.stringify({ firstName: signUpFirstName, lastName: signUpLastName, email: signUpEmail, password: signUpPassword }),
       }).then(response => response.json())
       .then(data => {
+        console.log(data)
         if (data.result) {
-          const { firstname, lastname, email, token } = data.member;
-          dispatch(login({ firstname, lastname, email, token }));
-          setSignUpFirstname('');
-          setSignUpLastname('');
+          const { firstName, lastName, email, token } = data.member;
+          dispatch(login({ firstName, lastName, email, token }));
+          setSignUpFirstName('');
+          setSignUpLastName('');
           setSignUpEmail('');
           setSignUpPassword('');
           setSignUpConfirm('');
-          console.log('Inscription avec', { firstname, lastname, email, password });
+          console.log('Inscription avec', { firstName, lastName, email, password });
         }
       });
   };
@@ -42,14 +43,14 @@ const SignUp = () => {
       <TextInput
         style={globalStyles.input}
         placeholder="Prénom"
-        value={signUpFirstname}
-        onChangeText={setSignUpFirstname}
+        value={signUpFirstName}
+        onChangeText={setSignUpFirstName}
       />
       <TextInput
         style={globalStyles.input}
         placeholder="Nom"
-        value={signUpLastname}
-        onChangeText={setSignUpLastname}
+        value={signUpLastName}
+        onChangeText={setSignUpLastName}
       />
       <TextInput
         style={globalStyles.input}
