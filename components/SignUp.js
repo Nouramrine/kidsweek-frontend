@@ -1,16 +1,18 @@
-import React, { useState } from 'react';
-import { View, TextInput, Button, StyleSheet } from 'react-native';
-import { globalStyles } from '../theme/globalStyles';
+import React, { useState } from "react";
+import { View, TextInput, Button, StyleSheet } from "react-native";
+import { globalStyles } from "../theme/globalStyles";
+import { useSelector, useDispatch } from "react-redux";
+import { login } from "../reducers/user";
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
 const SignUp = () => {
-
-    const [signUpFirstName, setSignUpFirstName] = useState('');
-    const [signUpLastName, setSignUpLastName] = useState('');
-    const [signUpEmail, setSignUpEmail] = useState('');
-    const [signUpPassword, setSignUpPassword] = useState('');
-    const [signUpConfirm, setSignUpConfirm] = useState('');
+  const dispatch = useDispatch();
+  const [signUpFirstName, setSignUpFirstName] = useState("");
+  const [signUpLastName, setSignUpLastName] = useState("");
+  const [signUpEmail, setSignUpEmail] = useState("");
+  const [signUpPassword, setSignUpPassword] = useState("");
+  const [signUpConfirm, setSignUpConfirm] = useState("");
 
   const handleSignUp = () => {
     /*if (signUpPassword !== signUpConfirm) {
@@ -18,22 +20,33 @@ const SignUp = () => {
       return;
     }*/
 
-		fetch(`${BACKEND_URL}/members/signup`, {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ firstName: signUpFirstName, lastName: signUpLastName, email: signUpEmail, password: signUpPassword }),
-      }).then(response => response.json())
-      .then(data => {
-        console.log(data)
+    fetch(`${BACKEND_URL}/members/signup`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        firstName: signUpFirstName,
+        lastName: signUpLastName,
+        email: signUpEmail,
+        password: signUpPassword,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
         if (data.result) {
           const { firstName, lastName, email, token } = data.member;
           dispatch(login({ firstName, lastName, email, token }));
-          setSignUpFirstName('');
-          setSignUpLastName('');
-          setSignUpEmail('');
-          setSignUpPassword('');
-          setSignUpConfirm('');
-          console.log('Inscription avec', { firstName, lastName, email, password });
+          setSignUpFirstName("");
+          setSignUpLastName("");
+          setSignUpEmail("");
+          setSignUpPassword("");
+          setSignUpConfirm("");
+          console.log("Inscription avec", {
+            firstName,
+            lastName,
+            email,
+            password,
+          });
         }
       });
   };
@@ -84,7 +97,7 @@ export default SignUp;
 const styles = StyleSheet.create({
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
     borderRadius: 8,
     padding: 12,
     marginBottom: 12,

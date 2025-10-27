@@ -29,7 +29,17 @@ const store = configureStore({
 const persistor = persistStore(store);
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
+const clearAsyncStorage = async () => {
+  try {
+    await AsyncStorage.clear();
+    console.log("AsyncStorage vidé avec succès");
+  } catch (e) {
+    console.error("Erreur lors du vidage d'AsyncStorage:", e);
+  }
+};
 
+// Décommente cette ligne UNE SEULE FOIS pour vider le cache, puis recommente-la
+//clearAsyncStorage();
 const TabNavigator = () => {
   return (
     <Tab.Navigator
