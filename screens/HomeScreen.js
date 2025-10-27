@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
 const HomeScreen = () => {
-  const [isSignIn, setIsSignIn] = useState(true);
-
+  
   return (
     <View style={styles.container}>
       <Text>Homepage</Text>
