@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import SignIn from '../components/SignIn';
-import SignUp from '../components/SignUp';
+import SignIn from './_partials/SignIn';
+import SignUp from './_partials/SignUp';
 import KWText from '../components/KWText';
 
 const AuthScreen = () => {

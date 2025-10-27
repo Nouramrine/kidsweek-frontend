@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, StyleSheet } from 'react-native';
 import { useDispatch } from 'react-redux';
-import KWTextInput from './KWTextInput';
-import KWButton from './KWButton';
+import KWTextInput from '../../components/KWTextInput';
+import KWButton from '../../components/KWButton';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
