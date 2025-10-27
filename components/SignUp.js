@@ -15,10 +15,10 @@ const SignUp = () => {
   const [signUpConfirm, setSignUpConfirm] = useState("");
 
   const handleSignUp = () => {
-    /*if (signUpPassword !== signUpConfirm) {
+    if (signUpPassword !== signUpConfirm) {
       alert('Les mots de passe ne correspondent pas.');
       return;
-    }*/
+    }
 
     fetch(`${BACKEND_URL}/members/signup`, {
       method: "POST",
