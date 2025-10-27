@@ -3,6 +3,7 @@ import { View, TextInput, Button, StyleSheet } from "react-native";
 import { useDispatch } from "react-redux";
 import { login } from "../../reducers/user";
 import KWButton from "../../components/KWButton";
+import KWTextInput from "../../components/KWTextInput";
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -47,36 +48,36 @@ const SignUp = () => {
 
   return (
     <View>
-      <TextInput
+      <KWTextInput
         style={styles.input}
-        placeholder="Prénom"
+        label="Prénom"
         value={signUpFirstName}
         onChangeText={setSignUpFirstName}
       />
-      <TextInput
+      <KWTextInput
         style={styles.input}
-        placeholder="Nom"
+        label="Nom"
         value={signUpLastName}
         onChangeText={setSignUpLastName}
       />
-      <TextInput
+      <KWTextInput
         style={styles.input}
-        placeholder="Email"
+        label="Email"
         value={signUpEmail}
         onChangeText={setSignUpEmail}
         autoCapitalize="none"
         keyboardType="email-address"
       />
-      <TextInput
+      <KWTextInput
         style={styles.input}
-        placeholder="Mot de passe"
+        label="Mot de passe"
         secureTextEntry
         value={signUpPassword}
         onChangeText={setSignUpPassword}
       />
-      <TextInput
+      <KWTextInput
         style={styles.input}
-        placeholder="Confirmer le mot de passe"
+        label="Confirmer le mot de passe"
         secureTextEntry
         value={signUpConfirm}
         onChangeText={setSignUpConfirm}

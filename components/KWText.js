@@ -16,6 +16,7 @@ const styles = StyleSheet.create({
         fontSize: 28,
         fontFamily: 'Gluten_500Medium',
         textAlign: 'center',
+        padding: 10,
     },
     h2: {
 
