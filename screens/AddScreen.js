@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+//import { globalStyles } from "../theme/globalStyles";
 import {
   View,
   Text,
