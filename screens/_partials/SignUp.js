@@ -20,6 +20,7 @@ const SignUp = () => {
       alert('Les mots de passe ne correspondent pas.');
       return;
     }
+    console.log('test')
 
     fetch(`${BACKEND_URL}/members/signup`, {
       method: "POST",
@@ -33,7 +34,6 @@ const SignUp = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         if (data.result) {
           const { firstName, lastName, email, token } = data.member;
           dispatch(login({ firstName, lastName, email, token }));
@@ -43,7 +43,8 @@ const SignUp = () => {
           setSignUpPassword("");
           setSignUpConfirm("");
         }
-      });
+      })
+      .catch((error) => console.log(error));
   };
 
   return (
