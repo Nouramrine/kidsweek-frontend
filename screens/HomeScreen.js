@@ -1,8 +1,20 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
+import { useDispatch, useSelector } from "react-redux";
+import { setAvtivities } from "../reducers/activities";
 
 const HomeScreen = () => {
-  
+  const dispatch = useDispatch();
+  const activities = useSelector((state) => state.activities.value);
+  const members = useSelector((state) => state.members.value);
+  const user = useSelector((state) => state.user.value);
   return (
     <View style={styles.container}>
       <Text>Homepage</Text>
@@ -15,7 +27,7 @@ export default HomeScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
