@@ -88,7 +88,7 @@ const TabNavigator = () => {
 // affichage de authScreen si non connecté sinon arrivé sur homeScreen
 const DisplayIsLogged = () => {
   const userData = useSelector((state) => state.user.value);
-  console.log(userData?.isLogged);
+  //console.log(userData?.isLogged);
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>

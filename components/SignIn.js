@@ -9,14 +9,13 @@ const SignIn = () => {
   const [signInPassword, setSignInPassword] = useState('');
 
   const handleSignIn = () => {
-    console.log('Connexion avec', { email, password });
-	
 		fetch(`${BACKEND_URL}/members/signin`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ email: signInEmail, password: signInPassword }),
 		}).then(response => response.json())
 			.then(data => {
+        console.log('retour connexion : ', data)
 				if (data.result) {
           const { firstname, lastname, email, token } = data.member;
 					dispatch(login({ lastname, firstname, email, token }));
