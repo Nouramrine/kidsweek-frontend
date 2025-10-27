@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import {
   View,
   Text,
@@ -8,15 +8,37 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import { setAvtivities } from "../reducers/activities";
+import { setActivities } from "../reducers/activities";
 
 const HomeScreen = () => {
   const dispatch = useDispatch();
   const activities = useSelector((state) => state.activities.value);
-  const members = useSelector((state) => state.members.value);
   const user = useSelector((state) => state.user.value);
 
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  // recupérer les activité du membre connecté
+
+  useEffect(() => {
+    const fetchActivities = async () => {
+      if (!user.token) return;
+      try {
+        const response = await fetch("http://localhost:3000/activities/", {
+          headers: {
+            Authorization: user.token,
+          },
+        });
+        const data = await response.json();
+
+        if (data.result) {
+          dispatch(setActivities(data.activities));
+        } else {
+          console.log("Erreur fetch activities", data.message);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    fetchActivities();
+  }, [user.token]);
 
   return (
     <View style={styles.container}>
