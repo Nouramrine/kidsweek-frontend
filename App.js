@@ -29,7 +29,17 @@ const store = configureStore({
 const persistor = persistStore(store);
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
+const clearAsyncStorage = async () => {
+  try {
+    await AsyncStorage.clear();
+    console.log("AsyncStorage vidé avec succès");
+  } catch (e) {
+    console.error("Erreur lors du vidage d'AsyncStorage:", e);
+  }
+};
 
+// Décommente cette ligne UNE SEULE FOIS pour vider le cache, puis recommente-la
+//clearAsyncStorage();
 const TabNavigator = () => {
   return (
     <Tab.Navigator
@@ -85,7 +95,7 @@ const TabNavigator = () => {
   );
 };
 
-// affichage de authScreen si non connecté sinon arrivé sur homeScreen
+// affichage de AuthScreen si non connecté sinon arrivé sur HomeScreen
 const DisplayIsLogged = () => {
   const userData = useSelector((state) => state.user.value);
   //console.log(userData?.isLogged);
@@ -114,7 +124,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#ffffffff",
     alignItems: "center",
     justifyContent: "center",
   },
