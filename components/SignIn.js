@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, StyleSheet } from 'react-native';
+import { globalStyles } from '../theme/globalStyles';
+
+const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
 const SignIn = () => {
   const [email, setEmail] = useState('');
@@ -7,13 +10,26 @@ const SignIn = () => {
 
   const handleSignIn = () => {
     console.log('Connexion avec', { email, password });
-    // Ici tu peux appeler ton API ou Firebase
-  };
+	
+		/*fetch(`${BACKEND_URL}/members/signin`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ email, password }),
+		}).then(response => response.json())
+			.then(data => {
+				if (data.result) {
+          const { firstname, lastname, email, token } = data.member;
+					dispatch(login({ lastname, firstname, email, token }));
+					setEmail('');
+					setPassword('');
+				}
+			});*/
+	};
 
   return (
     <View>
       <TextInput
-        style={styles.input}
+        style={globalStyles.input}
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
@@ -21,7 +37,7 @@ const SignIn = () => {
         keyboardType="email-address"
       />
       <TextInput
-        style={styles.input}
+        style={globalStyles.input}
         placeholder="Mot de passe"
         secureTextEntry
         value={password}

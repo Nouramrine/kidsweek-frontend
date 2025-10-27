@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { globalStyles } from '../theme/globalStyles';
 import SignIn from '../components/SignIn';
 import SignUp from '../components/SignUp';
 

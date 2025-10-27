@@ -1,62 +1,77 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, StyleSheet } from 'react-native';
+import { globalStyles } from '../theme/globalStyles';
+
+const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
 const SignUp = () => {
 
-    const [firstname, setFirstname] = useState('');
-    const [lastname, setLastname] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirm, setConfirm] = useState('');
+    const [signUpFirstname, setSignUpFirstname] = useState('');
+    const [signUpLastname, setSignUpLastname] = useState('');
+    const [signUpEmail, setSignUpEmail] = useState('');
+    const [signUpPassword, setSignUpPassword] = useState('');
+    const [signUpConfirm, setSignUpConfirm] = useState('');
 
   const handleSignUp = () => {
-    if (password !== confirm) {
+    if (signUpPassword !== signUpConfirm) {
       alert('Les mots de passe ne correspondent pas.');
       return;
     }
 
-    console.log('Inscription avec', { firstname, lastname, email, password });
+		fetch(`${BACKEND_URL}/members/signup`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ firstname: signUpFirstname, lastname: signUpLastname, email: signUpEmail, password: signUpPassword }),
+      }).then(response => response.json())
+      .then(data => {
+        if (data.result) {
+          const { firstname, lastname, email, token } = data.member;
+          dispatch(login({ firstname, lastname, email, token }));
+          setSignUpFirstname('');
+          setSignUpLastname('');
+          setSignUpEmail('');
+          setSignUpPassword('');
+          setSignUpConfirm('');
+          console.log('Inscription avec', { firstname, lastname, email, password });
+        }
+      });
   };
 
   return (
     <View>
       <TextInput
-        style={styles.input}
+        style={globalStyles.input}
         placeholder="Prénom"
-        value={firstname}
-        onChangeText={setFirstname}
-        autoCapitalize="none"
-        keyboardType="email-address"
+        value={signUpFirstname}
+        onChangeText={setSignUpFirstname}
       />
       <TextInput
-        style={styles.input}
+        style={globalStyles.input}
         placeholder="Nom"
-        value={lastname}
-        onChangeText={setLastname}
-        autoCapitalize="none"
-        keyboardType="email-address"
+        value={signUpLastname}
+        onChangeText={setSignUpLastname}
       />
       <TextInput
-        style={styles.input}
+        style={globalStyles.input}
         placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
+        value={signUpEmail}
+        onChangeText={setSignUpEmail}
         autoCapitalize="none"
         keyboardType="email-address"
       />
       <TextInput
-        style={styles.input}
+        style={globalStyles.input}
         placeholder="Mot de passe"
         secureTextEntry
-        value={password}
-        onChangeText={setPassword}
+        value={signUpPassword}
+        onChangeText={setSignUpPassword}
       />
       <TextInput
-        style={styles.input}
+        style={globalStyles.input}
         placeholder="Confirmer le mot de passe"
         secureTextEntry
-        value={confirm}
-        onChangeText={setConfirm}
+        value={signUpConfirm}
+        onChangeText={setSignUpConfirm}
       />
       <Button title="S'inscrire" onPress={handleSignUp} />
     </View>
