@@ -85,7 +85,7 @@ const TabNavigator = () => {
   );
 };
 
-// affichage de authScreen si non connecté sinon arrivé sur homeScreen
+// affichage de AuthScreen si non connecté sinon arrivé sur HomeScreen
 const DisplayIsLogged = () => {
   const userData = useSelector((state) => state.user.value);
   console.log(userData?.isLogged);
@@ -114,7 +114,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#ffffffff",
     alignItems: "center",
     justifyContent: "center",
   },
