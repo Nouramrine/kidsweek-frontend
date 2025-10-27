@@ -3,6 +3,7 @@ import { View, TextInput, Button, StyleSheet } from "react-native";
 import { useDispatch } from "react-redux";
 import { login } from "../../reducers/user";
 import KWButton from "../../components/KWButton";
+import KWTextInput from "../../components/KWTextInput";
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -47,36 +48,36 @@ const SignUp = () => {
 
   return (
     <View>
-      <TextInput
-        style={kidsweek.input}
-        placeholder="Prénom"
+      <KWTextInput
+        style={styles.input}
+        label="Prénom"
         value={signUpFirstName}
         onChangeText={setSignUpFirstName}
       />
-      <TextInput
-        style={kidsweek.input}
-        placeholder="Nom"
+      <KWTextInput
+        style={styles.input}
+        label="Nom"
         value={signUpLastName}
         onChangeText={setSignUpLastName}
       />
-      <TextInput
-        style={kidsweek.input}
-        placeholder="Email"
+      <KWTextInput
+        style={styles.input}
+        label="Email"
         value={signUpEmail}
         onChangeText={setSignUpEmail}
         autoCapitalize="none"
         keyboardType="email-address"
       />
-      <TextInput
-        style={kidsweek.input}
-        placeholder="Mot de passe"
+      <KWTextInput
+        style={styles.input}
+        label="Mot de passe"
         secureTextEntry
         value={signUpPassword}
         onChangeText={setSignUpPassword}
       />
-      <TextInput
-        style={kidsweek.input}
-        placeholder="Confirmer le mot de passe"
+      <KWTextInput
+        style={styles.input}
+        label="Confirmer le mot de passe"
         secureTextEntry
         value={signUpConfirm}
         onChangeText={setSignUpConfirm}
@@ -90,10 +91,6 @@ export default SignUp;
 
 const styles = StyleSheet.create({
   input: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 12,
+
   },
 });
