@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useState } from "react";
+import { View, Text, StyleSheet } from "react-native";
 
-const HomeScreen = () => {
-  
+const HomeScreen = (navigation) => {
   return (
     <View style={styles.container}>
       <Text>Homepage</Text>
@@ -15,7 +14,7 @@ export default HomeScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

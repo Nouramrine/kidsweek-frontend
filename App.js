@@ -18,7 +18,7 @@ import { persistStore, persistReducer } from "redux-persist";
 import { PersistGate } from "redux-persist/integration/react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
-
+import { useSelector } from "react-redux";
 const reducers = combineReducers({ user });
 const persistConfig = { key: "KidsWeek", storage: AsyncStorage };
 const store = configureStore({
@@ -64,16 +64,26 @@ const TabNavigator = () => {
     </Tab.Navigator>
   );
 };
+const RootNavigator = () => {
+  const userData = useSelector((state) => state.user.value);
+  console.log(userData?.isLogged);
+  return (
+    <NavigationContainer>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {userData?.isLogged ? (
+          <Stack.Screen name="auth" component={AuthScreen} />
+        ) : (
+          <Stack.Screen name="TabNavigator" component={TabNavigator} />
+        )}
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+};
 export default function App() {
   return (
     <Provider store={store}>
       <PersistGate persistor={persistor}>
-        <NavigationContainer>
-          <Stack.Navigator screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="auth" component={AuthScreen} />
-            <Stack.Screen name="TabNavigator" component={TabNavigator} />
-          </Stack.Navigator>
-        </NavigationContainer>
+        <RootNavigator />
       </PersistGate>
     </Provider>
   );
