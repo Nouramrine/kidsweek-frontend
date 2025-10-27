@@ -1,10 +1,13 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { useFonts, Gluten_700Bold, Gluten_500Medium} from '@expo-google-fonts/gluten';
+import { JosefinSans_400Regular, JosefinSans_300Light } from '@expo-google-fonts/josefin-sans';
 
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+
 import AddScreen from "./screens/AddScreen";
 import AuthScreen from "./screens/AuthScreen";
 import CalendarScreen from "./screens/CalendarScreen";
@@ -12,6 +15,7 @@ import FamillyScreen from "./screens/FamillyScreen";
 import HomeScreen from "./screens/HomeScreen";
 import ProfileScreen from "./screens/ProfileScreen";
 import user from "./reducers/user";
+
 import { Provider } from "react-redux";
 import { persistStore, persistReducer } from "redux-persist";
 import { PersistGate } from "redux-persist/integration/react";
@@ -111,7 +115,19 @@ const DisplayIsLogged = () => {
     </NavigationContainer>
   );
 };
+
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    Gluten_700Bold,
+    Gluten_500Medium,
+    JosefinSans_400Regular,
+    JosefinSans_300Light,
+  });
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
   return (
     <Provider store={store}>
       <PersistGate persistor={persistor}>

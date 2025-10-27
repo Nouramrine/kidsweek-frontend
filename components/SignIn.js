@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, StyleSheet } from 'react-native';
-import { globalStyles } from '../theme/globalStyles';
 import { useDispatch } from 'react-redux';
+import KWTextInput from './KWTextInput';
+import KWButton from './KWButton';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -20,8 +21,8 @@ const SignIn = () => {
 			.then(data => {
         console.log('retour connexion : ', data)
 				if (data.result) {
-          const { firstname, lastname, email, token } = data.member;
-					dispatch(login({ lastname, firstname, email, token }));
+          const { firstName, lastName, email, token } = data.member;
+					dispatch(login({ firstName, lastName, email, token }));
 					setEmail('');
 					setPassword('');
 				}
@@ -30,22 +31,20 @@ const SignIn = () => {
 
   return (
     <View>
-      <TextInput
-        style={globalStyles.input}
-        placeholder="Email"
+      <KWTextInput
+        label="Email"
         value={signInEmail}
         onChangeText={setSignInEmail}
         autoCapitalize="none"
         keyboardType="email-address"
       />
-      <TextInput
-        style={globalStyles.input}
-        placeholder="Mot de passe"
+      <KWTextInput
+        label="Mot de passe"
         secureTextEntry
         value={signInPassword}
         onChangeText={setSignInPassword}
       />
-      <Button title="Se connecter" onPress={handleSignIn} />
+      <KWButton title="Se connecter" onPress={handleSignIn} />
     </View>
   );
 };

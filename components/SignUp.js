@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { View, TextInput, Button, StyleSheet } from "react-native";
-import { globalStyles } from "../theme/globalStyles";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { login } from "../reducers/user";
+import KWButton from "./KWButton";
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -41,12 +41,6 @@ const SignUp = () => {
           setSignUpEmail("");
           setSignUpPassword("");
           setSignUpConfirm("");
-          console.log("Inscription avec", {
-            firstName,
-            lastName,
-            email,
-            password,
-          });
         }
       });
   };
@@ -54,19 +48,19 @@ const SignUp = () => {
   return (
     <View>
       <TextInput
-        style={globalStyles.input}
+        style={kidsweek.input}
         placeholder="Prénom"
         value={signUpFirstName}
         onChangeText={setSignUpFirstName}
       />
       <TextInput
-        style={globalStyles.input}
+        style={kidsweek.input}
         placeholder="Nom"
         value={signUpLastName}
         onChangeText={setSignUpLastName}
       />
       <TextInput
-        style={globalStyles.input}
+        style={kidsweek.input}
         placeholder="Email"
         value={signUpEmail}
         onChangeText={setSignUpEmail}
@@ -74,20 +68,20 @@ const SignUp = () => {
         keyboardType="email-address"
       />
       <TextInput
-        style={globalStyles.input}
+        style={kidsweek.input}
         placeholder="Mot de passe"
         secureTextEntry
         value={signUpPassword}
         onChangeText={setSignUpPassword}
       />
       <TextInput
-        style={globalStyles.input}
+        style={kidsweek.input}
         placeholder="Confirmer le mot de passe"
         secureTextEntry
         value={signUpConfirm}
         onChangeText={setSignUpConfirm}
       />
-      <Button title="S'inscrire" onPress={handleSignUp} />
+      <KWButton title="S'inscrire" onPress={handleSignUp} />
     </View>
   );
 };
