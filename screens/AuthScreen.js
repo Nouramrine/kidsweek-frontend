@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import SignIn from './_partials/SignIn';
 import SignUp from './_partials/SignUp';
 import KWText from '../components/KWText';
@@ -9,9 +9,13 @@ const AuthScreen = () => {
 
   return (
     <View style={styles.container}>
-      <KWText type='h1'>{isSignIn ? 'Connexion' : 'Inscription'}</KWText>
+      <Image source={require('../assets/titre.png')} style={styles.logo} resizeMode="contain" />
 
-      {isSignIn ? <SignIn /> : <SignUp />}
+      {/*<KWText type='h1'>{isSignIn ? 'Connexion' : 'Inscription'}</KWText>*/}
+
+      <View style={styles.formContainer}>
+        {isSignIn ? <SignIn /> : <SignUp />}
+      </View>
 
       <TouchableOpacity onPress={() => setIsSignIn(!isSignIn)} style={styles.switchContainer}>
         <KWText type='link'>
@@ -30,6 +34,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
     padding: 24,
     backgroundColor: '#fff',
   },
@@ -37,4 +42,13 @@ const styles = StyleSheet.create({
     marginTop: 24,
     alignItems: 'center',
   },
+  formContainer: {
+    width: '100%',
+  },
+  logo: {
+    width: '80%',
+    height: undefined, 
+    aspectRatio: 3,  
+    marginBottom: 30,
+  }
 });

@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import { login } from "../../reducers/user";
 import KWButton from "../../components/KWButton";
 import KWTextInput from "../../components/KWTextInput";
+import KWText from "../../components/KWText";
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -14,13 +15,19 @@ const SignUp = () => {
   const [signUpEmail, setSignUpEmail] = useState('user@kidsweek.fr');
   const [signUpPassword, setSignUpPassword] = useState('Pass1234');
   const [signUpConfirm, setSignUpConfirm] = useState('Pass1234');
+  const [signUpError, setSignUpError] = useState('');
 
   const handleSignUp = () => {
     if (signUpPassword !== signUpConfirm) {
-      alert('Les mots de passe ne correspondent pas.');
+      setSignUpError('Les mots de passe ne correspondent pas.');
       return;
     }
-    console.log('test')
+
+    const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/i;
+    if (!emailRegex.test(signUpEmail)) {
+      setSignUpError(`Format d'adresse email incorrecte`);
+      return;
+    }
 
     fetch(`${BACKEND_URL}/members/signup`, {
       method: "POST",
@@ -42,6 +49,8 @@ const SignUp = () => {
           setSignUpEmail("");
           setSignUpPassword("");
           setSignUpConfirm("");
+        } else {
+          setSignUpError(data.error)
         }
       })
       .catch((error) => console.log(error));
@@ -50,19 +59,16 @@ const SignUp = () => {
   return (
     <View>
       <KWTextInput
-        style={styles.input}
         label="Prénom"
         value={signUpFirstName}
         onChangeText={setSignUpFirstName}
       />
       <KWTextInput
-        style={styles.input}
         label="Nom"
         value={signUpLastName}
         onChangeText={setSignUpLastName}
       />
       <KWTextInput
-        style={styles.input}
         label="Email"
         value={signUpEmail}
         onChangeText={setSignUpEmail}
@@ -70,19 +76,18 @@ const SignUp = () => {
         keyboardType="email-address"
       />
       <KWTextInput
-        style={styles.input}
         label="Mot de passe"
         secureTextEntry
         value={signUpPassword}
         onChangeText={setSignUpPassword}
       />
       <KWTextInput
-        style={styles.input}
         label="Confirmer le mot de passe"
         secureTextEntry
         value={signUpConfirm}
         onChangeText={setSignUpConfirm}
       />
+      <KWText type='inputError'>{signUpError}</KWText>
       <KWButton title="S'inscrire" onPress={handleSignUp} />
     </View>
   );
@@ -90,8 +95,3 @@ const SignUp = () => {
 
 export default SignUp;
 
-const styles = StyleSheet.create({
-  input: {
-
-  },
-});
