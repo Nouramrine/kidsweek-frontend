@@ -3,7 +3,7 @@ import { Text, View, TextInput, StyleSheet, TouchableOpacity } from 'react-nativ
 const KWText = ({ children, ...props }) => {
     const type = props.type || 'text'
     return (
-        <Text style={styles[type]}>{children}</Text>
+        <Text style={[styles.text, styles[type]]}>{children}</Text>
     );
 };
 
@@ -19,10 +19,20 @@ const styles = StyleSheet.create({
         padding: 10,
     },
     h2: {
-
+        fontSize: 22,
+        fontFamily: 'Gluten_500Medium',
+        textAlign: 'center',
+        padding: 10,
     },
     h3: {
 
+    },
+    inputError: {
+        color: '#8b2020ff',
+        paddingBottom: 10,
+        paddingHorizontal: 15,
+        fontWeight: 'bold',
+        fontSize: 12,
     }
 });
 
