@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, StyleSheet } from 'react-native';
 import { useDispatch } from 'react-redux';
+import { login } from "../../reducers/user";
 import KWTextInput from '../../components/KWTextInput';
 import KWButton from '../../components/KWButton';
-import { login } from "../../reducers/user";
+import KWText from '../../components/KWText';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
 const SignIn = () => {
   const [signInEmail, setSignInEmail] = useState('user@kidsweek.fr');
   const [signInPassword, setSignInPassword] = useState('Pass1234');
+  const [signInError, setSignInError] = useState('');
+
 
   const dispatch = useDispatch()
 
@@ -23,9 +26,11 @@ const SignIn = () => {
 				if (data.result) {
           const { firstName, lastName, email, token } = data.member;
 					dispatch(login({ firstName, lastName, email, token }));
-					setEmail('');
-					setPassword('');
-				}
+					setSignInEmail('');
+					setSignInPassword('');
+				} else {
+          setSignInError(data.error)
+        }
 			})
       .catch((error) => console.log(error));
 	};
@@ -45,19 +50,10 @@ const SignIn = () => {
         value={signInPassword}
         onChangeText={setSignInPassword}
       />
+      <KWText type='inputError'>{signInError}</KWText>
       <KWButton title="Se connecter" onPress={handleSignIn} />
     </View>
   );
 };
 
 export default SignIn;
-
-const styles = StyleSheet.create({
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 12,
-  },
-});
