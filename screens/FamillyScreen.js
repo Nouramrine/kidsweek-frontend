@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from '../theme/colors';
 import { KWCard, KWCardHeader, KWCardIcon, KWCardTitle, KWCardButton, KWCardBody } from "../components/KWCard";
@@ -28,6 +28,7 @@ const FamillyScreen = (navigation) => {
   
   return (
     <SafeAreaView style={{ flex: 1 }}>
+      <ScrollView>
       <View style={styles.container}>
         <View style={styles.topButtonsContainer}>
           <View style={styles.topButton}>
@@ -94,6 +95,7 @@ const FamillyScreen = (navigation) => {
             ))}
         </View>
       </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
