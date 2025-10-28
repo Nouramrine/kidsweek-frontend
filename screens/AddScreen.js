@@ -169,7 +169,11 @@ const AddScreen = ({ navigation }) => {
   const handleSave = () => {
     const fullDateBegin = combineDateAndTime(dateBegin, timeBegin);
     const fullDateEnd = combineDateAndTime(dateEnd, timeEnd);
-    calculateReminderDate(fullDateBegin, reminderNumber, reminderUnit);
+    const reminderDate = calculateReminderDate(
+      fullDateBegin,
+      reminderNumber,
+      reminderUnit
+    );
     if (fullDateEnd <= fullDateBegin) {
       setDateEnd(fullDateBegin);
     }
@@ -192,10 +196,11 @@ const AddScreen = ({ navigation }) => {
       .then((response) => response.json())
       .then((data) => {
         if (data.result) {
-          const { firstName, lastName, email, token } = data.member;
-          dispatch(login({ firstName, lastName, email, token }));
-          setEmail("");
-          setPassword("");
+          console.log("Activité ajoutée avec succès", data);
+          // const { firstName, lastName, email, token } = data.member;
+          // dispatch(login({ firstName, lastName, email, token }));
+          // setEmail("");
+          // setPassword("");
         }
       })
       .catch((error) => console.log(error));

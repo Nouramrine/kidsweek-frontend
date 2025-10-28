@@ -55,18 +55,7 @@ typings/
 .yarn-integrity
 
 # dotenv environment variables file
-.env
+.env*
 
-<<<<<<< HEAD
-# typescript
-*.tsbuildinfo
-
-# generated native folders
-/ios
-/android
-.env
-
-=======
 # next.js build output
 .next
->>>>>>> b96b4826f4c0dcd80363b675c6555b654984c0bb
