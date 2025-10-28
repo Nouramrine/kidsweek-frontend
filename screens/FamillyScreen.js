@@ -1,15 +1,15 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from '../theme/colors';
-import KWCard from "../components/KWCard";
+import { KWCard, KWCardHeader, KWCardIcon, KWCardTitle, KWCardButton, KWCardBody } from "../components/KWCard";
 import KWText from "../components/KWText";
 import { FontAwesome5 } from '@expo/vector-icons';
 
 const FamillyScreen = (navigation) => {
 
   const membersData = [
-    { id: "658961", firstName: "Papa", lastName: "Outé"},
+    { id: "658961", firstName: "Papa", lastName: "Outé", birthday: "1985-"},
     { id: "552638", firstName: "Maman", lastName: "Bobo"},
     { id: "552638", firstName: "Mamie", lastName: "Nova"},
     { id: "12356", firstName: "Lucas", lastName: "Rabine"},
@@ -28,42 +28,74 @@ const FamillyScreen = (navigation) => {
   
   return (
     <SafeAreaView style={{ flex: 1 }}>
+      <ScrollView>
       <View style={styles.container}>
         <View style={styles.topButtonsContainer}>
           <View style={styles.topButton}>
-            <KWCard color="green">
-              <View style={{ flexDirection: 'row' }}><FontAwesome5 name="plus" size={24} color={colors.green3} /><FontAwesome5 name="user" size={40} color={colors.green3} /></View>
-              <KWText style={styles.buttonTitle} color="green3">Ajouter</KWText>
-              <KWText style={styles.buttonSubTitle} color="green3">membre</KWText>
+            <KWCard color={colors.green[0]}>
+              <View style={{ flexDirection: 'row' }}><FontAwesome5 name="plus" size={24} color={colors.green[2]} /><FontAwesome5 name="user" size={40} color={colors.green[2]} /></View>
+              <KWText style={styles.buttonTitle} color={colors.green[2]}>Ajouter</KWText>
+              <KWText style={styles.buttonSubTitle} color={colors.green[2]}>membre</KWText>
             </KWCard>
           </View>
           <View style={styles.topButton}>
-            <KWCard color="yellow">
-              <View style={{ flexDirection: 'row' }}><FontAwesome5 name="plus" size={24} color={colors.yellow3} /><FontAwesome5 name="home" size={40} color={colors.yellow3} /></View>
-              <KWText style={styles.buttonTitle} color="yellow3">Ajouter</KWText>
-              <KWText style={styles.buttonSubTitle} color="yellow3">zone</KWText>
+            <KWCard color={colors.yellow[0]}>
+              <View style={{ flexDirection: 'row' }}><FontAwesome5 name="plus" size={24} color={colors.yellow[2]} /><FontAwesome5 name="home" size={40} color={colors.yellow[2]} /></View>
+              <KWText style={styles.buttonTitle} color={colors.yellow[2]}>Ajouter</KWText>
+              <KWText style={styles.buttonSubTitle} color={colors.yellow[2]}>zone</KWText>
             </KWCard>
           </View>
         </View>
       
         <View style={styles.zonesContainer}>
-            {zones.map((zone) => (
-              <KWCard color={zone.color} style={styles.zoneCard}>
-                <View style={styles.cardHeader}>
-                  <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                    <View style={{ backgroundColor: colors[zone.color + '3'], padding: 10, borderRadius: 10 }}>
+            {zones.map((zone, i) => (
+              <KWCard key={i} color={colors[zone.color][0]} style={styles.zoneCard}>
+                <KWCardHeader>
+                  <KWCardIcon>
+                    <View style={{ backgroundColor: colors[zone.color][2], padding: 10, borderRadius: 10 }}>
                       <FontAwesome5 name="home" size={24} color="white" />
                     </View>
-                    <View>
-                      <KWText>{zone.name}</KWText>
-                      <KWText>{zone.members.length}</KWText>
+                  </KWCardIcon>
+                  <KWCardTitle>
+                    <KWText>{zone.name}</KWText>
+                    <KWText>{zone.members.length} membres</KWText>
+                  </KWCardTitle>
+                  <KWCardButton>
+                    <View style={{ backgroundColor: "#ffffff7a", justifyContent: 'center', alignItems: 'center', height: 30, width: 30, borderRadius: 100 }}>
+                      <FontAwesome5 name="ellipsis-v" size={16} color={colors.text[0]} />
                     </View>
-                  </View>
-                </View>
+                  </KWCardButton>
+                </KWCardHeader>
+                <KWCardBody>
+                  {zone.members.map((memberId, j) => {
+                      const member = membersData.filter((m) => m.id === memberId)
+                      return (
+                      <KWCard key={j} color="#ffffff8e" style={styles.zoneCard}>
+                        <KWCardHeader>
+                          <KWCardIcon>
+                            <View style={{ backgroundColor: colors[zone.color][2], padding: 10, borderRadius: 10 }}>
+                              <FontAwesome5 name="home" size={24} color="white" />
+                            </View>
+                          </KWCardIcon>
+                          <KWCardTitle>
+                            <KWText>{member.firstName}</KWText>
+                            <KWText>1000 ans</KWText>
+                          </KWCardTitle>
+                          <KWCardButton>
+                            <View style={{ backgroundColor: "#ffffff7a", justifyContent: 'center', alignItems: 'center', height: 30, width: 30, borderRadius: 100 }}>
+                              <FontAwesome5 name="ellipsis-v" size={16} color={colors.text[0]} />
+                            </View>
+                          </KWCardButton>
+                        </KWCardHeader>
+                      </KWCard>
+                      )
+                  })}
+                </KWCardBody>
               </KWCard>              
             ))}
         </View>
       </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -97,10 +129,5 @@ const styles = StyleSheet.create({
   },
   zoneCard: {
     marginBottom: 20,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    width: '100%',
-    justifyContent: 'space-between',
   },
 });
