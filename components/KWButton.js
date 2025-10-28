@@ -1,4 +1,5 @@
-import { Text, View, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import { Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { colors } from '../theme/colors';
 
 const KWButton = ({ title, onPress }) => {
     return (
@@ -10,7 +11,7 @@ const KWButton = ({ title, onPress }) => {
 
 const styles = StyleSheet.create({
     button: {
-        backgroundColor: '#80CEC7',
+        backgroundColor: colors.green,
         borderRadius: 10,
         justifyContent: 'center',
         alignItems: 'center',
