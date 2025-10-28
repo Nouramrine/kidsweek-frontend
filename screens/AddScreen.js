@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-//import { globalStyles } from "../theme/globalStyles";
 import {
   View,
   Text,
@@ -101,7 +100,7 @@ const AddScreen = ({ navigation }) => {
         <View style={styles.activity}>
           <Text style={styles.label}>Intitulé de l'activité</Text>
           <TextInput
-            style={globalStyles.input}
+            style={styles.input}
             placeholder="Ex : cours de danse, entrainement de foot..."
             value={activityName}
             onChangeText={setActivityName}
