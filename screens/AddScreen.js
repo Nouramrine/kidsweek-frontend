@@ -192,10 +192,10 @@ const AddScreen = ({ navigation }) => {
       .then((response) => response.json())
       .then((data) => {
         if (data.result) {
-          const { firstName, lastName, email, token } = data.member;
-          dispatch(login({ firstName, lastName, email, token }));
-          setEmail("");
-          setPassword("");
+          // const { firstName, lastName, email, token } = data.member;
+          // dispatch(login({ firstName, lastName, email, token }));
+          // setEmail("");
+          // setPassword("");
         }
       })
       .catch((error) => console.log(error));
