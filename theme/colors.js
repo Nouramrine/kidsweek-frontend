@@ -1,11 +1,18 @@
 export const colors = {
     background: '#fff',
+    text: '#000',
     blue: '#90CEDD',
+    blue2: '#63a7b8ff',
+    blue3: '#337a8bff',
     green: '#80CEC7',
+    green2: '#5cb9b2',
+    green3: '#308b84ff',
     purple: '#8E7EED',
     orange: '#F7A072',
     red: '#F7A072',
     yellow: '#FFD485',
+    yellow2: '#FFF085',
+    yellow3: '#a65f00',
     skin: '#fcf0e6',
     error: '#8b2020',
 }
