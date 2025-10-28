@@ -20,7 +20,6 @@ const SignIn = () => {
 			body: JSON.stringify({ email: signInEmail, password: signInPassword }),
 		}).then(response => response.json())
 			.then(data => {
-        console.log('retour connexion : ', data)
 				if (data.result) {
           const { firstName, lastName, email, token } = data.member;
 					dispatch(login({ firstName, lastName, email, token }));
