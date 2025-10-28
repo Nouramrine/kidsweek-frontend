@@ -1,8 +1,15 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useFonts, Gluten_700Bold, Gluten_500Medium} from '@expo-google-fonts/gluten';
-import { JosefinSans_400Regular, JosefinSans_300Light } from '@expo-google-fonts/josefin-sans';
+import {
+  useFonts,
+  Gluten_700Bold,
+  Gluten_500Medium,
+} from "@expo-google-fonts/gluten";
+import {
+  JosefinSans_400Regular,
+  JosefinSans_300Light,
+} from "@expo-google-fonts/josefin-sans";
 
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
