@@ -17,9 +17,11 @@ import KWButton from "../components/KWButton";
 import KWTextInput from "../components/KWTextInput";
 import KWText from "../components/KWText";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { useSelector } from "react-redux";
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 const AddScreen = ({ navigation }) => {
   //display switch
+  const user = useSelector((state) => state.user.value);
   const [isEnabled, setIsEnabled] = useState(false);
   const toggleSwitch = () => setIsEnabled(!isEnabled);
 
@@ -177,7 +179,7 @@ const AddScreen = ({ navigation }) => {
     if (fullDateEnd <= fullDateBegin) {
       setDateEnd(fullDateBegin);
     }
-    fetch(`${BACKEND_URL}/activities/add`, {
+    fetch(`${BACKEND_URL}/activities/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -609,5 +611,28 @@ const styles = StyleSheet.create({
   dayButtonActive: {
     backgroundColor: "#8E7EED",
     borderColor: "#8E7EED",
+  },
+  buttonsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  cancelButton: {
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderWidth: 1,
+    borderColor: "#D1D5DB",
+    borderRadius: 8,
+  },
+  deleteButton: {
+    width: 50,
+    height: 50,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  saveButton: {
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    backgroundColor: "#8E7EED",
+    borderRadius: 8,
   },
 });
