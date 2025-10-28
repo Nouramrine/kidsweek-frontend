@@ -17,9 +17,12 @@ import KWButton from "../components/KWButton";
 import KWTextInput from "../components/KWTextInput";
 import KWText from "../components/KWText";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { useSelector } from "react-redux";
+import { colors } from "../theme/colors";
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 const AddScreen = ({ navigation }) => {
   //display switch
+  const user = useSelector((state) => state.user.value);
   const [isEnabled, setIsEnabled] = useState(false);
   const toggleSwitch = () => setIsEnabled(!isEnabled);
 
@@ -166,60 +169,49 @@ const AddScreen = ({ navigation }) => {
     return reminderDate;
   };
 
-  const handleSave = () => {
-    const fullDateBegin = combineDateAndTime(dateBegin, timeBegin);
-    const fullDateEnd = combineDateAndTime(dateEnd, timeEnd);
-    const reminderDate = calculateReminderDate(
-      fullDateBegin,
-      reminderNumber,
-      reminderUnit
-    );
-    if (fullDateEnd <= fullDateBegin) {
-      setDateEnd(fullDateBegin);
+  const handleSave = async () => {
+    try {
+      const fullDateBegin = combineDateAndTime(dateBegin, timeBegin);
+      const fullDateEnd = combineDateAndTime(dateEnd, timeEnd);
+      const reminderDate = calculateReminderDate(
+        fullDateBegin,
+        reminderNumber,
+        reminderUnit
+      );
+      if (fullDateEnd <= fullDateBegin) {
+        setDateEnd(fullDateBegin);
+      }
+      console.log("date de fin plus tot", DateEnd);
+      const response = await fetch(`${BACKEND_URL}/activities/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: activityName,
+          place: activityPlace,
+          dateBegin: fullDateBegin,
+          dateEnd: fullDateEnd,
+          reminder: reminderDate,
+          task: checklistItems,
+          note: note,
+          children: children,
+          parents: parents,
+          recurrence: recurrence,
+        }),
+      });
+      const data = await response.json();
+
+      if (data.result) {
+        console.log("Activité ajoutée avec succès", data);
+        // Redirection ou reset du formulaire
+        navigation.goBack();
+      } else {
+        console.error("Erreur lors de l'ajout:", data.error);
+        // Afficher un message d'erreur à l'utilisateur
+      }
+    } catch (error) {
+      console.error("Erreur de connexion:", error);
+      // Afficher un message d'erreur à l'utilisateur
     }
-    fetch(`${BACKEND_URL}/activities/add`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: activityName,
-        place: activityPlace,
-        dateBegin: fullDateBegin,
-        dateEnd: fullDateEnd,
-        reminder: reminderDate,
-        task: checklistItems,
-        note: note,
-        children: children,
-        parents: parents,
-        recurrence: recurrence,
-      }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.result) {
-          console.log("Activité ajoutée avec succès", data);
-          // const { firstName, lastName, email, token } = data.member;
-          // dispatch(login({ firstName, lastName, email, token }));
-          // setEmail("");
-          // setPassword("");
-        }
-      })
-      .catch((error) => console.log(error));
-
-    console.log("Full Start DateTime:", fullDateBegin);
-    // Logique de sauvegarde
-    console.log("Activité sauvegardée", {
-      activityName,
-      activityPlace,
-      dateBegin,
-
-      dateEnd,
-      reminderDate,
-      recurrence,
-      children,
-      parents,
-      checklistItems,
-      note,
-    });
   };
   const handleDelete = () => {
     // Logique de suppression
@@ -609,5 +601,28 @@ const styles = StyleSheet.create({
   dayButtonActive: {
     backgroundColor: "#8E7EED",
     borderColor: "#8E7EED",
+  },
+  buttonsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  cancelButton: {
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderWidth: 1,
+    borderColor: "#D1D5DB",
+    borderRadius: 8,
+  },
+  deleteButton: {
+    width: 50,
+    height: 50,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  saveButton: {
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    backgroundColor: "#8E7EED",
+    borderRadius: 8,
   },
 });
