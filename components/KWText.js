@@ -1,4 +1,5 @@
-import { Text, View, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import { Text, StyleSheet } from 'react-native';
+import { colors } from '../theme/colors';
 
 const KWText = ({ children, ...props }) => {
     const type = props.type || 'text'
@@ -28,7 +29,7 @@ const styles = StyleSheet.create({
 
     },
     inputError: {
-        color: '#8b2020ff',
+        color: colors.error,
         paddingBottom: 10,
         paddingHorizontal: 15,
         fontWeight: 'bold',
