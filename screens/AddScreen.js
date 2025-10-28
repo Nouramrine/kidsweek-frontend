@@ -21,14 +21,17 @@ import { useSelector } from "react-redux";
 import { colors } from "../theme/colors";
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 const AddScreen = ({ navigation }) => {
-  //display switch
   const user = useSelector((state) => state.user.value);
+
+  //display switch
   const [isEnabled, setIsEnabled] = useState(false);
   const toggleSwitch = () => setIsEnabled(!isEnabled);
 
+  // Activity
   const [activityName, setActivityName] = useState("cinéma");
   const [activityPlace, setActivityPlace] = useState("Pathé la garde");
-  // Dates
+
+  // Dates and times
   const [dateBegin, setDateBegin] = useState(new Date());
   const [showDateBegin, setShowDateBegin] = useState(false);
   const [timeBegin, setTimeBegin] = useState(new Date());
@@ -49,12 +52,15 @@ const AddScreen = ({ navigation }) => {
     sam: false,
     dim: false,
   });
+  // recurrence frequency
+  const [frequency, setFrequency] = useState("1");
+  const [selectedReapet, setSelectedReapet] = useState();
 
-  // Rappel
+  // reminder
   const [reminderNumber, setReminderNumber] = useState("10");
   const [reminderUnit, setReminderUnit] = useState("Minutes");
 
-  // Enfants et parents
+  // Children and Parents
   const [children, setChildren] = useState([]); //{ id: 1, name: "Enfant" }
   const [parents, setParents] = useState([]); //{ id: 1, name: "Parent" }
 
@@ -67,6 +73,7 @@ const AddScreen = ({ navigation }) => {
 
   // Note
   const [note, setNote] = useState("amusez vous bien !");
+
   // Handlers DateTimePicker dateBegin
   const onChangeDateBegin = (event, selectedDate) => {
     setShowDateBegin(false);
@@ -76,6 +83,7 @@ const AddScreen = ({ navigation }) => {
       setDateBegin(dateOnly);
     }
   };
+
   // Handlers DateTimePicker timeBegin
   const onChangeTimeBegin = (event, selectedTime) => {
     setShowTimeBegin(false);
@@ -83,6 +91,7 @@ const AddScreen = ({ navigation }) => {
       setTimeBegin(selectedTime);
     }
   };
+
   // Handlers DateTimePicker dateEnd
   const onChangeDateEnd = (event, selectedDate) => {
     setShowDateEnd(false);
@@ -92,6 +101,7 @@ const AddScreen = ({ navigation }) => {
       setDateEnd(dateOnly);
     }
   };
+
   // Handlers DateTimePicker timeEnd
   const onChangeTimeEnd = (event, selectedTime) => {
     setShowTimeEnd(false);
@@ -99,6 +109,7 @@ const AddScreen = ({ navigation }) => {
       setTimeEnd(selectedTime);
     }
   };
+
   // Function to combine date and time into a single Date object
   const combineDateAndTime = (date, time) => {
     const combined = new Date(date);
@@ -108,24 +119,28 @@ const AddScreen = ({ navigation }) => {
     combined.setMilliseconds(0);
     return combined;
   };
-  // Récurrence frequency
-  const [frequency, setFrequency] = useState("1");
 
+  // Récurrence frequency
   const toggleDay = (day) => {
     setRecurrence({ ...recurrence, [day]: !recurrence[day] });
   };
 
+  // ad children
   const addChild = () => {};
 
+  //remove children
   const removeChild = (id) => {
     setChildren(children.filter((child) => child.id !== id));
   };
 
+  // add parents
   const addParent = () => {};
 
+  //remove parents
   const removeParent = (id) => {
     setParents(parents.filter((parent) => parent.id !== id));
   };
+
   // Checklist handlers
   const addChecklistItem = () => {
     if (newChecklistItem.trim()) {
@@ -137,10 +152,12 @@ const AddScreen = ({ navigation }) => {
     }
   };
 
+  // remove checklist item
   const removeChecklistItem = (id) => {
     setChecklistItems(checklistItems.filter((item) => item.id !== id));
   };
 
+  // Calculate reminder date
   const calculateReminderDate = (
     activityDate,
     reminderNumber,
@@ -172,6 +189,7 @@ const AddScreen = ({ navigation }) => {
     return reminderDate;
   };
 
+  // create activity
   const handleSave = async () => {
     try {
       const fullDateBegin = combineDateAndTime(dateBegin, timeBegin);
@@ -198,7 +216,8 @@ const AddScreen = ({ navigation }) => {
           note: note,
           children: children,
           parents: parents,
-          recurrence: recurrence + selectedReapet,
+          recurrence: recurrence,
+          repeat: selectedReapet,
         }),
       });
       const data = await response.json();
@@ -220,7 +239,7 @@ const AddScreen = ({ navigation }) => {
     // Logique de suppression
     console.log("Activité supprimée");
   };
-  const [selectedReapet, setSelectedReapet] = useState();
+
   // Dropdown component for recurrence period
   const DropdownRecurence = () => {
     return (
@@ -235,6 +254,8 @@ const AddScreen = ({ navigation }) => {
       </Picker>
     );
   };
+
+  // Dropdown component for reminder unit
   const DropdownReminder = () => {
     return (
       <Picker
@@ -247,6 +268,7 @@ const AddScreen = ({ navigation }) => {
       </Picker>
     );
   };
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
@@ -263,6 +285,7 @@ const AddScreen = ({ navigation }) => {
           onChangeText={setActivityName}
         />
       </View>
+
       {/* Intitulé du lieu */}
       <View style={styles.section}>
         <Text style={styles.label}>Lieu de l'activité</Text>
@@ -273,6 +296,7 @@ const AddScreen = ({ navigation }) => {
           onChangeText={setActivityPlace}
         />
       </View>
+
       {/* date début */}
       <View style={styles.section}>
         <Text style={styles.label}>Début</Text>
@@ -362,6 +386,7 @@ const AddScreen = ({ navigation }) => {
           />
         )}
       </View>
+
       {/* Récurrence */}
       <View style={styles.section}>
         <Text style={styles.label}>Récurrence</Text>
@@ -418,6 +443,7 @@ const AddScreen = ({ navigation }) => {
           ""
         )}
       </View>
+
       {/* Rappel */}
       <View style={styles.section}>
         <Text style={styles.label}>Rappel</Text>
@@ -432,6 +458,7 @@ const AddScreen = ({ navigation }) => {
           <Text style={styles.reminderText}>avant</Text>
         </View>
       </View>
+
       {/* Enfant(s) */}
       <View style={styles.section}>
         <Text style={styles.label}>enfant(s)</Text>
@@ -466,6 +493,7 @@ const AddScreen = ({ navigation }) => {
             <Ionicons name="add" size={20} color="#8E7EED" />
           </TouchableOpacity>
         </View>
+
         {/* cheklist */}
       </View>
       <View style={styles.section}>
@@ -498,6 +526,7 @@ const AddScreen = ({ navigation }) => {
           ))}
         </View>
       </View>
+
       {/* Note */}
       <View style={styles.section}>
         <Text style={styles.label}>Note</Text>
@@ -509,6 +538,7 @@ const AddScreen = ({ navigation }) => {
           multiline
         />
       </View>
+
       {/* Boutons */}
       <View style={styles.buttonsContainer}>
         <TouchableOpacity
