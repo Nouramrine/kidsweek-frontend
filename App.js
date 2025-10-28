@@ -22,15 +22,15 @@ import FamillyScreen from "./screens/FamillyScreen";
 import HomeScreen from "./screens/HomeScreen";
 import ProfileScreen from "./screens/ProfileScreen";
 import user from "./reducers/user";
-
-import { Provider } from "react-redux";
+import activities from "./reducers/activities";
+import { Provider, useSelector } from "react-redux";
 import { persistStore, persistReducer } from "redux-persist";
 import { PersistGate } from "redux-persist/integration/react";
-//async storage pour react-native car lacal storage ne fonctione pas
+//async storage pour react-native car local storage ne fonctione pas
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
-import { useSelector } from "react-redux";
-const reducers = combineReducers({ user });
+
+const reducers = combineReducers({ user, activities });
 const persistConfig = { key: "KidsWeek", storage: AsyncStorage };
 const store = configureStore({
   reducer: persistReducer(persistConfig, reducers),
@@ -106,35 +106,23 @@ const TabNavigator = () => {
   );
 };
 
-// affichage de AuthScreen si non connecté sinon arrivé sur HomeScreen
-const DisplayIsLogged = () => {
-  const userData = useSelector((state) => state.user.value);
-  //console.log(userData?.isLogged);
-  return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {!userData?.isLogged ? (
-          <Stack.Screen name="auth" component={AuthScreen} />
-        ) : (
-          <Stack.Screen name="TabNavigator" component={TabNavigator} />
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
-};
-
 export default function App() {
-  const [fontsLoaded] = useFonts({
-    Gluten_700Bold,
-    Gluten_500Medium,
-    JosefinSans_400Regular,
-    JosefinSans_300Light,
-  });
-
-  if (!fontsLoaded) {
-    return null;
-  }
-
+  // affichage de AuthScreen si non connecté sinon arrivé sur HomeScreen
+  const DisplayIsLogged = () => {
+    const userData = useSelector((state) => state.user.value);
+    //console.log(userData?.isLogged);
+    return (
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          {!userData?.isLogged ? (
+            <Stack.Screen name="auth" component={AuthScreen} />
+          ) : (
+            <Stack.Screen name="TabNavigator" component={TabNavigator} />
+          )}
+        </Stack.Navigator>
+      </NavigationContainer>
+    );
+  };
   return (
     <Provider store={store}>
       <PersistGate persistor={persistor}>
