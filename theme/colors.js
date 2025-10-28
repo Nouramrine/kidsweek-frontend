@@ -2,6 +2,8 @@ export const colors = {
     background: '#fff',
     text: '#000',
     blue: '#90CEDD',
+    blue2: '#63a7b8ff',
+    blue3: '#337a8bff',
     green: '#80CEC7',
     green2: '#5cb9b2',
     green3: '#308b84ff',
