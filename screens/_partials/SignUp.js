@@ -5,55 +5,45 @@ import { login } from "../../reducers/user";
 import KWButton from "../../components/KWButton";
 import KWTextInput from "../../components/KWTextInput";
 import KWText from "../../components/KWText";
-
+import { SignupAsync } from "../../reducers/user";
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
 const SignUp = () => {
   const dispatch = useDispatch();
-  const [signUpFirstName, setSignUpFirstName] = useState('Kids');
-  const [signUpLastName, setSignUpLastName] = useState("Week");
-  const [signUpEmail, setSignUpEmail] = useState('user@kidsweek.fr');
-  const [signUpPassword, setSignUpPassword] = useState('Pass1234');
-  const [signUpConfirm, setSignUpConfirm] = useState('Pass1234');
-  const [signUpError, setSignUpError] = useState('');
+  const [signUpFirstName, setSignUpFirstName] = useState("Kids1");
+  const [signUpLastName, setSignUpLastName] = useState("Week1");
+  const [signUpEmail, setSignUpEmail] = useState("user@kidsweek1.fr");
+  const [signUpPassword, setSignUpPassword] = useState("Pass1234");
+  const [signUpConfirm, setSignUpConfirm] = useState("Pass1234");
+  const [signUpError, setSignUpError] = useState("");
 
   const handleSignUp = () => {
     if (signUpPassword !== signUpConfirm) {
-      setSignUpError('Les mots de passe ne correspondent pas.');
+      setSignUpError("Les mots de passe ne correspondent pas.");
       return;
     }
 
-    const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/i;
+    const emailRegex =
+      /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/i;
     if (!emailRegex.test(signUpEmail)) {
       setSignUpError(`Format d'adresse email incorrecte`);
       return;
     }
 
-    fetch(`${BACKEND_URL}/members/signup`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    dispatch(
+      SignupAsync({
         firstName: signUpFirstName,
         lastName: signUpLastName,
         email: signUpEmail,
         password: signUpPassword,
-      }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.result) {
-          const { firstName, lastName, email, token } = data.member;
-          dispatch(login({ firstName, lastName, email, token }));
-          setSignUpFirstName("");
-          setSignUpLastName("");
-          setSignUpEmail("");
-          setSignUpPassword("");
-          setSignUpConfirm("");
-        } else {
-          setSignUpError(data.error)
-        }
       })
-      .catch((error) => console.log(error));
+    );
+
+    setSignUpFirstName("");
+    setSignUpLastName("");
+    setSignUpEmail("");
+    setSignUpPassword("");
+    setSignUpConfirm("");
   };
 
   return (
@@ -87,11 +77,10 @@ const SignUp = () => {
         value={signUpConfirm}
         onChangeText={setSignUpConfirm}
       />
-      <KWText type='inputError'>{signUpError}</KWText>
+      <KWText type="inputError">{signUpError}</KWText>
       <KWButton title="S'inscrire" onPress={handleSignUp} />
     </View>
   );
 };
 
 export default SignUp;
-
