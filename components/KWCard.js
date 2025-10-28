@@ -1,12 +1,66 @@
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
 import { colors } from '../theme/colors';
 
-const KWCard = ({ children, ...props }) => {
-    const color = props.color || "background"
+export const KWCardIcon = ({ children, ...props }) => {
     return (
-        <TouchableOpacity style={[styles.card, props.style, { backgroundColor: colors[color] }]}>
+        <View style={[styles.cardIcon, props.style]}>
             {children}
-        </TouchableOpacity>
+        </View>
+    );
+};
+KWCardIcon.displayName = 'KWCardIcon';
+
+export const KWCardTitle = ({ children, ...props }) => {
+    return (
+        <View style={[styles.cardTitle, props.style]}>
+            {children}
+        </View>
+    );
+};
+KWCardTitle.displayName = 'KWCardTitle';
+
+export const KWCardButton = ({ children, ...props }) => {
+    return (
+        <View style={[styles.cardButton, props.style]}>
+            {children}
+        </View>
+    );
+};
+KWCardButton.displayName = 'KWCardButton';
+
+export const KWCardHeader = ({ children, ...props }) => {
+  const childrenArray = React.Children.toArray(children);
+
+  const icon = childrenArray.find(child => child.type?.displayName === 'KWCardIcon');
+  const title = childrenArray.find(child => child.type?.displayName === 'KWCardTitle');
+  const button = childrenArray.find(child => child.type?.displayName === 'KWCardButton');
+
+  return (
+    <View style={[styles.cardHeader, props.style]}>
+      <View style={styles.leftContainer}>
+        {icon}
+        {title}
+      </View>
+      {button}
+    </View>
+  );
+};
+
+export const KWCardBody = ({ children, ...props }) => {
+    return (
+        <View style={[styles.cardBody, props.style]}>
+            {children}
+        </View>
+    );
+};
+
+export const KWCard = ({ children, ...props }) => {
+    const color = props.color || colors.background
+    return (
+        <View style={[styles.card, props.style, { backgroundColor: color }]}>
+            {children}
+        </View>
     );
 };
 
@@ -18,6 +72,21 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 20,
     },
-});
+    cardHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        width: '100%',
+    },
+    cardTitle: {
+        marginLeft: 15,
+    },
+    leftContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    cardBody: {
+        marginTop: 10,
 
-export default KWCard;
+    },
+});
