@@ -18,6 +18,7 @@ import KWTextInput from "../components/KWTextInput";
 import KWText from "../components/KWText";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useSelector } from "react-redux";
+import { colors } from "../theme/colors";
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 const AddScreen = ({ navigation }) => {
   //display switch
@@ -168,60 +169,49 @@ const AddScreen = ({ navigation }) => {
     return reminderDate;
   };
 
-  const handleSave = () => {
-    const fullDateBegin = combineDateAndTime(dateBegin, timeBegin);
-    const fullDateEnd = combineDateAndTime(dateEnd, timeEnd);
-    const reminderDate = calculateReminderDate(
-      fullDateBegin,
-      reminderNumber,
-      reminderUnit
-    );
-    if (fullDateEnd <= fullDateBegin) {
-      setDateEnd(fullDateBegin);
+  const handleSave = async () => {
+    try {
+      const fullDateBegin = combineDateAndTime(dateBegin, timeBegin);
+      const fullDateEnd = combineDateAndTime(dateEnd, timeEnd);
+      const reminderDate = calculateReminderDate(
+        fullDateBegin,
+        reminderNumber,
+        reminderUnit
+      );
+      if (fullDateEnd <= fullDateBegin) {
+        setDateEnd(fullDateBegin);
+      }
+      console.log("date de fin plus tot", DateEnd);
+      const response = await fetch(`${BACKEND_URL}/activities/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: activityName,
+          place: activityPlace,
+          dateBegin: fullDateBegin,
+          dateEnd: fullDateEnd,
+          reminder: reminderDate,
+          task: checklistItems,
+          note: note,
+          children: children,
+          parents: parents,
+          recurrence: recurrence,
+        }),
+      });
+      const data = await response.json();
+
+      if (data.result) {
+        console.log("Activité ajoutée avec succès", data);
+        // Redirection ou reset du formulaire
+        navigation.goBack();
+      } else {
+        console.error("Erreur lors de l'ajout:", data.error);
+        // Afficher un message d'erreur à l'utilisateur
+      }
+    } catch (error) {
+      console.error("Erreur de connexion:", error);
+      // Afficher un message d'erreur à l'utilisateur
     }
-    fetch(`${BACKEND_URL}/activities/`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: activityName,
-        place: activityPlace,
-        dateBegin: fullDateBegin,
-        dateEnd: fullDateEnd,
-        reminder: reminderDate,
-        task: checklistItems,
-        note: note,
-        children: children,
-        parents: parents,
-        recurrence: recurrence,
-      }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.result) {
-          console.log("Activité ajoutée avec succès", data);
-          // const { firstName, lastName, email, token } = data.member;
-          // dispatch(login({ firstName, lastName, email, token }));
-          // setEmail("");
-          // setPassword("");
-        }
-      })
-      .catch((error) => console.log(error));
-
-    console.log("Full Start DateTime:", fullDateBegin);
-    // Logique de sauvegarde
-    console.log("Activité sauvegardée", {
-      activityName,
-      activityPlace,
-      dateBegin,
-
-      dateEnd,
-      reminderDate,
-      recurrence,
-      children,
-      parents,
-      checklistItems,
-      note,
-    });
   };
   const handleDelete = () => {
     // Logique de suppression
