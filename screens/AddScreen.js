@@ -26,8 +26,8 @@ const AddScreen = ({ navigation }) => {
   const [isEnabled, setIsEnabled] = useState(false);
   const toggleSwitch = () => setIsEnabled(!isEnabled);
 
-  const [activityName, setActivityName] = useState("");
-  const [activityPlace, setActivityPlace] = useState("");
+  const [activityName, setActivityName] = useState("cinéma");
+  const [activityPlace, setActivityPlace] = useState("Pathé la garde");
   // Dates
   const [dateBegin, setDateBegin] = useState(new Date());
   const [showDateBegin, setShowDateBegin] = useState(false);
@@ -52,18 +52,21 @@ const AddScreen = ({ navigation }) => {
 
   // Rappel
   const [reminderNumber, setReminderNumber] = useState("10");
-  const [reminderUnit, setReminderUnit] = useState("heures");
+  const [reminderUnit, setReminderUnit] = useState("Minutes");
 
   // Enfants et parents
   const [children, setChildren] = useState([]); //{ id: 1, name: "Enfant" }
   const [parents, setParents] = useState([]); //{ id: 1, name: "Parent" }
 
   // Checklist
-  const [checklistItems, setChecklistItems] = useState([]); //{ id: 1, text: "Bouteille d'eau", checked: false }
+  const [checklistItems, setChecklistItems] = useState([
+    { id: 1, text: "veste chaude", checked: false },
+    { id: 2, text: "carte de réduction", checked: false },
+  ]); //{ id: 1, text: "Bouteille d'eau", checked: false }
   const [newChecklistItem, setNewChecklistItem] = useState("");
 
   // Note
-  const [note, setNote] = useState("");
+  const [note, setNote] = useState("amusez vous bien !");
   // Handlers DateTimePicker dateBegin
   const onChangeDateBegin = (event, selectedDate) => {
     setShowDateBegin(false);
@@ -181,7 +184,7 @@ const AddScreen = ({ navigation }) => {
       if (fullDateEnd <= fullDateBegin) {
         setDateEnd(fullDateBegin);
       }
-      console.log("date de fin plus tot", DateEnd);
+      console.log("date de fin plus tot", dateEnd);
       const response = await fetch(`${BACKEND_URL}/activities/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -195,7 +198,7 @@ const AddScreen = ({ navigation }) => {
           note: note,
           children: children,
           parents: parents,
-          recurrence: recurrence,
+          recurrence: recurrence + selectedReapet,
         }),
       });
       const data = await response.json();
