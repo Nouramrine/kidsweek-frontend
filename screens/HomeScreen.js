@@ -43,13 +43,28 @@ const HomeScreen = () => {
     fetchActivities();
   }, [user.token]);
 
-  // regrouper les activités par jour de la semaine
+  // regrouper les activités par jour
   const groupedActivities = activities.reduce((acc, activity) => {
-    const day = activity.date || "Aujourd'hui";
-    if (!acc[day]) acc[day] = [];
-    acc[day].push(activity);
+    const date = new Date(activity.dateBegin);
+    const daykey = date.toLocaleDateString("fr-FR", {
+      weekday: "long",
+      day: "2-digit",
+      month: "2-digit",
+    });
+    if (!acc[daykey]) acc[daykey] = [];
+    acc[daykey].push(activity);
     return acc;
   }, {});
+
+  //Trier les jours par date réelle
+  const sortedDays = Object.keys(groupedActivities).sort((a, b) => {
+    const parseDate = (str) => {
+      const [weekday, datePart] = str.split(" ");
+      const [day, month] = datePart.split("/");
+      return new Date(2025, month - 1, day);
+    };
+    return parseDate(a) - parseDate(b);
+  });
 
   return (
     <View style={styles.container}>
