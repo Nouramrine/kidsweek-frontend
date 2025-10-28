@@ -67,10 +67,10 @@ export const KWCard = ({ children, ...props }) => {
 const styles = StyleSheet.create({
     card: {
         width: '100%',
-        borderRadius: 20,
+        borderRadius: 15,
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 20,
+        padding: 15,
     },
     cardHeader: {
         flexDirection: 'row',

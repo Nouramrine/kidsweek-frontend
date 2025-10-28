@@ -25,9 +25,9 @@ const styles = StyleSheet.create({
         padding: 10,
     },
     h2: {
-        fontSize: 22,
+        fontSize: 18,
         fontFamily: 'Gluten_500Medium',
-        textAlign: 'center',
+        textAlign: 'left',
         padding: 10,
     },
     h3: {
