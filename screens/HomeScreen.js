@@ -8,9 +8,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import { setActivities } from "../reducers/activities";
-
-const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
+import { fetchActivitiesAsync } from "../reducers/activities";
 
 const HomeScreen = () => {
   const dispatch = useDispatch();
@@ -21,26 +19,9 @@ const HomeScreen = () => {
 
   // recupérer les activité du membre connecté
   useEffect(() => {
-    const fetchActivities = async () => {
-      if (!user.token) return;
-      try {
-        const response = await fetch(`${BACKEND_URL}/activities/`, {
-          headers: {
-            Authorization: user.token,
-          },
-        });
-        const data = await response.json();
-
-        if (data.result) {
-          dispatch(setActivities(data.activities));
-        } else {
-          console.log("Erreur fetch activities", data.message);
-        }
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    fetchActivities();
+    if (user.token) {
+      dispatch(fetchActivitiesAsync(user.token));
+    }
   }, [user.token]);
 
   // regrouper les activités par jour
