@@ -57,11 +57,5 @@ typings/
 # dotenv environment variables file
 .env*
 
-# typescript
-*.tsbuildinfo
-
-# generated native folders
-/ios
-/android
-.env
-
+# next.js build output
+.next
