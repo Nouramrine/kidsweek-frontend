@@ -9,11 +9,11 @@ import { FontAwesome5 } from '@expo/vector-icons';
 const FamillyScreen = (navigation) => {
 
   const membersData = [
-    { id: "658961", firstName: "Papa", lastName: "Outé", birthday: "1985-"},
-    { id: "552638", firstName: "Maman", lastName: "Bobo"},
-    { id: "552638", firstName: "Mamie", lastName: "Nova"},
-    { id: "12356", firstName: "Lucas", lastName: "Rabine"},
-    { id: "78569", firstName: "Anna", lastName: "Lefabète"},
+    { id: "658961", firstName: "Papa", lastName: "Outé", isChildren: false },
+    { id: "552638", firstName: "Maman", lastName: "Bobo", isChildren: false },
+    { id: "552638", firstName: "Mamie", lastName: "Nova", isChildren: false },
+    { id: "12356", firstName: "Lucas", lastName: "Rabine", isChildren: true },
+    { id: "78569", firstName: "Anna", lastName: "Lefabète", isChildren: true},
   ]
 
   const zonesData = [
@@ -68,13 +68,13 @@ const FamillyScreen = (navigation) => {
                 </KWCardHeader>
                 <KWCardBody>
                   {zone.members.map((memberId, j) => {
-                      const member = membersData.filter((m) => m.id === memberId)
+                      const member = membersData.filter((m) => m.id === memberId)[0]
                       return (
-                      <KWCard key={j} color="#ffffff8e" style={styles.zoneCard}>
+                      <KWCard key={j} color="#ffffff8e" style={styles.memberCard}>
                         <KWCardHeader>
                           <KWCardIcon>
                             <View style={{ backgroundColor: colors[zone.color][2], padding: 10, borderRadius: 10 }}>
-                              <FontAwesome5 name="home" size={24} color="white" />
+                              <FontAwesome5 name="user" size={24} color="white" />
                             </View>
                           </KWCardIcon>
                           <KWCardTitle>
@@ -82,8 +82,8 @@ const FamillyScreen = (navigation) => {
                             <KWText>1000 ans</KWText>
                           </KWCardTitle>
                           <KWCardButton>
-                            <View style={{ backgroundColor: "#ffffff7a", justifyContent: 'center', alignItems: 'center', height: 30, width: 30, borderRadius: 100 }}>
-                              <FontAwesome5 name="ellipsis-v" size={16} color={colors.text[0]} />
+                            <View style={{ backgroundColor: "#ffffff7a", justifyContent: 'center', alignItems: 'center', paddingVertical: 5, paddingHorizontal: 10, borderRadius: 100 }}>
+                              {member.isChildren ? <KWText color={colors.blue[1]}>Enfant</KWText> : <KWText color={colors.red[1]}>Parent</KWText> }
                             </View>
                           </KWCardButton>
                         </KWCardHeader>
@@ -129,5 +129,9 @@ const styles = StyleSheet.create({
   },
   zoneCard: {
     marginBottom: 20,
+  },
+  memberCard: {
+    marginTop: 10,
+    padding: 10,
   },
 });
