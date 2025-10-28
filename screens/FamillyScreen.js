@@ -48,6 +48,7 @@ const FamillyScreen = (navigation) => {
         </View>
       
         <View style={styles.zonesContainer}>
+            <KWText type='h2'>Zones familiales</KWText>
             {zones.map((zone, i) => (
               <KWCard key={i} color={colors[zone.color][0]} style={styles.zoneCard}>
                 <KWCardHeader>
@@ -94,6 +95,32 @@ const FamillyScreen = (navigation) => {
               </KWCard>              
             ))}
         </View>
+      
+        <View style={styles.membersContainer}>
+          <KWText type='h2'>Tous les membres</KWText>
+          {members.map((member, j) => {
+              return (
+              <KWCard key={j} color={colors.skin[0]} style={styles.memberCard}>
+                <KWCardHeader>
+                  <KWCardIcon>
+                    <View style={{ backgroundColor: "#d4d4d4ff", padding: 10, borderRadius: 10 }}>
+                      <FontAwesome5 name="user" size={24} color="white" />
+                    </View>
+                  </KWCardIcon>
+                  <KWCardTitle>
+                    <KWText>{member.firstName}</KWText>
+                    <KWText>1000 ans</KWText>
+                  </KWCardTitle>
+                  <KWCardButton>
+                      <View style={{ backgroundColor: "#ffffff7a", justifyContent: 'center', alignItems: 'center', height: 30, width: 30, borderRadius: 100 }}>
+                        <FontAwesome5 name="trash" size={14} color={colors.error[0]} />
+                      </View>
+                  </KWCardButton>
+                </KWCardHeader>
+              </KWCard>
+              )
+          })}          
+        </View>
       </View>
       </ScrollView>
     </SafeAreaView>
@@ -112,6 +139,11 @@ const styles = StyleSheet.create({
   zonesContainer: {
     width: '100%',
     padding: 10,
+  },
+  membersContainer: {
+    width: '100%',
+    padding: 10,
+    marginTop: -20,
   },
   topButtonsContainer: {
     width: '100%',

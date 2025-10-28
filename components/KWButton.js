@@ -1,9 +1,9 @@
 import { Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { colors } from '../theme/colors';
 
-const KWButton = ({ title, onPress }) => {
+const KWButton = ({ title, color, onPress }) => {
     return (
-        <TouchableOpacity style={styles.button} onPress={onPress}>
+        <TouchableOpacity style={[styles.button, { backgroundColor: color ? color : colors.green[0] }]} onPress={onPress}>
             <Text style={styles.text}>{title}</Text>
         </TouchableOpacity>
     );
@@ -11,7 +11,6 @@ const KWButton = ({ title, onPress }) => {
 
 const styles = StyleSheet.create({
     button: {
-        backgroundColor: colors.green,
         borderRadius: 10,
         justifyContent: 'center',
         alignItems: 'center',
