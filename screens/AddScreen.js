@@ -16,15 +16,16 @@ import { Picker } from "@react-native-picker/picker";
 import KWButton from "../components/KWButton";
 import KWTextInput from "../components/KWTextInput";
 import KWText from "../components/KWText";
+import { KWCardButton } from "../components/KWCard";
 import { colors } from "../theme/colors";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useSelector, useDispatch } from "react-redux";
 import { createActivityAsync } from "../reducers/activities";
 
-const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 const AddScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.value);
+  console.log("reducer member", user);
   const [erreur, setErreur] = useState(false);
   //display switch
   const [isEnabled, setIsEnabled] = useState(false);
@@ -225,40 +226,6 @@ const AddScreen = ({ navigation }) => {
     } catch (error) {
       console.error("Erreur création activité:", error);
     }
-    //   const response = await fetch(`${BACKEND_URL}/activities/`, {
-    //     method: "POST",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //       Authorization: user.token,
-    //     },
-    //     body: JSON.stringify({
-    //       name: activityName,
-    //       place: activityPlace,
-    //       dateBegin: fullDateBegin,
-    //       dateEnd: fullDateEnd,
-    //       reminder: reminderDate,
-    //       task: checklistItems,
-    //       note: note,
-    //       /*children: children,
-    //       parents: parents,*/
-    //       recurrence: recurrence,
-    //     }),
-    //   });
-    //   const data = await response.json();
-
-    //   if (data.result) {
-    //     console.log("Activité ajoutée avec succès", data);
-    //     // Redirection ou reset du formulaire
-    //     navigation.goBack();
-    //   } else {
-    //     console.error("Erreur lors de l'ajout:", data.error);
-    //     // Afficher un message d'erreur à l'utilisateur
-    //   }
-    // } catch (error) {
-    //   console.error("Erreur de connexion:", error);
-    //   // Afficher un message d'erreur à l'utilisateur
-    // }
-    //navigation.goBack();
   };
   const handleDelete = () => {
     // Logique de suppression
@@ -363,6 +330,13 @@ const AddScreen = ({ navigation }) => {
         <KWText type="text" style={styles.label}>
           Fin
         </KWText>
+        {dateEnd < dateBegin ? (
+          <KWText type="inputError">
+            La date de fin ne peut être avant la date de debut
+          </KWText>
+        ) : (
+          ""
+        )}
         <View style={styles.dateTimeRow}>
           <TouchableOpacity
             style={[styles.dateButton, { flex: 2, marginRight: 10 }]}
@@ -411,7 +385,7 @@ const AddScreen = ({ navigation }) => {
           Récurrence
         </KWText>
         {erreur && (
-          <KWText type="text" style={{ color: "red", marginBottom: 5 }}>
+          <KWText type="inputError">
             La date de fin doit être supérieure à la date de début pour
             appliquer une recurrence
           </KWText>
@@ -575,15 +549,24 @@ const AddScreen = ({ navigation }) => {
       <View style={styles.buttonsContainer}>
         <KWButton title="Retour" onPress={() => navigation.goBack()} />
 
-        <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
+        <KWCardButton style={styles.deleteButton} onPress={handleDelete}>
           <Ionicons name="trash-outline" size={28} color="#EF4444" />
-        </TouchableOpacity>
+        </KWCardButton>
 
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <KWText type="text" style={styles.saveButtonText}>
-            Enregistrer
-          </KWText>
-        </TouchableOpacity>
+        {dateEnd < dateBegin ? (
+          <KWButton
+            title="Erreur sur le formulaire"
+            type="inputError"
+            style={styles.saveButtonText}
+          />
+        ) : (
+          <KWButton
+            title="Enregistrer"
+            type="text"
+            style={styles.saveButtonText}
+            onPress={handleSave}
+          />
+        )}
       </View>
     </ScrollView>
   );
