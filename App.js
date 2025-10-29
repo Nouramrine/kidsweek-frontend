@@ -21,6 +21,7 @@ import CalendarScreen from "./screens/CalendarScreen";
 import FamillyScreen from "./screens/FamillyScreen";
 import HomeScreen from "./screens/HomeScreen";
 import ProfileScreen from "./screens/ProfileScreen";
+import ActivityDetailsScreen from "./screens/ActivityDetailsScreen";
 import user from "./reducers/user";
 import activities from "./reducers/activities";
 import zones from "./reducers/zones";
@@ -129,7 +130,14 @@ export default function App() {
           {!userData?.isLogged ? (
             <Stack.Screen name="auth" component={AuthScreen} />
           ) : (
-            <Stack.Screen name="TabNavigator" component={TabNavigator} />
+            <>
+              <Stack.Screen name="TabNavigator" component={TabNavigator} />
+              <Stack.Screen name="AddScreen" component={AddScreen} />
+              <Stack.Screen
+                name="ActivityDetails"
+                component={ActivityDetailsScreen}
+              />
+            </>
           )}
         </Stack.Navigator>
       </NavigationContainer>
