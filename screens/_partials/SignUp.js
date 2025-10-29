@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import KWButton from "../../components/KWButton";
 import KWTextInput from "../../components/KWTextInput";
 import KWText from "../../components/KWText";
-import { SignupAsync } from "../../reducers/user";
+import { signUpAsync } from "../../reducers/user";
 
 const SignUp = () => {
   const dispatch = useDispatch();
@@ -15,7 +15,7 @@ const SignUp = () => {
   const [signUpConfirm, setSignUpConfirm] = useState("Pass1234");
   const [signUpError, setSignUpError] = useState("");
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     if (signUpPassword !== signUpConfirm) {
       setSignUpError("Les mots de passe ne correspondent pas.");
       return;
@@ -27,21 +27,24 @@ const SignUp = () => {
       setSignUpError(`Format d'adresse email incorrecte`);
       return;
     }
-
-    dispatch(
-      SignupAsync({
+    const signUp = await dispatch(
+      signUpAsync({
         firstName: signUpFirstName,
         lastName: signUpLastName,
         email: signUpEmail,
         password: signUpPassword,
       })
-    );
+    ).unwrap();
 
-    setSignUpFirstName("");
-    setSignUpLastName("");
-    setSignUpEmail("");
-    setSignUpPassword("");
-    setSignUpConfirm("");
+    if(signUp.result) {
+      setSignUpFirstName("");
+      setSignUpLastName("");
+      setSignUpEmail("");
+      setSignUpPassword("");
+      setSignUpConfirm("");
+    } else {
+      setSignUpError(signUp.error)
+    }
   };
 
   return (
