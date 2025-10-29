@@ -5,6 +5,7 @@ import { colors } from '../theme/colors';
 import { KWCard, KWCardHeader, KWCardIcon, KWCardTitle, KWCardButton, KWCardBody } from "../components/KWCard";
 import KWText from "../components/KWText";
 import { FontAwesome5 } from '@expo/vector-icons';
+import KWButton from "../components/KWButton";
 
 const FamillyScreen = (navigation) => {
 
@@ -20,7 +21,6 @@ const FamillyScreen = (navigation) => {
     { name: "Papa", color: "blue", members: ["658961", "12356"]},
     { name: "Maman", color: "red", members: ["552638","12356","78569"]},
     { name: "Mamie", color: "purple", members: ["12356","78569"]},
-
   ]
 
   const [zones, setZones] = useState(zonesData);
@@ -80,7 +80,7 @@ const FamillyScreen = (navigation) => {
                           </KWCardIcon>
                           <KWCardTitle>
                             <KWText>{member.firstName}</KWText>
-                            <KWText>1000 ans</KWText>
+                            {/*<KWText>1000 ans</KWText> */}
                           </KWCardTitle>
                           <KWCardButton>
                             <View style={{ backgroundColor: "#ffffff7a", justifyContent: 'center', alignItems: 'center', paddingVertical: 5, paddingHorizontal: 10, borderRadius: 100 }}>
@@ -91,6 +91,7 @@ const FamillyScreen = (navigation) => {
                       </KWCard>
                       )
                   })}
+                  <KWButton icon="plus" title="Ajouter" bgColor="#ffffff7a" color={colors.text[0]} />
                 </KWCardBody>
               </KWCard>              
             ))}
