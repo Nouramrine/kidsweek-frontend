@@ -17,18 +17,26 @@ import KWButton from "../components/KWButton";
 import KWTextInput from "../components/KWTextInput";
 import KWText from "../components/KWText";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+
+import { createActivityAsync } from "../reducers/activities";
 import { colors } from "../theme/colors";
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 const AddScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
   const user = useSelector((state) => state.user.value);
   const [erreur, setErreur] = useState(false);
   //display switch
   const [isEnabled, setIsEnabled] = useState(false);
+
   const toggleSwitch = () => {
-    if (dateEnd <= dateBegin) {
+    const fullDateBegin = combineDateAndTime(dateBegin, timeBegin);
+    const fullDateEnd = combineDateAndTime(dateEnd, timeEnd);
+
+    if (fullDateEnd <= fullDateBegin) {
       setErreur(true);
     } else {
+      setErreur(false);
       setIsEnabled(!isEnabled);
     }
   };
@@ -181,6 +189,11 @@ const AddScreen = ({ navigation }) => {
 
   // create activity
   const handleSave = async () => {
+    if (!activityName.trim()) {
+      Alert.alert("Erreur", "Veuillez saisir un nom d'activité");
+      return;
+    }
+
     const fullDateBegin = combineDateAndTime(dateBegin, timeBegin);
     const fullDateEnd = combineDateAndTime(dateEnd, timeEnd);
     const reminderDate = calculateReminderDate(
@@ -192,19 +205,26 @@ const AddScreen = ({ navigation }) => {
       setDateEnd(fullDateBegin);
     }
 
-    dispatch(
-      createActivityAsync({
-        name: activityName,
-        place: activityPlace,
-        dateBegin: fullDateBegin,
-        dateEnd: fullDateEnd,
-        reminder: reminderDate,
-        task: checklistItems,
-        note: note,
-        recurrence: recurrence,
-        token: user.token,
-      })
-    );
+    try {
+      const result = await dispatch(
+        createActivityAsync({
+          name: activityName,
+          place: activityPlace,
+          dateBegin: fullDateBegin,
+          dateEnd: fullDateEnd,
+          reminder: reminderDate,
+          task: checklistItems,
+          note: note,
+          recurrence: isEnabled ? recurrence : null,
+          token: user.token,
+        })
+      ).unwrap(); // unwrap pour obtenir la valeur résolue ou lancer une erreur
+      console.log("Activité créée avec succès:", result);
+
+      navigation.goBack();
+    } catch (error) {
+      console.error("Erreur création activité:", error);
+    }
     //   const response = await fetch(`${BACKEND_URL}/activities/`, {
     //     method: "POST",
     //     headers: {
@@ -238,6 +258,7 @@ const AddScreen = ({ navigation }) => {
     //   console.error("Erreur de connexion:", error);
     //   // Afficher un message d'erreur à l'utilisateur
     // }
+    //navigation.goBack();
   };
   const handleDelete = () => {
     // Logique de suppression
