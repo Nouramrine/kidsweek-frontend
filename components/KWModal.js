@@ -1,15 +1,20 @@
-import { Text, StyleSheet, Modal } from "react-native";
+import React from "react";
+import { View, StyleSheet, Modal, Pressable } from "react-native";
 import { colors } from "../theme/colors";
 
-const KWModal = ({ children, ...props }) => {
+const KWModal = ({ visible, onRequestClose, children }) => {
   return (
-    <Modal {...props}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            {children}
-            <Button title="Close" onPress={onRequestClose} />
-          </View>
-        </View>
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      onRequestClose={onRequestClose}
+    >
+      <Pressable style={styles.modalOverlay} onPress={onRequestClose}>
+        <Pressable style={styles.modalContent}>
+          {children}
+        </Pressable>
+      </Pressable>
     </Modal>
   );
 };
@@ -20,13 +25,20 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.4)",
     justifyContent: "center",
     alignItems: "center",
+    padding: 20,
   },
   modalContent: {
-    backgroundColor: "white",
+    backgroundColor: colors.background?.[0] || "white",
+    borderRadius: 16,
     padding: 20,
-    borderRadius: 10,
-    width: "80%",
+    width: "100%",
+    maxWidth: 400,
     alignItems: "center",
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
   },
 });
 
