@@ -1,12 +1,10 @@
 import React, { useState } from "react";
 import { View, TextInput, Button, StyleSheet } from "react-native";
 import { useDispatch } from "react-redux";
-import { login } from "../../reducers/user";
 import KWButton from "../../components/KWButton";
 import KWTextInput from "../../components/KWTextInput";
 import KWText from "../../components/KWText";
 import { SignupAsync } from "../../reducers/user";
-const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
 const SignUp = () => {
   const dispatch = useDispatch();
