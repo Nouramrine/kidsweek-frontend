@@ -1,9 +1,12 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from '../theme/colors';
 import { KWCard, KWCardHeader, KWCardIcon, KWCardTitle, KWCardButton, KWCardBody } from "../components/KWCard";
 import KWText from "../components/KWText";
+import KWModal from "../components/KWModal";
+import KWFormZone from "../components/KWFormZone";
+
 import { FontAwesome5 } from '@expo/vector-icons';
 import KWButton from "../components/KWButton";
 
@@ -25,10 +28,25 @@ const FamillyScreen = (navigation) => {
 
   const [zones, setZones] = useState(zonesData);
   const [members, setMembers] = useState(membersData);
+
+  const [zoneModal, setZoneModal] = useState(false);
+  const [memberModal, setMemberModal] = useState(false);
   
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <ScrollView>
+
+      {/* Modal création de Zone */}
+      <KWModal
+        visible={zoneModal}
+        onRequestClose={() => setZoneModal(false)}
+      >
+            
+      </KWModal>
+
+
+      {/* Boutons d'ajout */}
+
       <View style={styles.container}>
         <View style={styles.topButtonsContainer}>
           <View style={styles.topButton}>
@@ -38,13 +56,13 @@ const FamillyScreen = (navigation) => {
               <KWText style={styles.buttonSubTitle} color={colors.green[2]}>membre</KWText>
             </KWCard>
           </View>
-          <View style={styles.topButton}>
+          <TouchableOpacity style={styles.topButton} onPress={() => setZoneModal(true)}>
             <KWCard color={colors.yellow[0]}>
               <View style={{ flexDirection: 'row' }}><FontAwesome5 name="plus" size={24} color={colors.yellow[2]} /><FontAwesome5 name="home" size={40} color={colors.yellow[2]} /></View>
               <KWText style={styles.buttonTitle} color={colors.yellow[2]}>Ajouter</KWText>
               <KWText style={styles.buttonSubTitle} color={colors.yellow[2]}>zone</KWText>
             </KWCard>
-          </View>
+          </TouchableOpacity>
         </View>
       
         <View style={styles.zonesContainer}>
@@ -71,7 +89,7 @@ const FamillyScreen = (navigation) => {
                   {zone.members.map((memberId, j) => {
                       const member = membersData.filter((m) => m.id === memberId)[0]
                       return (
-                      <KWCard key={j} color="#ffffff8e" style={styles.memberCard}>
+                      <KWCard key={j} color={colors.background[1]} style={styles.memberCard}>
                         <KWCardHeader>
                           <KWCardIcon>
                             <View style={{ backgroundColor: colors[zone.color][2], padding: 10, borderRadius: 10 }}>
@@ -83,7 +101,7 @@ const FamillyScreen = (navigation) => {
                             {/*<KWText>1000 ans</KWText> */}
                           </KWCardTitle>
                           <KWCardButton>
-                            <View style={{ backgroundColor: "#ffffff7a", justifyContent: 'center', alignItems: 'center', paddingVertical: 5, paddingHorizontal: 10, borderRadius: 100 }}>
+                            <View style={{ backgroundColor: colors.background[1], justifyContent: 'center', alignItems: 'center', paddingVertical: 5, paddingHorizontal: 10, borderRadius: 100 }}>
                               {member.isChildren ? <KWText color={colors.blue[1]}>Enfant</KWText> : <KWText color={colors.red[1]}>Parent</KWText> }
                             </View>
                           </KWCardButton>
@@ -91,7 +109,7 @@ const FamillyScreen = (navigation) => {
                       </KWCard>
                       )
                   })}
-                  <KWButton icon="plus" title="Ajouter" bgColor="#ffffff7a" color={colors.text[0]} />
+                  <KWButton icon="plus" title="Ajouter" bgColor={colors.background[1]} color={colors.text[0]} />
                 </KWCardBody>
               </KWCard>              
             ))}
