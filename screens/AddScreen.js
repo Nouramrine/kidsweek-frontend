@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { Activity, useState } from "react";
 import {
   View,
   Text,
@@ -16,16 +16,29 @@ import { Picker } from "@react-native-picker/picker";
 import KWButton from "../components/KWButton";
 import KWTextInput from "../components/KWTextInput";
 import KWText from "../components/KWText";
-import { KWCardButton } from "../components/KWCard";
+import {
+  KWCard,
+  KWCardHeader,
+  KWCardIcon,
+  KWCardTitle,
+  KWCardButton,
+  KWCardBody,
+} from "../components/KWCard";
 import { colors } from "../theme/colors";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useSelector, useDispatch } from "react-redux";
-import { createActivityAsync } from "../reducers/activities";
-
-const AddScreen = ({ navigation }) => {
+import {
+  createActivityAsync,
+  deleteActivityAsync,
+} from "../reducers/activities";
+import KWDropdown from "../components/Activities/KWDropdown";
+const AddScreen = ({ navigation, props }) => {
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.user.value);
-  console.log("reducer member", user);
+
+  //const user = useSelector((state) => state.user.value);
+  const activities = useSelector((state) => state.activities.value);
+  //console.log("reducer member", user);
+  console.log("reducer activities", activities);
   const [erreur, setErreur] = useState(false);
   //display switch
   const [isEnabled, setIsEnabled] = useState(false);
@@ -43,8 +56,8 @@ const AddScreen = ({ navigation }) => {
   };
 
   // Activity
-  const [activityName, setActivityName] = useState("cinéma");
-  const [activityPlace, setActivityPlace] = useState("Pathé la garde");
+  const [activityName, setActivityName] = useState("");
+  const [activityPlace, setActivityPlace] = useState("");
 
   // Dates and times
   const [dateBegin, setDateBegin] = useState(new Date());
@@ -69,14 +82,11 @@ const AddScreen = ({ navigation }) => {
   const [parents, setParents] = useState([]); //{ id: 1, name: "Parent" }
 
   // Checklist
-  const [checklistItems, setChecklistItems] = useState([
-    { id: 1, text: "veste chaude", checked: false },
-    { id: 2, text: "carte de réduction", checked: false },
-  ]); //{ id: 1, text: "Bouteille d'eau", checked: false }
+  const [checklistItems, setChecklistItems] = useState([]); //{ id: 1, text: "Bouteille d'eau", checked: false }
   const [newChecklistItem, setNewChecklistItem] = useState("");
 
   // Note
-  const [note, setNote] = useState("amusez vous bien !");
+  const [note, setNote] = useState("");
 
   // Handlers DateTimePicker dateBegin
   const onChangeDateBegin = (event, selectedDate) => {
@@ -227,23 +237,21 @@ const AddScreen = ({ navigation }) => {
       console.error("Erreur création activité:", error);
     }
   };
-  const handleDelete = () => {
+  const handleDelete = async () => {
     // Logique de suppression
-    console.log("Activité supprimée");
-  };
+    try {
+      const result = await dispatch(
+        deleteActivityAsync({
+          activityId: activities.id,
+          token: user.token,
+        })
+      ).unwrap(); // unwrap pour obtenir la valeur résolue ou lancer une erreur
+      console.log("Activité supprimée avec succès:", result);
 
-  // Dropdown component for reminder unit
-  const DropdownReminder = () => {
-    return (
-      <Picker
-        selectedValue={reminderUnit}
-        onValueChange={(itemValue, itemIndex) => setReminderUnit(itemValue)}
-      >
-        <Picker.Item label="minutes" value="minutes" />
-        <Picker.Item label="heures" value="heures" />
-        <Picker.Item label="jours" value="jours" />
-      </Picker>
-    );
+      navigation.goBack();
+    } catch (error) {
+      console.error("Erreur de suppression activité:", error);
+    }
   };
 
   return (
@@ -448,7 +456,10 @@ const AddScreen = ({ navigation }) => {
             onChangeText={setReminderNumber}
             keyboardType="numeric"
           />
-          <DropdownReminder />
+          <KWDropdown
+            selectedValue={reminderUnit}
+            onValueChange={(itemValue, itemIndex) => setReminderUnit(itemValue)}
+          />
           <KWText type="text" style={styles.reminderText}>
             avant
           </KWText>
@@ -555,17 +566,12 @@ const AddScreen = ({ navigation }) => {
 
         {dateEnd < dateBegin ? (
           <KWButton
-            title="Erreur sur le formulaire"
+            title="* Erreur sur le formulaire"
             type="inputError"
-            style={styles.saveButtonText}
+            style={styles.saveButtonError}
           />
         ) : (
-          <KWButton
-            title="Enregistrer"
-            type="text"
-            style={styles.saveButtonText}
-            onPress={handleSave}
-          />
+          <KWButton title="Enregistrer" type="text" onPress={handleSave} />
         )}
       </View>
     </ScrollView>
