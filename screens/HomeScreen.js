@@ -47,6 +47,15 @@ const HomeScreen = () => {
     return parseDate(a) - parseDate(b);
   });
 
+  // fonction pour afficher l'heure au format HH:MM
+  const formatTime = (dateStr) =>
+    dateStr
+      ? new Date(dateStr).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      : "";
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Mon planning</Text>
@@ -76,14 +85,14 @@ const HomeScreen = () => {
 
       {/* --- Liste des activités par jour --- */}
       <ScrollView style={styles.listContainer}>
-        {Object.entries(groupedActivities).map(([day, acts]) => (
+        {sortedDays.map((day) => (
           <View key={day} style={styles.dayContainer}>
             <Text style={styles.dayTitle}>{day}</Text>
-            {acts.map((a) => (
+            {groupedActivities[day].map((a) => (
               <View key={a._id} style={styles.activityCard}>
                 <Text style={styles.activityTitle}>{a.name}</Text>
                 <Text style={styles.activityTime}>
-                  {a.start} → {a.end}
+                  {formatTime(a.dateBegin)} → {formatTime(a.dateEnd)}
                 </Text>
               </View>
             ))}
@@ -93,7 +102,6 @@ const HomeScreen = () => {
     </View>
   );
 };
-
 export default HomeScreen;
 
 const styles = StyleSheet.create({

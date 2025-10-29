@@ -34,7 +34,18 @@ export const fetchActivitiesAsync = createAsyncThunk(
 // Créer une nouvelle activité
 export const createActivityAsync = createAsyncThunk(
   "activities/createActivityAsync",
-  async ({ token, activityData }) => {
+  async (payload, { dispatch }) => {
+    const {
+      name,
+      place,
+      dateBegin,
+      dateEnd,
+      reminder,
+      task,
+      note,
+      recurrence,
+      token,
+    } = payload;
     try {
       const response = await fetch(`${BACKEND_URL}/activities`, {
         method: "POST",
@@ -42,17 +53,40 @@ export const createActivityAsync = createAsyncThunk(
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(activityData),
+        body: JSON.stringify({
+          name,
+          place,
+          dateBegin,
+          dateEnd,
+          reminder,
+          task,
+          note,
+          recurrence,
+        }),
       });
-      const data = await response.json();
-      console.log("Create activity response:", data);
 
-      if (!response.ok) {
-        throw new Error(data.message || "Erreur lors de la création");
+      const data = await response.json();
+      console.log("Create activity response:", data.activity);
+      if (data.activity) {
+        dispatch(
+          addActivity({
+            name: data.name,
+            place: data.place,
+            dateBegin: data.dateBegin,
+            dateEnd: data.dateEnd,
+            reminder: data.reminder,
+            task: data.task,
+            note: data.note,
+            recurrence: data.recurrence,
+          })
+        );
+      } else {
+        console.warn("Erreur create activity :", data);
       }
+
       return data.activity;
     } catch (error) {
-      console.error("Erreur réseau:", error);
+      console.error("Erreur réseau :", error);
       throw error;
     }
   }
@@ -135,6 +169,39 @@ export const activitiesSlice = createSlice({
     removeActivity: (state, action) => {
       state.value = state.value.filter((act) => act._id !== action.payload);
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      // Fetch
+      .addCase(fetchActivitiesAsync.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchActivitiesAsync.fulfilled, (state, action) => {
+        state.loading = false;
+        state.value = action.payload;
+      })
+      .addCase(fetchActivitiesAsync.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      // Create
+      .addCase(createActivityAsync.fulfilled, (state, action) => {
+        state.value.push(action.payload);
+      })
+      // Update
+      .addCase(updateActivityAsync.fulfilled, (state, action) => {
+        const index = state.value.findIndex(
+          (act) => act._id === action.payload._id
+        );
+        if (index !== -1) {
+          state.value[index] = action.payload;
+        }
+      })
+      // Delete
+      .addCase(deleteActivityAsync.fulfilled, (state, action) => {
+        state.value = state.value.filter((act) => act._id !== action.payload);
+      });
   },
 });
 
