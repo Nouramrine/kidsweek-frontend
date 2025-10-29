@@ -34,7 +34,18 @@ export const fetchActivitiesAsync = createAsyncThunk(
 // Créer une nouvelle activité
 export const createActivityAsync = createAsyncThunk(
   "activities/createActivityAsync",
-  async ({ token, activityData }) => {
+  async (payload, { dispatch }) => {
+    const {
+      name,
+      place,
+      dateBegin,
+      dateEnd,
+      reminder,
+      task,
+      note,
+      recurrence,
+      token,
+    } = payload;
     try {
       const response = await fetch(`${BACKEND_URL}/activities`, {
         method: "POST",
@@ -42,17 +53,40 @@ export const createActivityAsync = createAsyncThunk(
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(activityData),
+        body: JSON.stringify({
+          name,
+          place,
+          dateBegin,
+          dateEnd,
+          reminder,
+          task,
+          note,
+          recurrence,
+        }),
       });
-      const data = await response.json();
-      console.log("Create activity response:", data);
 
-      if (!response.ok) {
-        throw new Error(data.message || "Erreur lors de la création");
+      const data = await response.json();
+      console.log("Create activity response:", data.activity);
+      /* if (data && data.member.token) {
+        dispatch(
+          login({
+            name: data.member.token,
+            place: data.member.firstName,
+            dateBegin,
+            dateEnd,
+            reminder,
+            task,
+            note,
+            recurrence,
+          })
+        );
+      } else {
+        console.warn("Erreur signin :", data);
       }
+*/
       return data.activity;
     } catch (error) {
-      console.error("Erreur réseau:", error);
+      console.error("Erreur réseau :", error);
       throw error;
     }
   }
