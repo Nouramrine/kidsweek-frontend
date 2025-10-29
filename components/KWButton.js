@@ -3,7 +3,7 @@ import { colors } from '../theme/colors';
 
 const KWButton = ({ title, color, onPress }) => {
     return (
-        <TouchableOpacity style={[styles.button, { backgroundColor: color ? color : colors.green[0] }]} onPress={onPress}>
+        <TouchableOpacity style={[styles.button, { backgroundColor: color ? color : colors.green[1] }]} onPress={onPress}>
             <Text style={styles.text}>{title}</Text>
         </TouchableOpacity>
     );
