@@ -249,13 +249,16 @@ const AddScreen = ({ navigation }) => {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <KWText style={styles.headerText}>Nouvelle activité</KWText>
+        <KWText type="h1" style={styles.headerText}>
+          Nouvelle activité
+        </KWText>
       </View>
 
       {/* Intitulé de l'activité */}
       <View style={styles.section}>
-        <Text style={styles.label}>Intitulé de l'activité</Text>
-        <TextInput
+        <KWTextInput
+          type="text"
+          label="Intitulé de l'activité"
           style={styles.input}
           placeholder="Ex : cours de danse, entrainement de foot..."
           value={activityName}
@@ -265,8 +268,8 @@ const AddScreen = ({ navigation }) => {
 
       {/* Intitulé du lieu */}
       <View style={styles.section}>
-        <Text style={styles.label}>Lieu de l'activité</Text>
-        <TextInput
+        <KWTextInput
+          label="Lieu de l'activité"
           style={styles.input}
           placeholder="Ex : stade municipal, piscine..."
           value={activityPlace}
@@ -276,27 +279,27 @@ const AddScreen = ({ navigation }) => {
 
       {/* date début */}
       <View style={styles.section}>
-        <Text style={styles.label}>Début</Text>
+        <KWText style={styles.label}>Début</KWText>
         <View style={styles.dateTimeRow}>
           <TouchableOpacity
             style={[styles.dateButton, { flex: 2, marginRight: 10 }]}
             onPress={() => setShowDateBegin(true)}
           >
-            <Text style={styles.dateButtonText}>
+            <KWText style={styles.dateButtonText}>
               {dateBegin.toLocaleDateString("fr-FR")}
-            </Text>
+            </KWText>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={[styles.dateButton, { flex: 1 }]}
             onPress={() => setShowTimeBegin(true)}
           >
-            <Text style={styles.dateButtonText}>
+            <KWText style={styles.dateButtonText}>
               {timeBegin.toLocaleTimeString("fr-FR", {
                 hour: "2-digit",
                 minute: "2-digit",
               })}
-            </Text>
+            </KWText>
           </TouchableOpacity>
         </View>
 
@@ -321,27 +324,27 @@ const AddScreen = ({ navigation }) => {
 
       {/* date fin */}
       <View style={styles.section}>
-        <Text style={styles.label}>Fin</Text>
+        <KWText style={styles.label}>Fin</KWText>
         <View style={styles.dateTimeRow}>
           <TouchableOpacity
             style={[styles.dateButton, { flex: 2, marginRight: 10 }]}
             onPress={() => setShowDateEnd(true)}
           >
-            <Text style={styles.dateButtonText}>
+            <KWText style={styles.dateButtonText}>
               {dateEnd.toLocaleDateString("fr-FR")}
-            </Text>
+            </KWText>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={[styles.dateButton, { flex: 1 }]}
             onPress={() => setShowTimeEnd(true)}
           >
-            <Text style={styles.dateButtonText}>
+            <KWText style={styles.dateButtonText}>
               {timeEnd.toLocaleTimeString("fr-FR", {
                 hour: "2-digit",
                 minute: "2-digit",
               })}
-            </Text>
+            </KWText>
           </TouchableOpacity>
         </View>
 
@@ -366,12 +369,12 @@ const AddScreen = ({ navigation }) => {
 
       {/* Récurrence */}
       <View style={styles.section}>
-        <Text style={styles.label}>Récurrence</Text>
+        <KWText style={styles.label}>Récurrence</KWText>
         {erreur && (
-          <Text style={{ color: "red", marginBottom: 5 }}>
+          <KWText style={{ color: "red", marginBottom: 5 }}>
             La date de fin doit être supérieure à la date de début pour
             appliquer une recurrence
-          </Text>
+          </KWText>
         )}
         <Switch
           trackColor={{ false: "#ecb6aeff", true: "#9fe6e0ff" }}
@@ -383,9 +386,9 @@ const AddScreen = ({ navigation }) => {
 
         {isEnabled && (
           <View style={{ marginTop: 10 }}>
-            <Text style={{ marginBottom: 8, fontWeight: "500" }}>
+            <KWText style={{ marginBottom: 8, fontWeight: "500" }}>
               Sélectionne un jour :
-            </Text>
+            </KWText>
             <View style={styles.daysContainer}>
               {["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"].map((day) => (
                 <TouchableOpacity
@@ -396,23 +399,23 @@ const AddScreen = ({ navigation }) => {
                   ]}
                   onPress={() => setRecurrence(recurrence === day ? null : day)}
                 >
-                  <Text
+                  <KWText
                     style={[
                       styles.dayText,
                       recurrence === day && styles.dayTextActive,
                     ]}
                   >
                     {day}
-                  </Text>
+                  </KWText>
                 </TouchableOpacity>
               ))}
             </View>
 
             {recurrence && (
-              <Text style={styles.selectedDayText}>
+              <KWText style={styles.selectedDayText}>
                 Répéter chaque :{" "}
-                <Text style={{ fontWeight: "bold" }}>{recurrence}</Text>
-              </Text>
+                <KWText style={{ fontWeight: "bold" }}>{recurrence}</KWText>
+              </KWText>
             )}
           </View>
         )}
@@ -420,26 +423,26 @@ const AddScreen = ({ navigation }) => {
 
       {/* Rappel */}
       <View style={styles.section}>
-        <Text style={styles.label}>Rappel</Text>
         <View style={styles.reminderContainer}>
           <KWTextInput
+            label="Rappel"
             style={styles.reminderInput}
             value={reminderNumber}
             onChangeText={setReminderNumber}
             keyboardType="numeric"
           />
           <DropdownReminder />
-          <Text style={styles.reminderText}>avant</Text>
+          <KWText style={styles.reminderText}>avant</KWText>
         </View>
       </View>
 
       {/* Enfant(s) */}
       <View style={styles.section}>
-        <Text style={styles.label}>enfant(s)</Text>
+        <KWText style={styles.label}>enfant(s)</KWText>
         <View style={styles.tagsContainer}>
           {children.map((child) => (
             <View key={child.id} style={styles.tag}>
-              <Text style={styles.tagText}>{child.name}</Text>
+              <KWText style={styles.tagText}>{child.name}</KWText>
               <TouchableOpacity onPress={() => removeChild(child.id)}>
                 <Ionicons name="close" size={16} color="#666" />
               </TouchableOpacity>
@@ -453,11 +456,11 @@ const AddScreen = ({ navigation }) => {
 
       {/* Parent(s) */}
       <View style={styles.section}>
-        <Text style={styles.label}>parent(s)</Text>
+        <KWText style={styles.label}>parent(s)</KWText>
         <View style={styles.tagsContainer}>
           {parents.map((parent) => (
             <View key={parent.id} style={styles.tag}>
-              <Text style={styles.tagText}>{parent.name}</Text>
+              <KWText style={styles.tagText}>{parent.name}</KWText>
               <TouchableOpacity onPress={() => removeParent(parent.id)}>
                 <Ionicons name="close" size={16} color="#666" />
               </TouchableOpacity>
@@ -472,9 +475,9 @@ const AddScreen = ({ navigation }) => {
       </View>
       <View style={styles.section}>
         <View style={styles.checklistHeader}>
-          <Text style={styles.label}>Liste des tâches</Text>
           <View style={styles.addChecklistContainer}>
-            <TextInput
+            <KWTextInput
+              label="Liste des tâches"
               style={styles.checklistInput}
               placeholder="Nouvel élément"
               value={newChecklistItem}
@@ -492,7 +495,7 @@ const AddScreen = ({ navigation }) => {
         <View style={styles.checklistItemsContainer}>
           {checklistItems.map((item) => (
             <View key={item.id} style={styles.checklistItem}>
-              <Text style={styles.checklistItemText}>{item.text}</Text>
+              <KWText style={styles.checklistItemText}>{item.text}</KWText>
               <TouchableOpacity onPress={() => removeChecklistItem(item.id)}>
                 <Ionicons name="close" size={18} color="#666" />
               </TouchableOpacity>
@@ -503,8 +506,8 @@ const AddScreen = ({ navigation }) => {
 
       {/* Note */}
       <View style={styles.section}>
-        <Text style={styles.label}>Note</Text>
-        <TextInput
+        <KWTextInput
+          label="Note"
           style={styles.noteInput}
           placeholder="Ajouter une note..."
           value={note}
@@ -519,7 +522,7 @@ const AddScreen = ({ navigation }) => {
           style={styles.cancelButton}
           onPress={() => navigation.goBack()}
         >
-          <Text style={styles.cancelButtonText}>Retour</Text>
+          <KWText style={styles.cancelButtonText}>Retour</KWText>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
@@ -527,7 +530,7 @@ const AddScreen = ({ navigation }) => {
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <Text style={styles.saveButtonText}>Enregistrer</Text>
+          <KWText style={styles.saveButtonText}>Enregistrer</KWText>
         </TouchableOpacity>
       </View>
     </ScrollView>
