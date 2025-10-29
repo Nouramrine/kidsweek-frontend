@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
   },
   h3: {},
   inputError: {
-    color: colors.error,
+    color: colors.error[0],
     paddingBottom: 10,
     paddingHorizontal: 15,
     fontWeight: "bold",
