@@ -10,6 +10,7 @@ import {
   Button,
   ScrollView,
   KeyboardAvoidingView,
+  Alert,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Checkbox } from "expo-checkbox";
@@ -33,6 +34,7 @@ import {
   deleteActivityAsync,
 } from "../reducers/activities";
 import KWDropdown from "../components/Activities/KWDropdown";
+import ButtonSaveUpdate from "../components/Activities/ButtonSaveUpdate";
 
 const AddScreen = ({ navigation, route }) => {
   const { activityToEdit } = route.params || {};
@@ -68,11 +70,11 @@ const AddScreen = ({ navigation, route }) => {
   ];
   const dispatch = useDispatch();
 
-  //const user = useSelector((state) => state.user.value);
+  const user = useSelector((state) => state.user.value);
   const activities = useSelector((state) => state.activities.value);
   //console.log("reducer member", user);
   //console.log("reducer activities", activities);
-  const [erreur, setErreur] = useState(false);
+  const [error, seterror] = useState(false);
   //display switch
   const [isEnabled, setIsEnabled] = useState(false);
 
@@ -81,9 +83,9 @@ const AddScreen = ({ navigation, route }) => {
     const fullDateEnd = combineDateAndTime(dateEnd, timeEnd);
 
     if (fullDateEnd <= fullDateBegin) {
-      setErreur(true);
+      seterror(true);
     } else {
-      setErreur(false);
+      seterror(false);
       setIsEnabled(!isEnabled);
     }
   };
@@ -139,7 +141,7 @@ const AddScreen = ({ navigation, route }) => {
       setParents(props.parents);
       setChecklistItems(props.checklistItems);
     }
-  }, []);
+  }, [activityToEdit]);
   // Handlers DateTimePicker dateBegin
   const onChangeDateBegin = (event, selectedDate) => {
     setShowDateBegin(false);
@@ -243,13 +245,25 @@ const AddScreen = ({ navigation, route }) => {
 
     return reminderDate;
   };
-
+  // Form validation
+  const validateForm = () => {
+    if (!activityName.trim()) {
+      Alert.alert("Erreur", "Le nom est obligatoire");
+      return false;
+    }
+    if (activityName.length < 3) {
+      Alert.alert("Erreur", "Le nom doit faire au moins 3 caractères");
+      return false;
+    }
+    if (dateEnd <= dateBegin) {
+      Alert.alert("Erreur", "La date de fin doit être après la date de début");
+      return false;
+    }
+    return true;
+  };
   // create activity
   const handleSave = async () => {
-    if (!activityName.trim()) {
-      Alert.alert("Erreur", "Veuillez saisir un nom d'activité");
-      return;
-    }
+    validateForm();
 
     const fullDateBegin = combineDateAndTime(dateBegin, timeBegin);
     const fullDateEnd = combineDateAndTime(dateEnd, timeEnd);
@@ -280,6 +294,7 @@ const AddScreen = ({ navigation, route }) => {
 
       navigation.goBack();
     } catch (error) {
+      Alert.alert("Erreur", error.message || "Impossible de créer l'activité");
       console.error("Erreur création activité:", error);
     }
   };
@@ -299,7 +314,7 @@ const AddScreen = ({ navigation, route }) => {
       console.error("Erreur de suppression activité:", error);
     }
   };
-
+  const handleUpdateUpdate = () => {};
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -442,7 +457,7 @@ const AddScreen = ({ navigation, route }) => {
           <KWText type="text" style={styles.label}>
             Récurrence
           </KWText>
-          {erreur && (
+          {error && (
             <KWText type="inputError">
               La date de fin doit être supérieure à la date de début pour
               appliquer une recurrence
@@ -535,7 +550,9 @@ const AddScreen = ({ navigation, route }) => {
               membersData
                 .filter((m) => m.isChildren)
                 .map((child) => {
-                  const isSelected = children.some((c) => c.id === child.id);
+                  const isSelected =
+                    Array.isArray(children) &&
+                    children.some((c) => c.id === child.id);
                   return (
                     <TouchableOpacity
                       key={child.id}
@@ -576,7 +593,9 @@ const AddScreen = ({ navigation, route }) => {
               membersData
                 .filter((m) => !m.isChildren)
                 .map((parent) => {
-                  const isSelected = parents.some((p) => p.id === parent.id);
+                  const isSelected =
+                    Array.isArray(parents) &&
+                    parents.some((p) => p.id === parent.id);
                   return (
                     <TouchableOpacity
                       key={parent.id}
@@ -629,16 +648,20 @@ const AddScreen = ({ navigation, route }) => {
           </View>
 
           <View style={styles.checklistItemsContainer}>
-            {checklistItems.map((item) => (
-              <View key={item.id} style={styles.checklistItem}>
-                <KWText type="text" style={styles.checklistItemText}>
-                  {item.text}
-                </KWText>
-                <TouchableOpacity onPress={() => removeChecklistItem(item.id)}>
-                  <Ionicons name="close" size={18} color="#666" />
-                </TouchableOpacity>
-              </View>
-            ))}
+            {checklistItems &&
+              checklistItems.length > 0 &&
+              checklistItems.map((item) => (
+                <View key={item.id} style={styles.checklistItem}>
+                  <KWText type="text" style={styles.checklistItemText}>
+                    {item.text}
+                  </KWText>
+                  <TouchableOpacity
+                    onPress={() => removeChecklistItem(item.id)}
+                  >
+                    <Ionicons name="close" size={18} color="#666" />
+                  </TouchableOpacity>
+                </View>
+              ))}
           </View>
         </View>
 
@@ -662,15 +685,7 @@ const AddScreen = ({ navigation, route }) => {
               <Ionicons name="trash-outline" size={28} color="#EF4444" />
             </KWCardButton>
           )}
-          {dateEnd < dateBegin ? (
-            <KWButton
-              title="* Erreur sur le formulaire"
-              type="inputError"
-              style={styles.saveButtonError}
-            />
-          ) : (
-            <KWButton title="Enregistrer" type="text" onPress={handleSave} />
-          )}
+          <ButtonSaveUpdate />
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
