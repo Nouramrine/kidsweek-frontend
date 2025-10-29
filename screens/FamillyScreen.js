@@ -1,16 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from '../theme/colors';
 import { KWCard, KWCardHeader, KWCardIcon, KWCardTitle, KWCardButton, KWCardBody } from "../components/KWCard";
 import KWText from "../components/KWText";
 import KWModal from "../components/KWModal";
-import KWFormZone from "../components/KWFormZone";
+import ZoneForm from "../components/zone/Form";
 
 import { FontAwesome5 } from '@expo/vector-icons';
 import KWButton from "../components/KWButton";
 
-const FamillyScreen = (navigation) => {
+import { useSelector, useDispatch } from "react-redux";
+import { fetchZonesAsync } from "../reducers/zones";
+
+const FamillyScreen = ({ navigation }) => {
+
+  const dispatch = useDispatch()
 
   const membersData = [
     { id: "658961", firstName: "Papa", lastName: "Outé", isChildren: false },
@@ -20,28 +25,27 @@ const FamillyScreen = (navigation) => {
     { id: "78569", firstName: "Anna", lastName: "Lefabète", isChildren: true},
   ]
 
-  const zonesData = [
-    { name: "Papa", color: "blue", members: ["658961", "12356"]},
-    { name: "Maman", color: "red", members: ["552638","12356","78569"]},
-    { name: "Mamie", color: "purple", members: ["12356","78569"]},
-  ]
+  //const [zones, setZones] = useState(zonesData);
+  const zones = useSelector((state) => state.zones.value);
+  
+  console.log(zones)
 
-  const [zones, setZones] = useState(zonesData);
+  useEffect(() => {
+    dispatch(fetchZonesAsync());
+  }, [])
+
   const [members, setMembers] = useState(membersData);
 
   const [zoneModal, setZoneModal] = useState(false);
   const [memberModal, setMemberModal] = useState(false);
   
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
       <ScrollView>
 
       {/* Modal création de Zone */}
-      <KWModal
-        visible={zoneModal}
-        onRequestClose={() => setZoneModal(false)}
-      >
-            
+      <KWModal visible={zoneModal} onRequestClose={() => setZoneModal(false)}>
+        <ZoneForm onReturn={() => setZoneModal(false)} />     
       </KWModal>
 
 

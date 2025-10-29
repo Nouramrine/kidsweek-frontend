@@ -17,7 +17,7 @@ export const fetchActivitiesAsync = createAsyncThunk(
       });
 
       const data = await response.json();
-      console.log("Fetch activities response:", data);
+      //console.log("Fetch activities response:", data);
 
       if (!response.ok) {
         throw new Error(data.message || "Erreur lors du fetch");
@@ -66,7 +66,7 @@ export const createActivityAsync = createAsyncThunk(
       });
 
       const data = await response.json();
-      console.log("Create activity response:", data.activity);
+      //console.log("Create activity response:", data.activity);
       if (data.activity) {
         dispatch(
           addActivity({
@@ -106,7 +106,7 @@ export const updateActivityAsync = createAsyncThunk(
         body: JSON.stringify(activityData),
       });
       const data = await response.json();
-      console.log("Update activity response:", data);
+      //console.log("Update activity response:", data);
       if (!response.ok) {
         throw new Error(data.message || "Erreur lors de la mise à jour");
       }
@@ -130,7 +130,7 @@ export const deleteActivityAsync = createAsyncThunk(
         },
       });
       const data = await response.json();
-      console.log("Delete activity response:", data);
+      //console.log("Delete activity response:", data);
       if (!response.ok) {
         throw new Error(data.message || "Erreur lors de la suppression");
       }

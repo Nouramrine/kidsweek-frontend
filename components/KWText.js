@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
     fontFamily: "JosefinSans_400Regular",
   },
   h1: {
-    fontSize: 28,
+    fontSize: 22,
     fontFamily: "Gluten_500Medium",
     textAlign: "center",
     padding: 10,
