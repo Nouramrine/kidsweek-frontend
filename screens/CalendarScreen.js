@@ -46,7 +46,7 @@ export default function CalendarScreen() {
   // Cliquer sur une activité = ouvre ActivityDetailsScreen
 
   const handleActivityPress = (activity) => {
-    navigation.navigate("ActivityDetailsScreen", { activity });
+    navigation.navigate("ActivityDetails", { activity });
   };
 
   return (
