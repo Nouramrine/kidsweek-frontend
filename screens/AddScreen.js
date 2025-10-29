@@ -181,51 +181,63 @@ const AddScreen = ({ navigation }) => {
 
   // create activity
   const handleSave = async () => {
-    try {
-      const fullDateBegin = combineDateAndTime(dateBegin, timeBegin);
-      const fullDateEnd = combineDateAndTime(dateEnd, timeEnd);
-      const reminderDate = calculateReminderDate(
-        fullDateBegin,
-        reminderNumber,
-        reminderUnit
-      );
-      if (fullDateEnd <= fullDateBegin) {
-        setDateEnd(fullDateBegin);
-      }
-      console.log("date de fin plus tot", dateEnd);
-      const response = await fetch(`${BACKEND_URL}/activities/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: user.token,
-        },
-        body: JSON.stringify({
-          name: activityName,
-          place: activityPlace,
-          dateBegin: fullDateBegin,
-          dateEnd: fullDateEnd,
-          reminder: reminderDate,
-          task: checklistItems,
-          note: note,
-          /*children: children,
-          parents: parents,*/
-          recurrence: recurrence,
-        }),
-      });
-      const data = await response.json();
-
-      if (data.result) {
-        console.log("Activité ajoutée avec succès", data);
-        // Redirection ou reset du formulaire
-        navigation.goBack();
-      } else {
-        console.error("Erreur lors de l'ajout:", data.error);
-        // Afficher un message d'erreur à l'utilisateur
-      }
-    } catch (error) {
-      console.error("Erreur de connexion:", error);
-      // Afficher un message d'erreur à l'utilisateur
+    const fullDateBegin = combineDateAndTime(dateBegin, timeBegin);
+    const fullDateEnd = combineDateAndTime(dateEnd, timeEnd);
+    const reminderDate = calculateReminderDate(
+      fullDateBegin,
+      reminderNumber,
+      reminderUnit
+    );
+    if (fullDateEnd <= fullDateBegin) {
+      setDateEnd(fullDateBegin);
     }
+
+    dispatch(
+      createActivityAsync({
+        name: activityName,
+        place: activityPlace,
+        dateBegin: fullDateBegin,
+        dateEnd: fullDateEnd,
+        reminder: reminderDate,
+        task: checklistItems,
+        note: note,
+        recurrence: recurrence,
+        token: user.token,
+      })
+    );
+    //   const response = await fetch(`${BACKEND_URL}/activities/`, {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //       Authorization: user.token,
+    //     },
+    //     body: JSON.stringify({
+    //       name: activityName,
+    //       place: activityPlace,
+    //       dateBegin: fullDateBegin,
+    //       dateEnd: fullDateEnd,
+    //       reminder: reminderDate,
+    //       task: checklistItems,
+    //       note: note,
+    //       /*children: children,
+    //       parents: parents,*/
+    //       recurrence: recurrence,
+    //     }),
+    //   });
+    //   const data = await response.json();
+
+    //   if (data.result) {
+    //     console.log("Activité ajoutée avec succès", data);
+    //     // Redirection ou reset du formulaire
+    //     navigation.goBack();
+    //   } else {
+    //     console.error("Erreur lors de l'ajout:", data.error);
+    //     // Afficher un message d'erreur à l'utilisateur
+    //   }
+    // } catch (error) {
+    //   console.error("Erreur de connexion:", error);
+    //   // Afficher un message d'erreur à l'utilisateur
+    // }
   };
   const handleDelete = () => {
     // Logique de suppression
@@ -269,6 +281,7 @@ const AddScreen = ({ navigation }) => {
       {/* Intitulé du lieu */}
       <View style={styles.section}>
         <KWTextInput
+          type="text"
           label="Lieu de l'activité"
           style={styles.input}
           placeholder="Ex : stade municipal, piscine..."
@@ -279,13 +292,15 @@ const AddScreen = ({ navigation }) => {
 
       {/* date début */}
       <View style={styles.section}>
-        <KWText style={styles.label}>Début</KWText>
+        <KWText type="text" style={styles.label}>
+          Début
+        </KWText>
         <View style={styles.dateTimeRow}>
           <TouchableOpacity
             style={[styles.dateButton, { flex: 2, marginRight: 10 }]}
             onPress={() => setShowDateBegin(true)}
           >
-            <KWText style={styles.dateButtonText}>
+            <KWText type="text" style={styles.dateButtonText}>
               {dateBegin.toLocaleDateString("fr-FR")}
             </KWText>
           </TouchableOpacity>
@@ -294,7 +309,7 @@ const AddScreen = ({ navigation }) => {
             style={[styles.dateButton, { flex: 1 }]}
             onPress={() => setShowTimeBegin(true)}
           >
-            <KWText style={styles.dateButtonText}>
+            <KWText type="text" style={styles.dateButtonText}>
               {timeBegin.toLocaleTimeString("fr-FR", {
                 hour: "2-digit",
                 minute: "2-digit",
@@ -324,13 +339,15 @@ const AddScreen = ({ navigation }) => {
 
       {/* date fin */}
       <View style={styles.section}>
-        <KWText style={styles.label}>Fin</KWText>
+        <KWText type="text" style={styles.label}>
+          Fin
+        </KWText>
         <View style={styles.dateTimeRow}>
           <TouchableOpacity
             style={[styles.dateButton, { flex: 2, marginRight: 10 }]}
             onPress={() => setShowDateEnd(true)}
           >
-            <KWText style={styles.dateButtonText}>
+            <KWText type="text" style={styles.dateButtonText}>
               {dateEnd.toLocaleDateString("fr-FR")}
             </KWText>
           </TouchableOpacity>
@@ -339,7 +356,7 @@ const AddScreen = ({ navigation }) => {
             style={[styles.dateButton, { flex: 1 }]}
             onPress={() => setShowTimeEnd(true)}
           >
-            <KWText style={styles.dateButtonText}>
+            <KWText type="text" style={styles.dateButtonText}>
               {timeEnd.toLocaleTimeString("fr-FR", {
                 hour: "2-digit",
                 minute: "2-digit",
@@ -369,9 +386,11 @@ const AddScreen = ({ navigation }) => {
 
       {/* Récurrence */}
       <View style={styles.section}>
-        <KWText style={styles.label}>Récurrence</KWText>
+        <KWText type="text" style={styles.label}>
+          Récurrence
+        </KWText>
         {erreur && (
-          <KWText style={{ color: "red", marginBottom: 5 }}>
+          <KWText type="text" style={{ color: "red", marginBottom: 5 }}>
             La date de fin doit être supérieure à la date de début pour
             appliquer une recurrence
           </KWText>
@@ -386,7 +405,7 @@ const AddScreen = ({ navigation }) => {
 
         {isEnabled && (
           <View style={{ marginTop: 10 }}>
-            <KWText style={{ marginBottom: 8, fontWeight: "500" }}>
+            <KWText type="text" style={{ marginBottom: 8, fontWeight: "500" }}>
               Sélectionne un jour :
             </KWText>
             <View style={styles.daysContainer}>
@@ -400,6 +419,7 @@ const AddScreen = ({ navigation }) => {
                   onPress={() => setRecurrence(recurrence === day ? null : day)}
                 >
                   <KWText
+                    type="text"
                     style={[
                       styles.dayText,
                       recurrence === day && styles.dayTextActive,
@@ -412,9 +432,11 @@ const AddScreen = ({ navigation }) => {
             </View>
 
             {recurrence && (
-              <KWText style={styles.selectedDayText}>
+              <KWText type="text" style={styles.selectedDayText}>
                 Répéter chaque :{" "}
-                <KWText style={{ fontWeight: "bold" }}>{recurrence}</KWText>
+                <KWText type="text" style={{ fontWeight: "bold" }}>
+                  {recurrence}
+                </KWText>
               </KWText>
             )}
           </View>
@@ -432,17 +454,23 @@ const AddScreen = ({ navigation }) => {
             keyboardType="numeric"
           />
           <DropdownReminder />
-          <KWText style={styles.reminderText}>avant</KWText>
+          <KWText type="text" style={styles.reminderText}>
+            avant
+          </KWText>
         </View>
       </View>
 
       {/* Enfant(s) */}
       <View style={styles.section}>
-        <KWText style={styles.label}>enfant(s)</KWText>
+        <KWText type="text" style={styles.label}>
+          enfant(s)
+        </KWText>
         <View style={styles.tagsContainer}>
           {children.map((child) => (
             <View key={child.id} style={styles.tag}>
-              <KWText style={styles.tagText}>{child.name}</KWText>
+              <KWText type="text" style={styles.tagText}>
+                {child.name}
+              </KWText>
               <TouchableOpacity onPress={() => removeChild(child.id)}>
                 <Ionicons name="close" size={16} color="#666" />
               </TouchableOpacity>
@@ -456,11 +484,15 @@ const AddScreen = ({ navigation }) => {
 
       {/* Parent(s) */}
       <View style={styles.section}>
-        <KWText style={styles.label}>parent(s)</KWText>
+        <KWText type="text" style={styles.label}>
+          parent(s)
+        </KWText>
         <View style={styles.tagsContainer}>
           {parents.map((parent) => (
             <View key={parent.id} style={styles.tag}>
-              <KWText style={styles.tagText}>{parent.name}</KWText>
+              <KWText type="text" style={styles.tagText}>
+                {parent.name}
+              </KWText>
               <TouchableOpacity onPress={() => removeParent(parent.id)}>
                 <Ionicons name="close" size={16} color="#666" />
               </TouchableOpacity>
@@ -495,7 +527,9 @@ const AddScreen = ({ navigation }) => {
         <View style={styles.checklistItemsContainer}>
           {checklistItems.map((item) => (
             <View key={item.id} style={styles.checklistItem}>
-              <KWText style={styles.checklistItemText}>{item.text}</KWText>
+              <KWText type="text" style={styles.checklistItemText}>
+                {item.text}
+              </KWText>
               <TouchableOpacity onPress={() => removeChecklistItem(item.id)}>
                 <Ionicons name="close" size={18} color="#666" />
               </TouchableOpacity>
@@ -522,7 +556,9 @@ const AddScreen = ({ navigation }) => {
           style={styles.cancelButton}
           onPress={() => navigation.goBack()}
         >
-          <KWText style={styles.cancelButtonText}>Retour</KWText>
+          <KWText type="text" style={styles.cancelButtonText}>
+            Retour
+          </KWText>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
@@ -530,7 +566,9 @@ const AddScreen = ({ navigation }) => {
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <KWText style={styles.saveButtonText}>Enregistrer</KWText>
+          <KWText type="text" style={styles.saveButtonText}>
+            Enregistrer
+          </KWText>
         </TouchableOpacity>
       </View>
     </ScrollView>
