@@ -1,29 +1,48 @@
-import React, { useState } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
-import SignIn from './_partials/SignIn';
-import SignUp from './_partials/SignUp';
-import KWText from '../components/KWText';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  KeyboardAvoidingView,
+} from "react-native";
+import SignIn from "./_partials/SignIn";
+import SignUp from "./_partials/SignUp";
+import KWText from "../components/KWText";
 
 const AuthScreen = () => {
   const [isSignIn, setIsSignIn] = useState(true);
 
   return (
     <View style={styles.container}>
-      <Image source={require('../assets/titre.png')} style={styles.logo} resizeMode="contain" />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.container}
+      >
+        <Image
+          source={require("../assets/titre.png")}
+          style={styles.logo}
+          resizeMode="contain"
+        />
 
-      {/*<KWText type='h1'>{isSignIn ? 'Connexion' : 'Inscription'}</KWText>*/}
+        {/*<KWText type='h1'>{isSignIn ? 'Connexion' : 'Inscription'}</KWText>*/}
 
-      <View style={styles.formContainer}>
-        {isSignIn ? <SignIn /> : <SignUp />}
-      </View>
+        <View style={styles.formContainer}>
+          {isSignIn ? <SignIn /> : <SignUp />}
+        </View>
 
-      <TouchableOpacity onPress={() => setIsSignIn(!isSignIn)} style={styles.switchContainer}>
-        <KWText type='link'>
-          {isSignIn
-            ? "Pas de compte ? S'inscrire"
-            : 'Déjà un compte ? Se connecter'}
-        </KWText>
-      </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => setIsSignIn(!isSignIn)}
+          style={styles.switchContainer}
+        >
+          <KWText type="link">
+            {isSignIn
+              ? "Pas de compte ? S'inscrire"
+              : "Déjà un compte ? Se connecter"}
+          </KWText>
+        </TouchableOpacity>
+      </KeyboardAvoidingView>
     </View>
   );
 };
@@ -33,22 +52,22 @@ export default AuthScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 24,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   switchContainer: {
     marginTop: 24,
-    alignItems: 'center',
+    alignItems: "center",
   },
   formContainer: {
-    width: '100%',
+    width: "100%",
   },
   logo: {
-    width: '80%',
-    height: undefined, 
-    aspectRatio: 3,  
+    width: "80%",
+    height: undefined,
+    aspectRatio: 3,
     marginBottom: 30,
-  }
+  },
 });
