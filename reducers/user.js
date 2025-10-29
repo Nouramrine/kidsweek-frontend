@@ -2,22 +2,18 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
-const signinAsync = createAsyncThunk(
-  "user/signinAsync",
+const signInAsync = createAsyncThunk(
+  "user/signInAsync",
   async (payload, { dispatch }) => {
     const { email, password } = payload;
-
     try {
       const response = await fetch(`${BACKEND_URL}/members/signin`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-
       const data = await response.json();
-      //const data = dataReponse.member;
-      console.log("Signin response data:", data);
-      if (data && data.member.token) {
+      if (data.result) {
         dispatch(
           login({
             token: data.member.token,
@@ -26,20 +22,18 @@ const signinAsync = createAsyncThunk(
             email: data.member.email,
           })
         );
+        return { result: true }
       } else {
-        console.warn("Erreur signin :", data);
+        return { result: false, error: data.error }
       }
-
-      return data;
     } catch (error) {
       console.error("Erreur réseau :", error);
-      throw error;
     }
   }
 );
 
-const SignupAsync = createAsyncThunk(
-  "user/SignupAsync",
+const signUpAsync = createAsyncThunk(
+  "user/signUpAsync",
   async (payload, { dispatch }) => {
     const { firstName, lastName, email, password } = payload;
 
@@ -49,11 +43,8 @@ const SignupAsync = createAsyncThunk(
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ firstName, lastName, email, password }),
       });
-
       const data = await response.json();
-      //const data = dataReponse.member;
-      console.log("Signup response data:", data.member.token);
-      if (data && data.member.token) {
+      if (data.result) {
         dispatch(
           login({
             token: data.member.token,
@@ -62,14 +53,12 @@ const SignupAsync = createAsyncThunk(
             email: data.member.email,
           })
         );
+        return { result: true }
       } else {
-        console.warn("Erreur signup :", data);
+        return { result: false, error: data.error}
       }
-
-      return data;
     } catch (error) {
       console.error("Erreur réseau :", error);
-      throw error;
     }
   }
 );
@@ -110,5 +99,5 @@ export const userSlice = createSlice({
 });
 
 export const { login, logout } = userSlice.actions;
-export { signinAsync, SignupAsync };
+export { signInAsync, signUpAsync };
 export default userSlice.reducer;

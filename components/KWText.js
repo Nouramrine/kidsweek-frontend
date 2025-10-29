@@ -5,7 +5,7 @@ const KWText = ({ children, ...props }) => {
   const type = props?.type || "text";
   const color = props?.color || "text";
   return (
-    <Text style={[styles.text, styles[type], props.style, { color: color }]}>
+    <Text style={[styles.text, { color: color }, styles[type], props.style]}>
       {children}
     </Text>
   );

@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import KWTextInput from "../../components/KWTextInput";
 import KWButton from "../../components/KWButton";
 import KWText from "../../components/KWText";
-import { signinAsync } from "../../reducers/user";
+import { signInAsync } from "../../reducers/user";
 
 const SignIn = () => {
   const [signInEmail, setSignInEmail] = useState("user@kidsweek.fr");
@@ -13,15 +13,20 @@ const SignIn = () => {
 
   const dispatch = useDispatch();
 
-  const handleSignIn = () => {
-    dispatch(
-      signinAsync({
+  const handleSignIn = async () => {
+    const signIn = await dispatch(
+      signInAsync({
         email: signInEmail,
         password: signInPassword,
       })
-    );
-    setSignInEmail("");
-    setSignInPassword("");
+    ).unwrap();
+    console.log(signIn)
+    if (signIn.result) {
+      setSignInEmail("");
+      setSignInPassword("");
+    } else {
+      setSignInError(signIn.error)
+    }
   };
 
   return (
