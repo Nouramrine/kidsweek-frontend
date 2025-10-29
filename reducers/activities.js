@@ -69,7 +69,7 @@ export const createActivityAsync = createAsyncThunk(
       console.log("Create activity response:", data.activity);
       if (data.activity) {
         dispatch(
-          login({
+          addActivity({
             name: data.name,
             place: data.place,
             dateBegin: data.dateBegin,
@@ -81,7 +81,7 @@ export const createActivityAsync = createAsyncThunk(
           })
         );
       } else {
-        console.warn("Erreur signin :", data);
+        console.warn("Erreur create activity :", data);
       }
 
       return data.activity;
