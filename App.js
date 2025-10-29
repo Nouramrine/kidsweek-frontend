@@ -31,27 +31,25 @@ import { PersistGate } from "redux-persist/integration/react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 
-const reducers = combineReducers({ user, activities, zones });
-const persistConfig = { key: "KidsWeek", storage: AsyncStorage };
+const userPersistConfig = {
+  key: "user",
+  storage: AsyncStorage,
+};
+const rootReducer = combineReducers({
+  user: persistReducer(userPersistConfig, user), // seul user est persistant
+  activities,
+  zones,
+});
 const store = configureStore({
-  reducer: persistReducer(persistConfig, reducers),
+  reducer: rootReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({ serializableCheck: false }),
 });
 const persistor = persistStore(store);
+
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
-const clearAsyncStorage = async () => {
-  try {
-    await AsyncStorage.clear();
-    console.log("AsyncStorage vidé avec succès");
-  } catch (e) {
-    console.error("Erreur lors du vidage d'AsyncStorage:", e);
-  }
-};
 
-// Décommente cette ligne UNE SEULE FOIS pour vider le cache, puis recommente-la
-//clearAsyncStorage();
 const TabNavigator = () => {
   return (
     <Tab.Navigator

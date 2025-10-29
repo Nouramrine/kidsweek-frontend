@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
-const signInAsync = createAsyncThunk(
+export const signInAsync = createAsyncThunk(
   "user/signInAsync",
   async (payload, { dispatch }) => {
     const { email, password } = payload;
@@ -32,7 +32,7 @@ const signInAsync = createAsyncThunk(
   }
 );
 
-const signUpAsync = createAsyncThunk(
+export const signUpAsync = createAsyncThunk(
   "user/signUpAsync",
   async (payload, { dispatch }) => {
     const { firstName, lastName, email, password } = payload;
@@ -99,5 +99,4 @@ export const userSlice = createSlice({
 });
 
 export const { login, logout } = userSlice.actions;
-export { signInAsync, signUpAsync };
 export default userSlice.reducer;

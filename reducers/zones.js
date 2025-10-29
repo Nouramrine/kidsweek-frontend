@@ -6,7 +6,8 @@ const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export const fetchZonesAsync = createAsyncThunk(
   "zones/fetchZonesAsync",
-  async (token) => {
+  async (_, { getState }) => {
+    const token = getState().user.value.token;
     const response = await fetch(`${BACKEND_URL}/zones`, {
       method: "GET",
       headers: {
@@ -22,22 +23,24 @@ export const fetchZonesAsync = createAsyncThunk(
 );
 
 // Créer une nouvelle zone
+// Envoi attendu : name, members[]
 
 export const createZoneAsync = createAsyncThunk(
   "zones/createZoneAsync",
-  async ({ token, zoneData }) => {
+  async (zoneData, { getState }) => {
+    const token = getState().user.value.token;
     const response = await fetch(`${BACKEND_URL}/zones`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(zoneData),
+      body: JSON.stringify(zoneData), 
     });
     const data = await response.json();
     if (!response.ok)
       throw new Error(data.message || "Erreur lors de la création de la zone");
-    return data.zone;
+    return data.zone || [];
   }
 );
 
@@ -45,8 +48,9 @@ export const createZoneAsync = createAsyncThunk(
 
 export const updateZoneAsync = createAsyncThunk(
   "zones/updateZoneAsync",
-  async ({ token, zoneId, zoneData }) => {
-    const response = await fetch(`${BACKEND_URL}/zones/${zoneId}`, {
+  async (zoneData, { getState }) => {
+    const token = getState().user.value.token;
+    const response = await fetch(`${BACKEND_URL}/zones`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -59,7 +63,7 @@ export const updateZoneAsync = createAsyncThunk(
       throw new Error(
         data.message || "Erreur lors de la mise à jour de la zone"
       );
-    return data.zone;
+    return data.zone || [];
   }
 );
 
@@ -80,7 +84,7 @@ export const deleteZoneAsync = createAsyncThunk(
       throw new Error(
         data.message || "Erreur lors de la suppression de la zone"
       );
-    return zoneId;
+    return zoneId || '';
   }
 );
 
