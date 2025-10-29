@@ -1,8 +1,15 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useFonts, Gluten_700Bold, Gluten_500Medium} from '@expo-google-fonts/gluten';
-import { JosefinSans_400Regular, JosefinSans_300Light } from '@expo-google-fonts/josefin-sans';
+import {
+  useFonts,
+  Gluten_700Bold,
+  Gluten_500Medium,
+} from "@expo-google-fonts/gluten";
+import {
+  JosefinSans_400Regular,
+  JosefinSans_300Light,
+} from "@expo-google-fonts/josefin-sans";
 
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -16,6 +23,7 @@ import HomeScreen from "./screens/HomeScreen";
 import ProfileScreen from "./screens/ProfileScreen";
 import user from "./reducers/user";
 import activities from "./reducers/activities";
+import zones from "./reducers/zones";
 import { Provider, useSelector } from "react-redux";
 import { persistStore, persistReducer } from "redux-persist";
 import { PersistGate } from "redux-persist/integration/react";
@@ -23,7 +31,7 @@ import { PersistGate } from "redux-persist/integration/react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 
-const reducers = combineReducers({ user, activities });
+const reducers = combineReducers({ user, activities, zones });
 const persistConfig = { key: "KidsWeek", storage: AsyncStorage };
 const store = configureStore({
   reducer: persistReducer(persistConfig, reducers),
