@@ -1,12 +1,14 @@
-import { Text, StyleSheet } from 'react-native';
-import { colors } from '../theme/colors';
+import { Text, StyleSheet } from "react-native";
+import { colors } from "../theme/colors";
 
 const KWText = ({ children, ...props }) => {
-    const type = props?.type || 'text'
-    const color = props?.color || 'text'
-    return (
-        <Text style={[styles.text, styles[type], props.style, { color: color }]}>{children}</Text>
-    );
+  const type = props?.type || "text";
+  const color = props?.color || "text";
+  return (
+    <Text style={[styles.text, styles[type], props.style, { color: color }]}>
+      {children}
+    </Text>
+  );
 };
 
 const styles = StyleSheet.create({
