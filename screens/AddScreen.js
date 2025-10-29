@@ -34,7 +34,10 @@ import {
 } from "../reducers/activities";
 import KWDropdown from "../components/Activities/KWDropdown";
 
-const AddScreen = ({ navigation, props }) => {
+const AddScreen = ({ navigation, route }) => {
+  const { activityToEdit } = route.params || {};
+  const props = activityToEdit || {};
+  console.log("props activity to edit:", props);
   /*const props = {
     _id: "648f1f4f5f9b25630c3e4b9e",
     name: "Cours de danse",
@@ -68,7 +71,7 @@ const AddScreen = ({ navigation, props }) => {
   //const user = useSelector((state) => state.user.value);
   const activities = useSelector((state) => state.activities.value);
   //console.log("reducer member", user);
-  console.log("reducer activities", activities);
+  //console.log("reducer activities", activities);
   const [erreur, setErreur] = useState(false);
   //display switch
   const [isEnabled, setIsEnabled] = useState(false);
@@ -528,37 +531,38 @@ const AddScreen = ({ navigation, props }) => {
             Enfant(s)
           </KWText>
           <View style={styles.membersGrid}>
-            {membersData
-              .filter((m) => m.isChildren)
-              .map((child) => {
-                const isSelected = children.some((c) => c.id === child.id);
-                return (
-                  <TouchableOpacity
-                    key={child.id}
-                    style={[
-                      styles.memberCard,
-                      isSelected && styles.memberCardSelected,
-                    ]}
-                    onPress={() => {
-                      if (isSelected) {
-                        removeChild(child.id);
-                      } else {
-                        setChildren([...children, child]);
-                      }
-                    }}
-                  >
-                    <KWText
-                      type="text"
+            {membersData.length > 0 &&
+              membersData
+                .filter((m) => m.isChildren)
+                .map((child) => {
+                  const isSelected = children.some((c) => c.id === child.id);
+                  return (
+                    <TouchableOpacity
+                      key={child.id}
                       style={[
-                        styles.memberName,
-                        isSelected && styles.memberNameSelected,
+                        styles.memberCard,
+                        isSelected && styles.memberCardSelected,
                       ]}
+                      onPress={() => {
+                        if (isSelected) {
+                          removeChild(child.id);
+                        } else {
+                          setChildren([...children, child]);
+                        }
+                      }}
                     >
-                      {child.firstName}
-                    </KWText>
-                  </TouchableOpacity>
-                );
-              })}
+                      <KWText
+                        type="text"
+                        style={[
+                          styles.memberName,
+                          isSelected && styles.memberNameSelected,
+                        ]}
+                      >
+                        {child.firstName}
+                      </KWText>
+                    </TouchableOpacity>
+                  );
+                })}
           </View>
         </View>
 
@@ -568,37 +572,38 @@ const AddScreen = ({ navigation, props }) => {
             Parent(s)
           </KWText>
           <View style={styles.membersGrid}>
-            {membersData
-              .filter((m) => !m.isChildren)
-              .map((parent) => {
-                const isSelected = parents.some((p) => p.id === parent.id);
-                return (
-                  <TouchableOpacity
-                    key={parent.id}
-                    style={[
-                      styles.memberCard,
-                      isSelected && styles.memberCardSelected,
-                    ]}
-                    onPress={() => {
-                      if (isSelected) {
-                        removeParent(parent.id);
-                      } else {
-                        setParents([...parents, parent]);
-                      }
-                    }}
-                  >
-                    <KWText
-                      type="text"
+            {membersData.length > 0 &&
+              membersData
+                .filter((m) => !m.isChildren)
+                .map((parent) => {
+                  const isSelected = parents.some((p) => p.id === parent.id);
+                  return (
+                    <TouchableOpacity
+                      key={parent.id}
                       style={[
-                        styles.memberName,
-                        isSelected && styles.memberNameSelected,
+                        styles.memberCard,
+                        isSelected && styles.memberCardSelected,
                       ]}
+                      onPress={() => {
+                        if (isSelected) {
+                          removeParent(parent.id);
+                        } else {
+                          setParents([...parents, parent]);
+                        }
+                      }}
                     >
-                      {parent.firstName}
-                    </KWText>
-                  </TouchableOpacity>
-                );
-              })}
+                      <KWText
+                        type="text"
+                        style={[
+                          styles.memberName,
+                          isSelected && styles.memberNameSelected,
+                        ]}
+                      >
+                        {parent.firstName}
+                      </KWText>
+                    </TouchableOpacity>
+                  );
+                })}
           </View>
         </View>
 
