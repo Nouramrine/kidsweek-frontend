@@ -62,9 +62,9 @@ const HomeScreen = () => {
 
       {/* --- Sélection des enfants (mock pour l’instant) --- */}
       <View style={styles.childSelector}>
-        {["Enfant 1", "Enfant 2"].map((child) => (
+        {["Enfant 1", "Enfant 2"].map((child, index) => (
           <TouchableOpacity
-            key={child}
+            key={child + index}
             style={[
               styles.childButton,
               selectedChild === child && styles.childButtonSelected,
@@ -86,7 +86,10 @@ const HomeScreen = () => {
       {/* --- Liste des activités par jour --- */}
       <ScrollView style={styles.listContainer}>
         {sortedDays.map((day) => (
-          <View key={day} style={styles.dayContainer}>
+          <View
+            key={day + (groupedActivities[day][0]?._id || Math.random())}
+            style={styles.dayContainer}
+          >
             <Text style={styles.dayTitle}>{day}</Text>
             {groupedActivities[day].map((a) => (
               <View key={a._id} style={styles.activityCard}>
