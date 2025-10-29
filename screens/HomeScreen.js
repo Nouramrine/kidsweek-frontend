@@ -9,13 +9,36 @@ import {
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchActivitiesAsync } from "../reducers/activities";
+import KWModal from "../components/KWModal";
+import { Ionicons } from "@expo/vector-icons";
+import { colors } from "../theme/colors";
 
-const HomeScreen = () => {
+const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const activities = useSelector((state) => state.activities.value);
   const user = useSelector((state) => state.user.value);
 
   const [selectedChild, setSelectedChild] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  //Mock notification pour le test
+
+  const notifications = [
+    {
+      id: 1,
+      type: "reminder",
+      message: "Rappel: Activité 'Piscine' dans 30 minutes.",
+    },
+    {
+      id: 2,
+      type: "validation",
+      message: "Nouvelle activité 'Atelier Peinture' à valider.",
+    },
+  ];
+
+  // Afficher la modal de notification au chargement si il y a des notifications
+
+  const toggleModal = () => setIsModalVisible(!isModalVisible);
 
   // recupérer les activité du membre connecté
   useEffect(() => {
@@ -57,57 +80,120 @@ const HomeScreen = () => {
       : "";
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Mon planning</Text>
-
-      {/* --- Sélection des enfants (mock pour l’instant) --- */}
-      <View style={styles.childSelector}>
-        {["Enfant 1", "Enfant 2"].map((child, index) => (
-          <TouchableOpacity
-            key={child + index}
-            style={[
-              styles.childButton,
-              selectedChild === child && styles.childButtonSelected,
-            ]}
-            onPress={() => setSelectedChild(child)}
-          >
-            <Text
-              style={[
-                styles.childText,
-                selectedChild === child && styles.childTextSelected,
-              ]}
-            >
-              {child}
-            </Text>
-          </TouchableOpacity>
-        ))}
+    <View style={{ flex: 1 }}>
+      {/* Header avec icône cloche */}
+      <View style={styles.header}>
+        <Text style={styles.title}>KidsWeek</Text>
+        <TouchableOpacity onPress={toggleModal} style={styles.bellContainer}>
+          <Ionicons
+            name="notifications-outline"
+            size={28}
+            color={colors.primary || "black"}
+          />
+          {notifications.length > 0 && (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{notifications.length}</Text>
+            </View>
+          )}
+        </TouchableOpacity>
       </View>
+      <View style={styles.container}>
+        <Text style={styles.title}>Mon planning</Text>
 
-      {/* --- Liste des activités par jour --- */}
-      <ScrollView style={styles.listContainer}>
-        {sortedDays.map((day) => (
-          <View
-            key={day + (groupedActivities[day][0]?._id || Math.random())}
-            style={styles.dayContainer}
-          >
-            <Text style={styles.dayTitle}>{day}</Text>
-            {groupedActivities[day].map((a) => (
-              <View key={a._id} style={styles.activityCard}>
-                <Text style={styles.activityTitle}>{a.name}</Text>
-                <Text style={styles.activityTime}>
-                  {formatTime(a.dateBegin)} → {formatTime(a.dateEnd)}
-                </Text>
+        {/* --- Sélection des enfants (mock pour l’instant) --- */}
+        <View style={styles.childSelector}>
+          {["Enfant 1", "Enfant 2"].map((child, index) => (
+            <TouchableOpacity
+              key={child + index}
+              style={[
+                styles.childButton,
+                selectedChild === child && styles.childButtonSelected,
+              ]}
+              onPress={() => setSelectedChild(child)}
+            >
+              <Text
+                style={[
+                  styles.childText,
+                  selectedChild === child && styles.childTextSelected,
+                ]}
+              >
+                {child}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* --- Liste des activités par jour --- */}
+        <ScrollView style={styles.listContainer}>
+          {sortedDays.map((day) => (
+            <View
+              key={day + (groupedActivities[day][0]?._id || Math.random())}
+              style={styles.dayContainer}
+            >
+              <Text style={styles.dayTitle}>{day}</Text>
+              {groupedActivities[day].map((a) => (
+                <TouchableOpacity
+                  key={a._id}
+                  style={styles.activityCard}
+                  onPress={() =>
+                    navigation.navigate("ActivityDetails", { activity: a })
+                  }
+                >
+                  <Text style={styles.activityTitle}>{a.name}</Text>
+                  <Text style={styles.activityTime}>
+                    {formatTime(a.dateBegin)} → {formatTime(a.dateEnd)}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          ))}
+        </ScrollView>
+      </View>
+      {/* Modal de notifications */}
+      <KWModal visible={isModalVisible} onRequestClose={toggleModal}>
+        <Text style={styles.modalTitle}>Notifications</Text>
+        {notifications.length === 0 ? (
+          <Text style={styles.emptyText}>Aucune notification.</Text>
+        ) : (
+          <FlatList
+            data={notifications}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <View style={styles.notificationItem}>
+                <Text style={styles.notificationText}>{item.message}</Text>
+
+                {/*bouton pour valider/refuser invitation*/}
+                {item.type === "validation" && (
+                  <View style={styles.actionButtons}>
+                    <TouchableOpacity style={styles.acceptButton}>
+                      <Text style={styles.acceptButtonText}>Accepter</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.declineButton}>
+                      <Text style={styles.declineButtonText}>Refuser</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
               </View>
-            ))}
-          </View>
-        ))}
-      </ScrollView>
+            )}
+          />
+        )}
+      </KWModal>
     </View>
   );
 };
-export default HomeScreen;
 
 const styles = StyleSheet.create({
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+  },
+  bellContainer: {
+    position: "relative",
+    padding: 5,
+  },
   container: {
     flex: 1,
     backgroundColor: "#FFF",
@@ -168,4 +254,58 @@ const styles = StyleSheet.create({
     color: "#64748B",
     fontSize: 14,
   },
+  badge: {
+    position: "absolute",
+    right: 0,
+    top: 0,
+    backgroundColor: "red",
+    borderRadius: 10,
+    paddingHorizontal: 5,
+    paddingVertical: 1,
+  },
+  badgeText: {
+    color: "white",
+    fontSize: 12,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  emptyText: {
+    color: "gray",
+    fontStyle: "italic",
+  },
+  notificationItem: {
+    width: "100%",
+    backgroundColor: colors.background?.[1] || "#f7f7f7",
+    borderRadius: 12,
+    padding: 10,
+    marginBottom: 10,
+  },
+  notificationText: {
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  actionButtons: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+  },
+  acceptButton: {
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    backgroundColor: "#4CAF50",
+  },
+  declineButton: {
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    backgroundColor: "#F44336",
+  },
+  buttonText: {
+    color: "white",
+  },
 });
+
+export default HomeScreen;
