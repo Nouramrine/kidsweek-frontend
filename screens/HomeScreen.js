@@ -10,7 +10,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { fetchActivitiesAsync } from "../reducers/activities";
 
-const HomeScreen = () => {
+const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const activities = useSelector((state) => state.activities.value);
   const user = useSelector((state) => state.user.value);
@@ -92,12 +92,18 @@ const HomeScreen = () => {
           >
             <Text style={styles.dayTitle}>{day}</Text>
             {groupedActivities[day].map((a) => (
-              <View key={a._id} style={styles.activityCard}>
+              <TouchableOpacity
+                key={a._id}
+                style={styles.activityCard}
+                onPress={() =>
+                  navigation.navigate("ActivityDetails", { activity: a })
+                }
+              >
                 <Text style={styles.activityTitle}>{a.name}</Text>
                 <Text style={styles.activityTime}>
                   {formatTime(a.dateBegin)} → {formatTime(a.dateEnd)}
                 </Text>
-              </View>
+              </TouchableOpacity>
             ))}
           </View>
         ))}
