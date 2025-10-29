@@ -22,10 +22,16 @@ import { colors } from "../theme/colors";
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 const AddScreen = ({ navigation }) => {
   const user = useSelector((state) => state.user.value);
-
+  const [erreur, setErreur] = useState(false);
   //display switch
   const [isEnabled, setIsEnabled] = useState(false);
-  const toggleSwitch = () => setIsEnabled(!isEnabled);
+  const toggleSwitch = () => {
+    if (dateEnd <= dateBegin) {
+      setErreur(true);
+    } else {
+      setIsEnabled(!isEnabled);
+    }
+  };
 
   // Activity
   const [activityName, setActivityName] = useState("cinéma");
@@ -42,19 +48,8 @@ const AddScreen = ({ navigation }) => {
   const [timeEnd, setTimeEnd] = useState(new Date());
   const [showTimeEnd, setShowTimeEnd] = useState(false);
 
-  // Récurrence
-  const [recurrence, setRecurrence] = useState({
-    lun: false,
-    mar: false,
-    mer: false,
-    jeu: false,
-    ven: false,
-    sam: false,
-    dim: false,
-  });
-  // recurrence frequency
-  const [frequency, setFrequency] = useState("1");
-  const [selectedReapet, setSelectedReapet] = useState();
+  // recurrence
+  const [recurrence, setRecurrence] = useState(null);
 
   // reminder
   const [reminderNumber, setReminderNumber] = useState("10");
@@ -118,11 +113,6 @@ const AddScreen = ({ navigation }) => {
     combined.setSeconds(0);
     combined.setMilliseconds(0);
     return combined;
-  };
-
-  // Récurrence frequency
-  const toggleDay = (day) => {
-    setRecurrence({ ...recurrence, [day]: !recurrence[day] });
   };
 
   // ad children
@@ -205,7 +195,10 @@ const AddScreen = ({ navigation }) => {
       console.log("date de fin plus tot", dateEnd);
       const response = await fetch(`${BACKEND_URL}/activities/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: user.token,
+        },
         body: JSON.stringify({
           name: activityName,
           place: activityPlace,
@@ -214,10 +207,9 @@ const AddScreen = ({ navigation }) => {
           reminder: reminderDate,
           task: checklistItems,
           note: note,
-          children: children,
-          parents: parents,
+          /*children: children,
+          parents: parents,*/
           recurrence: recurrence,
-          repeat: selectedReapet,
         }),
       });
       const data = await response.json();
@@ -238,21 +230,6 @@ const AddScreen = ({ navigation }) => {
   const handleDelete = () => {
     // Logique de suppression
     console.log("Activité supprimée");
-  };
-
-  // Dropdown component for recurrence period
-  const DropdownRecurence = () => {
-    return (
-      <Picker
-        selectedValue={selectedReapet}
-        onValueChange={(itemValue, itemIndex) => setSelectedReapet(itemValue)}
-      >
-        <Picker.Item label="Jour" value="jour" />
-        <Picker.Item label="Semaine" value="semaine" />
-        <Picker.Item label="Mois" value="mois" />
-        <Picker.Item label="An" value="an" />
-      </Picker>
-    );
   };
 
   // Dropdown component for reminder unit
@@ -390,6 +367,12 @@ const AddScreen = ({ navigation }) => {
       {/* Récurrence */}
       <View style={styles.section}>
         <Text style={styles.label}>Récurrence</Text>
+        {erreur && (
+          <Text style={{ color: "red", marginBottom: 5 }}>
+            La date de fin doit être supérieure à la date de début pour
+            appliquer une recurrence
+          </Text>
+        )}
         <Switch
           trackColor={{ false: "#ecb6aeff", true: "#9fe6e0ff" }}
           thumbColor={isEnabled ? "#80CEC7" : "#FD9989"}
@@ -397,50 +380,41 @@ const AddScreen = ({ navigation }) => {
           onValueChange={toggleSwitch}
           value={isEnabled}
         />
-        {isEnabled ? (
-          <View style={styles.section}>
-            <Text style={styles.label}>Récurrence</Text>
 
+        {isEnabled && (
+          <View style={{ marginTop: 10 }}>
+            <Text style={{ marginBottom: 8, fontWeight: "500" }}>
+              Sélectionne un jour :
+            </Text>
             <View style={styles.daysContainer}>
-              <View style={styles.displayDays}>
-                {["lun", "mar", "mer", "jeu", "ven", "sam", "dim"].map(
-                  (day) => (
-                    <TouchableOpacity
-                      key={day}
-                      style={[
-                        styles.dayButton,
-                        recurrence[day] && styles.dayButtonActive,
-                      ]}
-                      onPress={() => toggleDay(day)}
-                    >
-                      <Text
-                        style={[
-                          styles.dayText,
-                          recurrence[day] && styles.dayTextActive,
-                        ]}
-                      >
-                        {day.charAt(0).toUpperCase() + day.slice(1)}
-                      </Text>
-                    </TouchableOpacity>
-                  )
-                )}
-              </View>
+              {["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"].map((day) => (
+                <TouchableOpacity
+                  key={day}
+                  style={[
+                    styles.dayButton,
+                    recurrence === day && styles.dayButtonActive,
+                  ]}
+                  onPress={() => setRecurrence(recurrence === day ? null : day)}
+                >
+                  <Text
+                    style={[
+                      styles.dayText,
+                      recurrence === day && styles.dayTextActive,
+                    ]}
+                  >
+                    {day}
+                  </Text>
+                </TouchableOpacity>
+              ))}
             </View>
 
-            <View style={styles.reccurence}>
-              <Text style={styles.reccurence}>toutes les</Text>
-              <KWTextInput
-                style={styles.frequencyInput}
-                value={frequency}
-                onChangeText={setFrequency}
-                keyboardType="numeric"
-              />
-
-              <DropdownRecurence />
-            </View>
+            {recurrence && (
+              <Text style={styles.selectedDayText}>
+                Répéter chaque :{" "}
+                <Text style={{ fontWeight: "bold" }}>{recurrence}</Text>
+              </Text>
+            )}
           </View>
-        ) : (
-          ""
         )}
       </View>
 
