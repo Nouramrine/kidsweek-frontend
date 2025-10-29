@@ -16,11 +16,11 @@ import { Picker } from "@react-native-picker/picker";
 import KWButton from "../components/KWButton";
 import KWTextInput from "../components/KWTextInput";
 import KWText from "../components/KWText";
+import { colors } from "../theme/colors";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useSelector, useDispatch } from "react-redux";
-
 import { createActivityAsync } from "../reducers/activities";
-import { colors } from "../theme/colors";
+
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 const AddScreen = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -573,14 +573,7 @@ const AddScreen = ({ navigation }) => {
 
       {/* Boutons */}
       <View style={styles.buttonsContainer}>
-        <TouchableOpacity
-          style={styles.cancelButton}
-          onPress={() => navigation.goBack()}
-        >
-          <KWText type="text" style={styles.cancelButtonText}>
-            Retour
-          </KWText>
-        </TouchableOpacity>
+        <KWButton title="Retour" onPress={() => navigation.goBack()} />
 
         <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
           <Ionicons name="trash-outline" size={28} color="#EF4444" />
