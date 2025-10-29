@@ -67,23 +67,23 @@ export const createActivityAsync = createAsyncThunk(
 
       const data = await response.json();
       console.log("Create activity response:", data.activity);
-      /* if (data && data.member.token) {
+      if (data.activity) {
         dispatch(
           login({
-            name: data.member.token,
-            place: data.member.firstName,
-            dateBegin,
-            dateEnd,
-            reminder,
-            task,
-            note,
-            recurrence,
+            name: data.name,
+            place: data.place,
+            dateBegin: data.dateBegin,
+            dateEnd: data.dateEnd,
+            reminder: data.reminder,
+            task: data.task,
+            note: data.note,
+            recurrence: data.recurrence,
           })
         );
       } else {
         console.warn("Erreur signin :", data);
       }
-*/
+
       return data.activity;
     } catch (error) {
       console.error("Erreur réseau :", error);
