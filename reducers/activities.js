@@ -136,6 +136,39 @@ export const activitiesSlice = createSlice({
       state.value = state.value.filter((act) => act._id !== action.payload);
     },
   },
+  extraReducers: (builder) => {
+    builder
+      // Fetch
+      .addCase(fetchActivitiesAsync.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchActivitiesAsync.fulfilled, (state, action) => {
+        state.loading = false;
+        state.value = action.payload;
+      })
+      .addCase(fetchActivitiesAsync.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      // Create
+      .addCase(createActivityAsync.fulfilled, (state, action) => {
+        state.value.push(action.payload);
+      })
+      // Update
+      .addCase(updateActivityAsync.fulfilled, (state, action) => {
+        const index = state.value.findIndex(
+          (act) => act._id === action.payload._id
+        );
+        if (index !== -1) {
+          state.value[index] = action.payload;
+        }
+      })
+      // Delete
+      .addCase(deleteActivityAsync.fulfilled, (state, action) => {
+        state.value = state.value.filter((act) => act._id !== action.payload);
+      });
+  },
 });
 
 export const { setActivities, addActivity, updateActivity, removeActivity } =
