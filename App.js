@@ -1,6 +1,8 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { useFonts, Gluten_700Bold, Gluten_500Medium} from '@expo-google-fonts/gluten';
+import { JosefinSans_400Regular, JosefinSans_300Light } from '@expo-google-fonts/josefin-sans';
 
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -98,6 +100,17 @@ const TabNavigator = () => {
 };
 
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    Gluten_700Bold,
+    Gluten_500Medium,
+    JosefinSans_400Regular,
+    JosefinSans_300Light,
+  });
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
   // affichage de AuthScreen si non connecté sinon arrivé sur HomeScreen
   const DisplayIsLogged = () => {
     const userData = useSelector((state) => state.user.value);
