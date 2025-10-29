@@ -14,10 +14,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontFamily: 'JosefinSans_400Regular',
     },
-    text: {
-        fontSize: 16,
-        fontFamily: 'JosefinSans_400Regular',
-    },
     h1: {
         fontSize: 28,
         fontFamily: 'Gluten_500Medium',

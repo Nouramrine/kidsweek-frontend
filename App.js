@@ -100,6 +100,17 @@ const TabNavigator = () => {
 };
 
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    Gluten_700Bold,
+    Gluten_500Medium,
+    JosefinSans_400Regular,
+    JosefinSans_300Light,
+  });
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
   // affichage de AuthScreen si non connecté sinon arrivé sur HomeScreen
   const DisplayIsLogged = () => {
     const userData = useSelector((state) => state.user.value);
