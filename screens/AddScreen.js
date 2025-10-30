@@ -26,6 +26,7 @@ import {
   KWCardButton,
   KWCardBody,
 } from "../components/KWCard";
+import KWDateTimePicker from "../components/KWDateTimePicker";
 import { colors } from "../theme/colors";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useSelector, useDispatch } from "react-redux";
@@ -75,21 +76,9 @@ const AddScreen = ({ navigation, route }) => {
   const activities = useSelector((state) => state.activities.value);
   //console.log("reducer member", user);
   console.log("reducer activities", activities);
-  const [error, seterror] = useState(false);
+  const [error, setError] = useState(false);
   //display switch
   const [isEnabled, setIsEnabled] = useState(false);
-
-  const toggleSwitch = () => {
-    const fullDateBegin = combineDateAndTime(dateBegin, timeBegin);
-    const fullDateEnd = combineDateAndTime(dateEnd, timeEnd);
-
-    if (fullDateEnd <= fullDateBegin) {
-      seterror(true);
-    } else {
-      seterror(false);
-      setIsEnabled(!isEnabled);
-    }
-  };
 
   // Activity
   const [activityName, setActivityName] = useState("");
@@ -108,7 +97,9 @@ const AddScreen = ({ navigation, route }) => {
 
   // recurrence
   const [recurrence, setRecurrence] = useState(null);
-
+  const [dateEndRecurrence, setDateEndRecurrence] = useState(new Date());
+  const [timeEndRecurrence, setTimeEndRecurrence] = useState(new Date());
+  const [showDateEndRecurrence, setShowDateEndRecurrence] = useState(false);
   // reminder
   const [reminderNumber, setReminderNumber] = useState("10");
   const [reminderUnit, setReminderUnit] = useState("Minutes");
@@ -135,6 +126,7 @@ const AddScreen = ({ navigation, route }) => {
       if (props.recurrence) {
         setIsEnabled(true);
         setRecurrence(props.recurrence);
+        setDateEndRecurrence(props.dateEndRecurrence);
       }
       setReminderNumber(props.reminderNumber);
       setReminderUnit(props.reminderUnit);
@@ -142,7 +134,7 @@ const AddScreen = ({ navigation, route }) => {
       setParents(props.parents);
       setChecklistItems(props.checklistItems);
     }
-  }, [activityToEdit]);
+  }, [props]);
   // Handlers DateTimePicker dateBegin
   const onChangeDateBegin = (event, selectedDate) => {
     setShowDateBegin(false);
@@ -171,7 +163,13 @@ const AddScreen = ({ navigation, route }) => {
       setDateEnd(dateOnly);
     }
   };
-
+  const onChangeDateEndRecurrence = (event, selectedDate) => {
+    if (event.type === "set" && selectedDate) {
+      const dateOnly = new Date(selectedDate);
+      dateOnly.setHours(0, 0, 0, 0);
+      setDateEndRecurrence(dateOnly);
+    }
+  };
   // Handlers DateTimePicker timeEnd
   const onChangeTimeEnd = (event, selectedTime) => {
     setShowTimeEnd(false);
@@ -247,8 +245,18 @@ const AddScreen = ({ navigation, route }) => {
 
     return reminderDate;
   };
+  // toggle switch display recurrence
+  const toggleSwitch = () => {
+    setIsEnabled(!isEnabled);
+  };
   // Form validation
-  const validateForm = () => {
+  const validateForm = (fullDateEnd, fullDateBegin) => {
+    if (fullDateEnd <= fullDateBegin) {
+      setError(true);
+    } else {
+      setError(false);
+    }
+
     if (!activityName.trim()) {
       Alert.alert("Erreur", "Le nom est obligatoire");
       return false;
@@ -265,10 +273,14 @@ const AddScreen = ({ navigation, route }) => {
   };
   // create activity
   const handleSave = async () => {
-    validateForm();
-
     const fullDateBegin = combineDateAndTime(dateBegin, timeBegin);
     const fullDateEnd = combineDateAndTime(dateEnd, timeEnd);
+    const fullDateEndRecurrence = combineDateAndTime(
+      dateEndRecurrence,
+      timeEndRecurrence
+    );
+    validateForm(fullDateBegin, fullDateEnd);
+
     const reminderDate = calculateReminderDate(
       fullDateBegin,
       reminderNumber,
@@ -285,6 +297,7 @@ const AddScreen = ({ navigation, route }) => {
           place: activityPlace,
           dateBegin: fullDateBegin,
           dateEnd: fullDateEnd,
+          dateEndRecurrence: fullDateEndRecurrence,
           reminder: reminderDate,
           task: checklistItems,
           note: note,
@@ -379,46 +392,18 @@ const AddScreen = ({ navigation, route }) => {
             <KWText type="text" style={styles.label}>
               Début
             </KWText>
-            <View style={styles.dateTimeRow}>
-              <TouchableOpacity
-                style={[styles.dateButton, { flex: 2, marginRight: 10 }]}
-                onPress={() => setShowDateBegin(true)}
-              >
-                <KWText type="text" style={styles.dateButtonText}>
-                  {dateBegin.toLocaleDateString("fr-FR")}
-                </KWText>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.dateButton, { flex: 1 }]}
-                onPress={() => setShowTimeBegin(true)}
-              >
-                <KWText type="text" style={styles.dateButtonText}>
-                  {timeBegin.toLocaleTimeString("fr-FR", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </KWText>
-              </TouchableOpacity>
-            </View>
-
-            {showDateBegin && (
-              <DateTimePicker
-                value={dateBegin}
-                mode="date"
-                display="default"
-                onChange={onChangeDateBegin}
-              />
-            )}
-            {showTimeBegin && (
-              <DateTimePicker
-                value={timeBegin}
-                mode="time"
-                is24Hour={true}
-                display="default"
-                onChange={onChangeTimeBegin}
-              />
-            )}
+            <KWDateTimePicker
+              label="Début"
+              date={dateBegin}
+              time={timeBegin}
+              onDateChange={setDateBegin}
+              onTimeChange={setTimeBegin}
+              dateError={
+                dateEnd < dateBegin
+                  ? "La date de fin ne peut être avant la date de début"
+                  : ""
+              }
+            />
           </View>
 
           {/* date fin */}
@@ -426,53 +411,19 @@ const AddScreen = ({ navigation, route }) => {
             <KWText type="text" style={styles.label}>
               Fin
             </KWText>
-            {dateEnd < dateBegin ? (
-              <KWText type="inputError">
-                La date de fin ne peut être avant la date de debut
-              </KWText>
-            ) : (
-              ""
-            )}
-            <View style={styles.dateTimeRow}>
-              <TouchableOpacity
-                style={[styles.dateButton, { flex: 2, marginRight: 10 }]}
-                onPress={() => setShowDateEnd(true)}
-              >
-                <KWText type="text" style={styles.dateButtonText}>
-                  {dateEnd.toLocaleDateString("fr-FR")}
-                </KWText>
-              </TouchableOpacity>
 
-              <TouchableOpacity
-                style={[styles.dateButton, { flex: 1 }]}
-                onPress={() => setShowTimeEnd(true)}
-              >
-                <KWText type="text" style={styles.dateButtonText}>
-                  {timeEnd.toLocaleTimeString("fr-FR", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </KWText>
-              </TouchableOpacity>
-            </View>
-
-            {showDateEnd && (
-              <DateTimePicker
-                value={dateEnd}
-                mode="date"
-                display="default"
-                onChange={onChangeDateEnd}
-              />
-            )}
-            {showTimeEnd && (
-              <DateTimePicker
-                value={timeEnd}
-                mode="time"
-                is24Hour={true}
-                display="default"
-                onChange={onChangeTimeEnd}
-              />
-            )}
+            <KWDateTimePicker
+              label="Fin"
+              date={dateEnd}
+              time={timeEnd}
+              onDateChange={setDateEnd}
+              onTimeChange={setTimeEnd}
+              dateError={
+                dateEnd < dateBegin
+                  ? "La date de fin ne peut être avant la date de début"
+                  : ""
+              }
+            />
           </View>
 
           {/* Récurrence */}
@@ -495,72 +446,81 @@ const AddScreen = ({ navigation, route }) => {
             />
 
             {isEnabled && (
-              <View style={{ marginTop: 10 }}>
-                <KWText
-                  type="text"
-                  style={{ marginBottom: 8, fontWeight: "500" }}
-                >
-                  Sélectionne un jour :
-                </KWText>
-                <View style={styles.daysContainer}>
-                  {["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"].map(
-                    (day) => (
-                      <TouchableOpacity
-                        key={day}
-                        style={[
-                          styles.dayButton,
-                          recurrence === day && styles.dayButtonActive,
-                        ]}
-                        onPress={() =>
-                          setRecurrence(recurrence === day ? null : day)
-                        }
-                      >
-                        <KWText
-                          type="text"
+              <View>
+                {/* Sélection du jour de récurrence */}
+                <View style={{ marginTop: 10 }}>
+                  <KWText
+                    type="text"
+                    style={{ marginBottom: 8, fontWeight: "500" }}
+                  >
+                    Sélectionne un jour :
+                  </KWText>
+                  <View style={styles.daysContainer}>
+                    {["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"].map(
+                      (day) => (
+                        <TouchableOpacity
+                          key={day}
                           style={[
-                            styles.dayText,
-                            recurrence === day && styles.dayTextActive,
+                            styles.dayButton,
+                            recurrence === day && styles.dayButtonActive,
                           ]}
+                          onPress={() =>
+                            setRecurrence(recurrence === day ? null : day)
+                          }
                         >
-                          {day}
-                        </KWText>
-                      </TouchableOpacity>
-                    )
+                          <KWText
+                            type="text"
+                            style={[
+                              styles.dayText,
+                              recurrence === day && styles.dayTextActive,
+                            ]}
+                          >
+                            {day}
+                          </KWText>
+                        </TouchableOpacity>
+                      )
+                    )}
+                  </View>
+                  {recurrence && (
+                    <KWText type="text" style={styles.selectedDayText}>
+                      Répéter chaque :{" "}
+                      <KWText type="text" style={{ fontWeight: "bold" }}>
+                        {recurrence}
+                      </KWText>
+                    </KWText>
                   )}
                 </View>
 
-                {recurrence && (
-                  <KWText type="text" style={styles.selectedDayText}>
-                    Répéter chaque :{" "}
-                    <KWText type="text" style={{ fontWeight: "bold" }}>
-                      {recurrence}
-                    </KWText>
+                {/* Date de fin de récurrence (uniquement si isEnabled) */}
+                <View style={{ marginTop: 15 }}>
+                  <KWText type="text" style={styles.label}>
+                    La récurrence se termine le :
                   </KWText>
-                )}
+                  <TouchableOpacity
+                    style={[styles.dateButton, { marginTop: 5 }]}
+                    onPress={() => setShowDateEndRecurrence(true)}
+                  >
+                    <KWText type="text" style={styles.dateButtonText}>
+                      {dateEndRecurrence.toLocaleDateString("fr-FR")}
+                    </KWText>
+                  </TouchableOpacity>
+                  {showDateEndRecurrence && (
+                    <KWDateTimePicker
+                      label="FinRecurrence"
+                      date={dateEndRecurrence}
+                      time={timeEndRecurrence}
+                      onDateChange={setDateEndRecurrence}
+                      onTimeChange={setTimeEndRecurrence}
+                      dateError={
+                        dateEndRecurrence < dateBegin
+                          ? "La date de fin ne peut être avant la date de début"
+                          : ""
+                      }
+                    />
+                  )}
+                </View>
               </View>
             )}
-          </View>
-
-          {/* Rappel */}
-          <View style={styles.section}>
-            <View style={styles.reminderContainer}>
-              <KWTextInput
-                label="Rappel"
-                style={styles.reminderInput}
-                value={reminderNumber}
-                onChangeText={setReminderNumber}
-                keyboardType="numeric"
-              />
-              <KWDropdown
-                selectedValue={reminderUnit}
-                onValueChange={(itemValue, itemIndex) =>
-                  setReminderUnit(itemValue)
-                }
-              />
-              <KWText type="text" style={styles.reminderText}>
-                avant
-              </KWText>
-            </View>
           </View>
 
           {/* Enfant(s) */}
