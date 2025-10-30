@@ -9,10 +9,11 @@ import KWButton from "../components/KWButton";
 import KWDropDown from "../components/KWDropDown";
 import ZoneForm from "../components/zone/Form";
 import MemberForm from "../components/member/Form";
+import MemberAdd from "../components/member/Add";
 
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useSelector, useDispatch } from "react-redux";
-import { fetchZonesAsync, deleteZoneAsync, removeMemberFromZoneAsync } from "../reducers/zones";
+import { fetchZonesAsync, deleteZoneAsync, removeMemberFromZoneAsync, addMemberToZoneAsync } from "../reducers/zones";
 import { fetchMembersAsync, deleteMemberAsync } from "../reducers/members";
 
 // ...imports inchangés
@@ -23,8 +24,8 @@ const FamillyScreen = ({ navigation }) => {
   const zones = useSelector((state) => state.zones.value);
   const members = useSelector((state) => state.members.value);
 
-  //console.log("Zones : ", zones)
-  //console.log("Membres : ", members)
+  console.log("Zones : ", zones)
+  console.log("Membres : ", members)
 
   // Pour affichage modal et édition Zones
   const [zoneModal, setZoneModal] = useState(false);
@@ -33,6 +34,9 @@ const FamillyScreen = ({ navigation }) => {
   // Pour affichage modal et édition Membres
   const [memberModal, setMemberModal] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
+
+  // Pour affichage modal d'ajout de membre a la zone
+  const [addMemberToZoneModal, setAddMemberToZoneModal] = useState(false);
 
   const [openDropdownId, setOpenDropdownId] = useState(null); // id du membre sur lequel le dropdown est ouvert (dropdown unique)
   
@@ -53,7 +57,20 @@ const FamillyScreen = ({ navigation }) => {
             data={selectedZone} 
             onReturn={() => { 
               setZoneModal(false);
-              setOpenZoneDropdownId(null);
+              setOpenDropdownId(null);
+            }} />
+        </KWModal>
+
+        {/* Modal Ajout d'un membre à la zone */}
+        <KWModal
+          visible={addMemberToZoneModal}
+        >
+          <MemberAdd 
+            currentMembers={selectedZone?.members}
+            onReturn={(memberId) => {
+              if(memberId) dispatch(addMemberToZoneAsync({ zoneId: selectedZone?._id, memberId }))
+              setSelectedZone(null);
+              setAddMemberToZoneModal(false);
             }} />
         </KWModal>
 
@@ -64,7 +81,7 @@ const FamillyScreen = ({ navigation }) => {
               style={styles.topButton} 
               onPress={() => { 
                 setSelectedMember(null);
-                setMemberModal(true); 
+                setMemberModal(true);
               }}>
               <KWCard color={colors.green[0]}>
                 <View style={{ flexDirection: 'row' }}>
@@ -108,7 +125,8 @@ const FamillyScreen = ({ navigation }) => {
                     <KWText>{zone.name}</KWText>
                     <KWText>{zone.members.length} membres</KWText>
                   </KWCardTitle>
-                  <KWCardButton>
+                  <KWCardButton> 
+                    {!zone.isReadOnly && 
                     <KWDropDown
                       id={zone._id}
                       icon="ellipsis-v"
@@ -129,6 +147,7 @@ const FamillyScreen = ({ navigation }) => {
                         }
                       }}
                     />
+                    }
                   </KWCardButton>
                 </KWCardHeader>
 
@@ -154,7 +173,15 @@ const FamillyScreen = ({ navigation }) => {
                       </KWCard>
                     );
                   })}
-                  <KWButton icon="plus" title="Ajouter" bgColor={colors.background[1]} color={colors.text[0]} />
+                  <KWButton 
+                    icon="plus" 
+                    title="Ajouter" 
+                    bgColor={colors.background[1]} 
+                    color={colors.text[0]} 
+                    onPress={() => { 
+                      setSelectedZone(zone)
+                      setAddMemberToZoneModal(true);
+                    }} />
                 </KWCardBody>
               </KWCard>
             ))}
