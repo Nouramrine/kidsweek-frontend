@@ -37,7 +37,7 @@ export const createMemberAsync = createAsyncThunk(
     const data = await response.json();
     if (!data.result)
       console.log( "Create member : ", data.error || "Erreur lors de la création du membre");
-    return data;
+    return data.member;
   }
 );
 

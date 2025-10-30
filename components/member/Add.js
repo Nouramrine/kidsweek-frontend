@@ -61,6 +61,10 @@ const styles = StyleSheet.create({
   membersContainer: {
     width: '100%',
   },
+  memberCard: {
+    marginTop: 10,
+    padding: 10,
+  },
   emptyText: {
     padding: 25,
     width: '100%',
