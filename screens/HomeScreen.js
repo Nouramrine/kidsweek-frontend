@@ -1,17 +1,26 @@
 import React, { useEffect, useState } from "react";
 import {
   View,
-  Text,
   StyleSheet,
   FlatList,
   ScrollView,
   TouchableOpacity,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchActivitiesAsync } from "../reducers/activities";
 import KWModal from "../components/KWModal";
-import { Ionicons } from "@expo/vector-icons";
+import {
+  KWCard,
+  KWCardHeader,
+  KWCardTitle,
+  KWCardBody,
+  KWCardIcon,
+} from "../components/KWCard";
+import KWText from "../components/KWText";
+import KWButton from "../components/KWButton";
 import { colors } from "../theme/colors";
+import { Ionicons } from "@expo/vector-icons";
 
 const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -80,185 +89,193 @@ const HomeScreen = ({ navigation }) => {
       : "";
 
   return (
-    <View style={{ flex: 1 }}>
-      {/* Header avec icône cloche */}
-      <View style={styles.header}>
-        <Text style={styles.title}>KidsWeek</Text>
-        <TouchableOpacity onPress={toggleModal} style={styles.bellContainer}>
-          <Ionicons
-            name="notifications-outline"
-            size={28}
-            color={colors.primary || "black"}
-          />
-          {notifications.length > 0 && (
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>{notifications.length}</Text>
-            </View>
-          )}
-        </TouchableOpacity>
-      </View>
-      <View style={styles.container}>
-        <Text style={styles.title}>Mon planning</Text>
-
-        {/* --- Sélection des enfants (mock pour l’instant) --- */}
-        <View style={styles.childSelector}>
-          {["Enfant 1", "Enfant 2"].map((child, index) => (
-            <TouchableOpacity
-              key={child + index}
-              style={[
-                styles.childButton,
-                selectedChild === child && styles.childButtonSelected,
-              ]}
-              onPress={() => setSelectedChild(child)}
-            >
-              <Text
-                style={[
-                  styles.childText,
-                  selectedChild === child && styles.childTextSelected,
-                ]}
-              >
-                {child}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        {/* --- Liste des activités par jour --- */}
-        <ScrollView style={styles.listContainer}>
-          {sortedDays.map((day) => (
-            <View
-              key={day + (groupedActivities[day][0]?._id || Math.random())}
-              style={styles.dayContainer}
-            >
-              <Text style={styles.dayTitle}>{day}</Text>
-              {groupedActivities[day].map((a) => (
-                <TouchableOpacity
-                  key={a._id}
-                  style={styles.activityCard}
-                  onPress={() =>
-                    navigation.navigate("ActivityDetails", { activity: a })
-                  }
-                >
-                  <Text style={styles.activityTitle}>{a.name}</Text>
-                  <Text style={styles.activityTime}>
-                    {formatTime(a.dateBegin)} → {formatTime(a.dateEnd)}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          ))}
-        </ScrollView>
-      </View>
-      {/* Modal de notifications */}
-      <KWModal visible={isModalVisible} onRequestClose={toggleModal}>
-        <Text style={styles.modalTitle}>Notifications</Text>
-        {notifications.length === 0 ? (
-          <Text style={styles.emptyText}>Aucune notification.</Text>
-        ) : (
-          <FlatList
-            data={notifications}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <View style={styles.notificationItem}>
-                <Text style={styles.notificationText}>{item.message}</Text>
-
-                {/*bouton pour valider/refuser invitation*/}
-                {item.type === "validation" && (
-                  <View style={styles.actionButtons}>
-                    <TouchableOpacity style={styles.acceptButton}>
-                      <Text style={styles.acceptButtonText}>Accepter</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.declineButton}>
-                      <Text style={styles.declineButtonText}>Refuser</Text>
-                    </TouchableOpacity>
-                  </View>
-                )}
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.screen}>
+        {/* Header avec icône cloche */}
+        <View style={styles.header}>
+          <KWText type="h1">KidsWeek</KWText>
+          <TouchableOpacity onPress={toggleModal} style={styles.bellContainer}>
+            <Ionicons
+              name="notifications-outline"
+              size={28}
+              color={colors.orange[2]}
+            />
+            {notifications.length > 0 && (
+              <View style={styles.badge}>
+                <KWText style={styles.badgeText}>{notifications.length}</KWText>
               </View>
             )}
-          />
-        )}
-      </KWModal>
-    </View>
+          </TouchableOpacity>
+        </View>
+
+        <ScrollView contentContainerStyle={styles.scroll}>
+          {/* --- Sélection des enfants (mock pour l’instant) --- */}
+          <KWCard style={{ backgroundColor: colors.blue[0], marginBottom: 15 }}>
+            <KWCardBody style={styles.childSelector}>
+              {["Enfant 1", "Enfant 2"].map((child, index) => (
+                <KWButton
+                  key={child + index}
+                  title={child}
+                  bgColor={
+                    selectedChild === child ? colors.blue[2] : colors.blue[1]
+                  }
+                  color={"white"}
+                  onPress={() => setSelectedChild(child)}
+                />
+              ))}
+            </KWCardBody>
+          </KWCard>
+
+          {/* --- Liste des activités par jour --- */}
+          <KWCard style={{ backgroundColor: colors.green[0] }}>
+            <KWCardHeader>
+              <KWCardIcon>
+                <Ionicons
+                  name="calendar-outline"
+                  size={20}
+                  color={colors.green[2]}
+                />
+              </KWCardIcon>
+              <KWCardTitle>
+                <KWText type="h2" style={{ color: colors.green[2] }}>
+                  Mon planning
+                </KWText>
+              </KWCardTitle>
+            </KWCardHeader>
+
+            <KWCardBody>
+              {sortedDays.map((day) => (
+                <View
+                  key={day + (groupedActivities[day][0]?._id || Math.random())}
+                  style={{ marginBottom: 10 }}
+                >
+                  <KWText
+                    type="h3"
+                    style={{
+                      fontWeight: "bold",
+                      marginBottom: 5,
+                      color: colors.text[0],
+                    }}
+                  >
+                    {day}
+                  </KWText>
+                  {groupedActivities[day].map((a) => (
+                    <TouchableOpacity
+                      key={a._id}
+                      onPress={() =>
+                        navigation.navigate("ActivityDetails", { activity: a })
+                      }
+                    >
+                      <KWCard
+                        style={{
+                          backgroundColor: colors.yellow[0],
+                          padding: 12,
+                          marginBottom: 8,
+                          borderLeftWidth: 4,
+                          borderLeftColor: colors.yellow[2],
+                        }}
+                      >
+                        <KWText
+                          style={{ fontWeight: "600", color: colors.yellow[2] }}
+                        >
+                          {a.name}
+                        </KWText>
+                        <KWText color={colors.text[0]}>
+                          {formatTime(a.dateBegin)} → {formatTime(a.dateEnd)}
+                        </KWText>
+                      </KWCard>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              ))}
+            </KWCardBody>
+          </KWCard>
+        </ScrollView>
+
+        {/* Modal de notifications */}
+        <KWModal visible={isModalVisible} onRequestClose={toggleModal}>
+          <KWText
+            type="h2"
+            style={{ marginBottom: 10, color: colors.orange[2] }}
+          >
+            Notifications
+          </KWText>
+          {notifications.length === 0 ? (
+            <KWText color={colors.text[0]}>Aucune notification.</KWText>
+          ) : (
+            <FlatList
+              data={notifications}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <KWCard
+                  style={{
+                    width: "100%",
+                    marginBottom: 10,
+                    backgroundColor:
+                      item.type === "reminder"
+                        ? colors.purple[0]
+                        : colors.pink[0],
+                  }}
+                >
+                  <KWText>{item.message}</KWText>
+
+                  {/*bouton pour valider/refuser invitation*/}
+                  {item.type === "validation" && (
+                    <View style={styles.actionButtons}>
+                      <KWButton
+                        title="Accepter"
+                        bgColor={colors.green[2]}
+                        onPress={() => console.log("accept")}
+                      />
+                      <KWButton
+                        title="Refuser"
+                        bgColor={colors.red[2]}
+                        onPress={() => console.log("decline")}
+                      />
+                    </View>
+                  )}
+                </KWCard>
+              )}
+            />
+          )}
+        </KWModal>
+      </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background?.[0] || "white",
+  },
+  screen: {
+    flex: 1,
+    backgroundColor: colors.background?.[0] || "white",
+  },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 20,
-    paddingVertical: 10,
+    padddingTop: 40,
+  },
+  title: {
+    color: colors.blue[2],
+  },
+  scroll: {
+    padding: 15,
+    paddingBottom: 100,
   },
   bellContainer: {
     position: "relative",
     padding: 5,
   },
-  container: {
-    flex: 1,
-    backgroundColor: "#FFF",
-    paddingHorizontal: 16,
-    paddingTop: 40,
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  childSelector: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginBottom: 20,
-  },
-  childButton: {
-    borderWidth: 1,
-    borderColor: "#A78BFA",
-    borderRadius: 20,
-    paddingVertical: 6,
-    paddingHorizontal: 16,
-    marginHorizontal: 5,
-  },
-  childButtonSelected: {
-    backgroundColor: "#A78BFA",
-  },
-  childText: {
-    color: "#A78BFA",
-    fontWeight: "600",
-  },
-  childTextSelected: {
-    color: "#FFF",
-  },
-  listContainer: {
-    flex: 1,
-  },
-  dayContainer: {
-    marginBottom: 16,
-  },
-  dayTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 8,
-  },
-  activityCard: {
-    backgroundColor: "#F3F4F6",
-    padding: 12,
-    borderRadius: 10,
-    marginBottom: 8,
-  },
-  activityTitle: {
-    fontSize: 16,
-    fontWeight: "500",
-  },
-  activityTime: {
-    color: "#64748B",
-    fontSize: 14,
-  },
   badge: {
     position: "absolute",
-    right: 0,
     top: 0,
-    backgroundColor: "red",
+    right: 0,
+    backgroundColor: colors.red[2],
     borderRadius: 10,
     paddingHorizontal: 5,
     paddingVertical: 1,
@@ -267,44 +284,15 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 12,
   },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  emptyText: {
-    color: "gray",
-    fontStyle: "italic",
-  },
-  notificationItem: {
-    width: "100%",
-    backgroundColor: colors.background?.[1] || "#f7f7f7",
-    borderRadius: 12,
-    padding: 10,
-    marginBottom: 10,
-  },
-  notificationText: {
-    fontSize: 16,
-    marginBottom: 8,
+  childSelector: {
+    flexDirection: "row",
+    justifyContent: "space-evenly",
   },
   actionButtons: {
     flexDirection: "row",
     justifyContent: "flex-end",
-  },
-  acceptButton: {
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 8,
-    backgroundColor: "#4CAF50",
-  },
-  declineButton: {
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 8,
-    backgroundColor: "#F44336",
-  },
-  buttonText: {
-    color: "white",
+    gap: 10,
+    marginTop: 10,
   },
 });
 
