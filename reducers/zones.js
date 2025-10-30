@@ -16,10 +16,11 @@ export const fetchZonesAsync = createAsyncThunk(
       },
     });
     const data = await response.json();
-    if (!response.ok)
+    //console.log(data)
+    if (!data.result)
       throw new Error(data.message || "Erreur lors du fetch des zones");
-    return data.zones;
-  }
+    return data.zones || [];
+  }  
 );
 
 // Créer une nouvelle zone
@@ -59,7 +60,7 @@ export const updateZoneAsync = createAsyncThunk(
       body: JSON.stringify({ name: zoneData.name, color: zoneData.color }),
     });
     const data = await response.json();
-    if (!response.ok)
+    if (!data.result)
       throw new Error(
         data.message || "Erreur lors de la mise à jour de la zone"
       );
@@ -71,7 +72,8 @@ export const updateZoneAsync = createAsyncThunk(
 
 export const deleteZoneAsync = createAsyncThunk(
   "zones/deleteZoneAsync",
-  async ({ token, zoneId }) => {
+  async ( zoneId, { getState } ) => {
+    const token = getState().user.value.token;
     const response = await fetch(`${BACKEND_URL}/zones/${zoneId}`, {
       method: "DELETE",
       headers: {
@@ -80,11 +82,9 @@ export const deleteZoneAsync = createAsyncThunk(
       },
     });
     const data = await response.json();
-    if (!response.ok)
-      throw new Error(
-        data.message || "Erreur lors de la suppression de la zone"
-      );
-    return zoneId || '';
+    if (!data.result)
+      throw new Error(data.error || "Erreur lors de la suppression de la zone");
+    return data.zone || '';
   }
 );
 
@@ -181,7 +181,7 @@ export const zonesSlice = createSlice({
       })
       // Delete
       .addCase(deleteZoneAsync.fulfilled, (state, action) => {
-        state.value = state.value.filter((zone) => zone._id !== action.payload);
+        state.value = state.value.filter((zone) => zone._id !== action.payload._id);
       })
       // Add Member
       .addCase(addMemberToZoneAsync.fulfilled, (state, action) => {
