@@ -100,6 +100,7 @@ const AddScreen = ({ navigation, route }) => {
   const [dateEndRecurrence, setDateEndRecurrence] = useState(new Date());
   const [timeEndRecurrence, setTimeEndRecurrence] = useState(new Date());
   const [showDateEndRecurrence, setShowDateEndRecurrence] = useState(false);
+  const [hasManuallySetDateEnd, setHasManuallySetDateEnd] = useState(false);
   // reminder
   const [reminderNumber, setReminderNumber] = useState("10");
   const [reminderUnit, setReminderUnit] = useState("Minutes");
@@ -142,7 +143,9 @@ const AddScreen = ({ navigation, route }) => {
       const dateOnly = new Date(selectedDate);
       dateOnly.setHours(0, 0, 0, 0);
       setDateBegin(dateOnly);
-      setDateEnd(dateOnly);
+      if (!hasManuallySetDateEnd) {
+        setDateEnd(dateOnly);
+      }
     }
   };
 
@@ -161,6 +164,7 @@ const AddScreen = ({ navigation, route }) => {
       const dateOnly = new Date(selectedDate);
       dateOnly.setHours(0, 0, 0, 0);
       setDateEnd(dateOnly);
+      setHasManuallySetDateEnd(true);
     }
   };
   const onChangeDateEndRecurrence = (event, selectedDate) => {
@@ -389,35 +393,27 @@ const AddScreen = ({ navigation, route }) => {
 
           {/* date début */}
           <View style={styles.section}>
-            <KWText type="text" style={styles.label}>
-              Début
-            </KWText>
             <KWDateTimePicker
               label="Début"
               date={dateBegin}
               time={timeBegin}
-              onDateChange={setDateBegin}
-              onTimeChange={setTimeBegin}
+              onDateChange={onChangeDateBegin}
+              onTimeChange={onChangeTimeBegin}
               dateError={
                 dateEnd < dateBegin
                   ? "La date de fin ne peut être avant la date de début"
                   : ""
               }
             />
-          </View>
 
-          {/* date fin */}
-          <View style={styles.section}>
-            <KWText type="text" style={styles.label}>
-              Fin
-            </KWText>
+            {/* date fin */}
 
             <KWDateTimePicker
               label="Fin"
               date={dateEnd}
               time={timeEnd}
-              onDateChange={setDateEnd}
-              onTimeChange={setTimeEnd}
+              onDateChange={onChangeDateEnd}
+              onTimeChange={onChangeTimeBegin}
               dateError={
                 dateEnd < dateBegin
                   ? "La date de fin ne peut être avant la date de début"
@@ -509,8 +505,7 @@ const AddScreen = ({ navigation, route }) => {
                       label="FinRecurrence"
                       date={dateEndRecurrence}
                       time={timeEndRecurrence}
-                      onDateChange={setDateEndRecurrence}
-                      onTimeChange={setTimeEndRecurrence}
+                      onDateChange={onChangeDateEndRecurrence}
                       dateError={
                         dateEndRecurrence < dateBegin
                           ? "La date de fin ne peut être avant la date de début"

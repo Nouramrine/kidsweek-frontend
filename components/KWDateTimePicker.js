@@ -7,28 +7,26 @@ const KWDateTimePicker = ({
   label,
   date,
   time,
-  onDateChange,
-  onTimeChange,
+  onDateChange, // Fonction pour gérer le changement de date
+  onTimeChange, // Fonction pour gérer le changement d'heure
   dateError,
 }) => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
 
-  // changement de date
+  // Gestion du changement de date
   const handleDateChange = (event, selectedDate) => {
     setShowDatePicker(false);
     if (event.type === "set" && selectedDate) {
-      const dateOnly = new Date(selectedDate);
-      dateOnly.setHours(0, 0, 0, 0);
-      onDateChange(dateOnly);
+      onDateChange(event, selectedDate); // Transmet l'événement et la date sélectionnée
     }
   };
 
-  // changement d'heure
+  // Gestion du changement d'heure
   const handleTimeChange = (event, selectedTime) => {
     setShowTimePicker(false);
     if (event.type === "set" && selectedTime) {
-      onTimeChange(selectedTime);
+      onTimeChange(event, selectedTime); // Transmet l'événement et l'heure sélectionnée
     }
   };
 
@@ -39,7 +37,7 @@ const KWDateTimePicker = ({
       </KWText>
       {dateError && <KWText type="inputError">{dateError}</KWText>}
       <View style={styles.dateTimeRow}>
-        {/* sélection de la date */}
+        {/* Sélection de la date */}
         <TouchableOpacity
           style={[styles.dateButton, { flex: 2, marginRight: 10 }]}
           onPress={() => setShowDatePicker(true)}
@@ -48,8 +46,7 @@ const KWDateTimePicker = ({
             {date.toLocaleDateString("fr-FR")}
           </KWText>
         </TouchableOpacity>
-
-        {/* sélection de l'heure */}
+        {/* Sélection de l'heure */}
         <TouchableOpacity
           style={[styles.dateButton, { flex: 1 }]}
           onPress={() => setShowTimePicker(true)}
