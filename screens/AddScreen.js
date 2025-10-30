@@ -101,6 +101,7 @@ const AddScreen = ({ navigation, route }) => {
   const [timeEndRecurrence, setTimeEndRecurrence] = useState(new Date());
   const [showDateEndRecurrence, setShowDateEndRecurrence] = useState(false);
   const [hasManuallySetDateEnd, setHasManuallySetDateEnd] = useState(false);
+  const [hasManuallySetTimeEnd, setHasManuallySetTimeEnd] = useState(false);
   // reminder
   const [reminderNumber, setReminderNumber] = useState("10");
   const [reminderUnit, setReminderUnit] = useState("Minutes");
@@ -154,6 +155,9 @@ const AddScreen = ({ navigation, route }) => {
     setShowTimeBegin(false);
     if (event.type === "set" && selectedTime) {
       setTimeBegin(selectedTime);
+      if (!hasManuallySetTimeEnd) {
+        setTimeEnd(selectedTime);
+      }
     }
   };
 
@@ -167,6 +171,7 @@ const AddScreen = ({ navigation, route }) => {
       setHasManuallySetDateEnd(true);
     }
   };
+
   const onChangeDateEndRecurrence = (event, selectedDate) => {
     if (event.type === "set" && selectedDate) {
       const dateOnly = new Date(selectedDate);
@@ -179,6 +184,7 @@ const AddScreen = ({ navigation, route }) => {
     setShowTimeEnd(false);
     if (event.type === "set" && selectedTime) {
       setTimeEnd(selectedTime);
+      setHasManuallySetTimeEnd(true);
     }
   };
 
@@ -269,27 +275,23 @@ const AddScreen = ({ navigation, route }) => {
       Alert.alert("Erreur", "Le nom doit faire au moins 3 caractères");
       return false;
     }
-    if (dateEnd <= dateBegin) {
-      Alert.alert("Erreur", "La date de fin doit être après la date de début");
-      return false;
-    }
+
     return true;
   };
   // create activity
   const handleSave = async () => {
     const fullDateBegin = combineDateAndTime(dateBegin, timeBegin);
     const fullDateEnd = combineDateAndTime(dateEnd, timeEnd);
-    const fullDateEndRecurrence = combineDateAndTime(
-      dateEndRecurrence,
-      timeEndRecurrence
-    );
-    validateForm(fullDateBegin, fullDateEnd);
+    if (!validateForm()) {
+      return; // Arrête si la validation échoue
+    }
 
     const reminderDate = calculateReminderDate(
       fullDateBegin,
       reminderNumber,
       reminderUnit
     );
+
     if (fullDateEnd <= fullDateBegin) {
       setDateEnd(fullDateBegin);
     }
@@ -301,7 +303,7 @@ const AddScreen = ({ navigation, route }) => {
           place: activityPlace,
           dateBegin: fullDateBegin,
           dateEnd: fullDateEnd,
-          dateEndRecurrence: fullDateEndRecurrence,
+          dateEndRecurrence: dateEndRecurrence,
           reminder: reminderDate,
           task: checklistItems,
           note: note,
@@ -352,6 +354,7 @@ const AddScreen = ({ navigation, route }) => {
 
     navigation.goBack();
   };
+
   return (
     <SafeAreaView
       style={{ flex: 1, marginTop: Platform.OS === "android" ? 0 : 0 }}
@@ -413,7 +416,7 @@ const AddScreen = ({ navigation, route }) => {
               date={dateEnd}
               time={timeEnd}
               onDateChange={onChangeDateEnd}
-              onTimeChange={onChangeTimeBegin}
+              onTimeChange={onChangeTimeEnd}
               dateError={
                 dateEnd < dateBegin
                   ? "La date de fin ne peut être avant la date de début"
@@ -487,32 +490,19 @@ const AddScreen = ({ navigation, route }) => {
                   )}
                 </View>
 
-                {/* Date de fin de récurrence (uniquement si isEnabled) */}
+                {/* Date de fin de récurrence */}
                 <View style={{ marginTop: 15 }}>
-                  <KWText type="text" style={styles.label}>
-                    La récurrence se termine le :
-                  </KWText>
-                  <TouchableOpacity
-                    style={[styles.dateButton, { marginTop: 5 }]}
-                    onPress={() => setShowDateEndRecurrence(true)}
-                  >
-                    <KWText type="text" style={styles.dateButtonText}>
-                      {dateEndRecurrence.toLocaleDateString("fr-FR")}
-                    </KWText>
-                  </TouchableOpacity>
-                  {showDateEndRecurrence && (
-                    <KWDateTimePicker
-                      label="FinRecurrence"
-                      date={dateEndRecurrence}
-                      time={timeEndRecurrence}
-                      onDateChange={onChangeDateEndRecurrence}
-                      dateError={
-                        dateEndRecurrence < dateBegin
-                          ? "La date de fin ne peut être avant la date de début"
-                          : ""
-                      }
-                    />
-                  )}
+                  <KWDateTimePicker
+                    label="La récurrence se termine le :"
+                    date={dateEndRecurrence}
+                    time={timeEndRecurrence}
+                    onDateChange={onChangeDateEndRecurrence}
+                    dateError={
+                      dateEndRecurrence < DateBegin
+                        ? "La date de fin ne peut être avant la date de début"
+                        : ""
+                    }
+                  />
                 </View>
               </View>
             )}

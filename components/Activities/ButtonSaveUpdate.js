@@ -8,17 +8,6 @@ const ButtonSaveUpdate = ({
   handleUpdate,
   props,
 }) => {
-  // Si les dates sont invalides
-  if (dateEnd < dateBegin) {
-    return (
-      <KWButton
-        title="* Erreur sur le formulaire"
-        type="inputError"
-        style={{ backgroundColor: "transparent" }}
-      />
-    );
-  }
-
   // Si on est en mode "mise à jour"
   console.log("ButtonSaveUpdate props:", props);
   if (props && Object.keys(props).length !== 0) {
