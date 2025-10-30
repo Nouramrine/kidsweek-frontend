@@ -37,10 +37,8 @@ const FamillyScreen = ({ navigation }) => {
     setZoneModal(false)
   }
 
-
   const [openZoneDropdownId, setOpenZoneDropdownId] = useState(null); // id de la zone sur lequel le dropdown est ouvert (dropdown unique)
   
-
   //console.log("Zones : ", zones)
   console.log("Current dropdown : ", openZoneDropdownId)
   console.log("selected : ", selectedZone)
