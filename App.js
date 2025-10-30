@@ -23,6 +23,7 @@ import HomeScreen from "./screens/HomeScreen";
 import ProfileScreen from "./screens/ProfileScreen";
 import ActivityDetailsScreen from "./screens/ActivityDetailsScreen";
 import user from "./reducers/user";
+import members from "./reducers/members";
 import activities from "./reducers/activities";
 import zones from "./reducers/zones";
 import { Provider, useSelector } from "react-redux";
@@ -39,6 +40,7 @@ const userPersistConfig = {
 };
 const rootReducer = combineReducers({
   user: persistReducer(userPersistConfig, user), // seul user est persistant
+  members,
   activities,
   zones,
 });
