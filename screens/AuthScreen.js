@@ -3,6 +3,7 @@ import {
   View,
   Text,
   Image,
+  Platform,
   TouchableOpacity,
   StyleSheet,
   KeyboardAvoidingView,
@@ -18,7 +19,7 @@ const AuthScreen = () => {
     <View style={styles.container}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.container}
+        style={{ width: '80%', alignItems: 'center' }}
       >
         <Image
           source={require("../assets/titre.png")}
