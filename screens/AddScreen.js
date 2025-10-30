@@ -74,7 +74,7 @@ const AddScreen = ({ navigation, route }) => {
   const user = useSelector((state) => state.user.value);
   const activities = useSelector((state) => state.activities.value);
   //console.log("reducer member", user);
-  //console.log("reducer activities", activities);
+  console.log("reducer activities", activities);
   const [error, seterror] = useState(false);
   //display switch
   const [isEnabled, setIsEnabled] = useState(false);
