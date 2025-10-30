@@ -12,7 +12,7 @@ const ZoneForm = ({ data, onReturn }) => {
   const dispatch = useDispatch();
 
   const [nameInput, setNameInput] = useState(data?.zone?.name || '');
-  const [selectedColor, setSelectedColor] = useState(data?.zone?.color || '');
+  const [selectedColor, setSelectedColor] = useState(data?.zone?.color || userColorSelection[0]);
 
   const handleValidation = async () => {
     if(!data?.zone) {
