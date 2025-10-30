@@ -32,17 +32,9 @@ const FamillyScreen = ({ navigation }) => {
   // Pour affichage modal et édition
   const [zoneModal, setZoneModal] = useState(false);
   const [selectedZone, setSelectedZone] = useState(null);
-  const resetZoneModal = () => {
-    setSelectedZone(null)
-    setZoneModal(false)
-  }
 
   const [openZoneDropdownId, setOpenZoneDropdownId] = useState(null); // id de la zone sur lequel le dropdown est ouvert (dropdown unique)
   
-  //console.log("Zones : ", zones)
-  console.log("Current dropdown : ", openZoneDropdownId)
-  console.log("selected : ", selectedZone)
-
   useEffect(() => {
     dispatch(fetchZonesAsync());
   }, []);
@@ -54,9 +46,13 @@ const FamillyScreen = ({ navigation }) => {
         {/* Modal création / édition de Zone */}
         <KWModal
           visible={zoneModal}
-          zone={zones.find((z) => z._id.toString() === selectedZone?.toString()) || null}
         >
-          <ZoneForm onReturn={resetZoneModal} />
+          <ZoneForm 
+            data={selectedZone} 
+            onReturn={() => { 
+              setZoneModal(false);
+              setOpenZoneDropdownId(null);
+            }} />
         </KWModal>
 
         {/* Boutons d'ajout */}
@@ -72,7 +68,12 @@ const FamillyScreen = ({ navigation }) => {
                 <KWText style={styles.buttonSubTitle} color={colors.green[2]}>membre</KWText>
               </KWCard>
             </View>
-            <TouchableOpacity style={styles.topButton} onPress={() => setZoneModal(true)}>
+            <TouchableOpacity 
+              style={styles.topButton} 
+              onPress={() => { 
+                setSelectedZone(null);
+                setZoneModal(true); 
+              }}>
               <KWCard color={colors.yellow[0]}>
                 <View style={{ flexDirection: 'row' }}>
                   <FontAwesome5 name="plus" size={24} color={colors.yellow[2]} />
@@ -97,7 +98,7 @@ const FamillyScreen = ({ navigation }) => {
                   </KWCardIcon>
                   <KWCardTitle>
                     <KWText>{zone.name}</KWText>
-                    <KWText>{zone.member.length} membres</KWText>
+                    <KWText>{zone.members.length} membres</KWText>
                   </KWCardTitle>
                   <KWCardButton>
                     <KWDropDown
@@ -111,7 +112,7 @@ const FamillyScreen = ({ navigation }) => {
                       setOpenId={setOpenZoneDropdownId}
                       onSelect={(action) => {
                         if(action === 'edit'){
-                          setSelectedZone(openZoneDropdownId)
+                          setSelectedZone({ zone });
                           setZoneModal(true);
                         }
                         if(action === 'delete'){
