@@ -41,7 +41,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 const AddScreen = ({ navigation, route }) => {
   const { activityToEdit } = route.params || {};
   const props = activityToEdit || {};
-  console.log("props activity to edit:", props);
+  //console.log("props activity to edit:", props);
   /*const props = {
     _id: "648f1f4f5f9b25630c3e4b9e",
     name: "Cours de danse",
@@ -75,7 +75,7 @@ const AddScreen = ({ navigation, route }) => {
   const user = useSelector((state) => state.user.value);
   const activities = useSelector((state) => state.activities.value);
   //console.log("reducer member", user);
-  console.log("reducer activities", activities);
+  console.log("reducer activities =====>", activities);
   const [error, setError] = useState(false);
   //display switch
   const [isEnabled, setIsEnabled] = useState(false);
@@ -122,13 +122,38 @@ const AddScreen = ({ navigation, route }) => {
     if (Object.keys(props).length !== 0) {
       setActivityName(props.name);
       setActivityPlace(props.place);
-      setDateBegin(new Date(props.dateBegin));
-      setDateEnd(new Date(props.dateEnd));
+      // Décomposition de dateBegin
+      if (props.dateBegin) {
+        const dateBegin = new Date(props.dateBegin);
+        // Pour la date (sans l'heure)
+        const dateOnly = new Date(dateBegin);
+        dateOnly.setHours(0, 0, 0, 0);
+        setDateBegin(dateOnly);
+        // Pour l'heure
+        setTimeBegin(dateBegin);
+      }
+
+      // Décomposition de dateEnd
+      if (props.dateEnd) {
+        const dateEnd = new Date(props.dateEnd);
+        const dateEndOnly = new Date(dateEnd);
+        dateEndOnly.setHours(0, 0, 0, 0);
+        setDateEnd(dateEndOnly);
+        setTimeEnd(dateEnd);
+      }
       setNote(props.note);
+
       if (props.recurrence) {
         setIsEnabled(true);
+        // Décomposition de dateEndRecurrence
+        const dateEndRecurrence = new Date(props.dateEndRecurrence);
+        // Pour la date (sans l'heure)
+        const dateOnly = new Date(dateBegin);
+        dateOnly.setHours(0, 0, 0, 0);
+        setDateEndRecurrence(dateOnly);
+        // Pour l'heure
+        setTimeEndRecurrence(dateEndRecurrence);
         setRecurrence(props.recurrence);
-        setDateEndRecurrence(props.dateEndRecurrence);
       }
       setReminderNumber(props.reminderNumber);
       setReminderUnit(props.reminderUnit);
@@ -266,7 +291,10 @@ const AddScreen = ({ navigation, route }) => {
     } else {
       setError(false);
     }
-
+    if (children.length === 0) {
+      Alert.alert("Erreur", "Veuillez sélectionner au moins un enfant");
+      return false;
+    }
     if (!activityName.trim()) {
       Alert.alert("Erreur", "Le nom est obligatoire");
       return false;
@@ -282,6 +310,11 @@ const AddScreen = ({ navigation, route }) => {
   const handleSave = async () => {
     const fullDateBegin = combineDateAndTime(dateBegin, timeBegin);
     const fullDateEnd = combineDateAndTime(dateEnd, timeEnd);
+    const members = [...children, ...parents];
+    if (isEnabled !== true) {
+      setRecurrence(null);
+      setDateEndRecurrence(null);
+    }
     if (!validateForm()) {
       return; // Arrête si la validation échoue
     }
@@ -309,6 +342,7 @@ const AddScreen = ({ navigation, route }) => {
           note: note,
           recurrence: isEnabled ? recurrence : null,
           token: user.token,
+          members: members,
         })
       ).unwrap(); // unwrap pour obtenir la valeur résolue ou lancer une erreur
       console.log("Activité créée avec succès:", result);
@@ -498,7 +532,7 @@ const AddScreen = ({ navigation, route }) => {
                     time={timeEndRecurrence}
                     onDateChange={onChangeDateEndRecurrence}
                     dateError={
-                      dateEndRecurrence < DateBegin
+                      dateEndRecurrence < dateBegin
                         ? "La date de fin ne peut être avant la date de début"
                         : ""
                     }
