@@ -18,7 +18,7 @@ export const fetchZonesAsync = createAsyncThunk(
     const data = await response.json();
     //console.log(data)
     if (!data.result)
-      throw new Error(data.message || "Erreur lors du fetch des zones");
+      console.log("Zones reducer : ", data.message || "Erreur lors du fetch des zones");
     return data.zones || [];
   }  
 );
@@ -40,7 +40,7 @@ export const createZoneAsync = createAsyncThunk(
     });
     const data = await response.json();
     if (!response.ok)
-      throw new Error(data.message || "Erreur lors de la création de la zone");
+      console.log("Zones reducer : ", data.message || "Erreur lors de la création de la zone");
     return data.zone || [];
   }
 );
@@ -61,9 +61,7 @@ export const updateZoneAsync = createAsyncThunk(
     });
     const data = await response.json();
     if (!data.result)
-      throw new Error(
-        data.message || "Erreur lors de la mise à jour de la zone"
-      );
+      console.log("Zones reducer : ", data.message || "Erreur lors de la mise à jour de la zone");
     return data.zone || [];
   }
 );
@@ -83,7 +81,7 @@ export const deleteZoneAsync = createAsyncThunk(
     });
     const data = await response.json();
     if (!data.result)
-      throw new Error(data.error || "Erreur lors de la suppression de la zone");
+      console.log("Zones reducer : ", data.error || "Erreur lors de la suppression de la zone");
     return data.zone || '';
   }
 );
@@ -103,9 +101,7 @@ export const addMemberToZoneAsync = createAsyncThunk(
     });
     const data = await response.json();
     if (!response.ok)
-      throw new Error(
-        data.message || "Erreur lors de l'ajout du membre à la zone"
-      );
+      console.log("Zones reducer : ", data.message || "Erreur lors de l'ajout du membre à la zone");
     return data.zone;
   }
 );
@@ -128,9 +124,7 @@ export const removeMemberFromZoneAsync = createAsyncThunk(
     );
     const data = await response.json();
     if (!response.ok)
-      throw new Error(
-        data.message || "Erreur lors du retrait du membre de la zone"
-      );
+      console.log("Zones reducer : ", data.message || "Erreur lors du retrait du membre de la zone");
     return data.zone;
   }
 );
