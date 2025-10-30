@@ -127,6 +127,7 @@ export default function CalendarScreen() {
                   keyExtractor={(item) => item._id}
                   renderItem={({ item }) => (
                     <TouchableOpacity
+                      key={item._id}
                       style={styles.activityCard}
                       onPress={() => handleActivityPress(item)}
                     >
