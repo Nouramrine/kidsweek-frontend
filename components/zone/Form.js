@@ -11,11 +11,11 @@ import { useDispatch } from "react-redux";
 const ZoneForm = ({ data, onReturn }) => {
   const dispatch = useDispatch();
 
-  const [nameInput, setNameInput] = useState(data.zone ? data.zone.name : '');
-  const [selectedColor, setSelectedColor] = useState(data.zone ? data.zone.color : '');
+  const [nameInput, setNameInput] = useState(data?.zone?.name || '');
+  const [selectedColor, setSelectedColor] = useState(data?.zone?.color || '');
 
   const handleValidation = async () => {
-    if(!data.zone) {
+    if(!data?.zone) {
       const createZone = await dispatch(createZoneAsync({ name: nameInput, color: selectedColor, members: [] })).unwrap();
       if (createZone) {
         setNameInput('');
@@ -33,7 +33,7 @@ const ZoneForm = ({ data, onReturn }) => {
 
   return (
     <View style={styles.container}>
-      <KWText type="h1">Nouvelle zone</KWText>
+      <KWText type="h1">{ data?.zone ? "Modifier zone" : "Nouvelle zone" }</KWText>
       <ScrollView>
         <KWTextInput
           label="Nom de la zone"
@@ -49,7 +49,7 @@ const ZoneForm = ({ data, onReturn }) => {
       </ScrollView>
       <View style={styles.buttonsFooter}>
         <KWButton title="Annuler" bgColor={colors.red[1]} styles={styles.button} onPress={onReturn} />
-        <KWButton title="Nouvelle zone" bgColor={colors.green[1]} styles={styles.button} onPress={handleValidation} />
+        <KWButton title={ data?.zone ? "Modifier" : "Ajouter" } bgColor={colors.green[1]} styles={styles.button} onPress={handleValidation} />
       </View>
     </View>
   );
