@@ -50,13 +50,13 @@ export const updateZoneAsync = createAsyncThunk(
   "zones/updateZoneAsync",
   async (zoneData, { getState }) => {
     const token = getState().user.value.token;
-    const response = await fetch(`${BACKEND_URL}/zones`, {
+    const response = await fetch(`${BACKEND_URL}/zones/${zoneData.id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(zoneData),
+      body: JSON.stringify({ name: zoneData.name, color: zoneData.color }),
     });
     const data = await response.json();
     if (!response.ok)
