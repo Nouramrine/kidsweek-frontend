@@ -9,6 +9,8 @@ import {
 import { Calendar } from "react-native-calendars";
 import { useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { colors } from "../theme/colors";
 
 export default function CalendarScreen() {
   const navigation = useNavigation();
@@ -50,74 +52,80 @@ export default function CalendarScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Calendar
-        markedDates={{
-          ...markedDates,
-          ...(selectedDate
-            ? {
-                [selectedDate]: {
-                  selected: true,
-                  selectedColor: "#8E7EED",
-                  marked: markedDates[selectedDate]?.marked,
-                  dotColor: "#fff",
-                },
-              }
-            : {}),
-        }}
-        onDayPress={handleDayPress}
-        theme={{
-          todayTextColor: "#8E7EED",
-          arrowColor: "#8E7EED",
-          textSectionTitleColor: "#94A3B8",
-        }}
-      />
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <Calendar
+          markedDates={{
+            ...markedDates,
+            ...(selectedDate
+              ? {
+                  [selectedDate]: {
+                    selected: true,
+                    selectedColor: "#8E7EED",
+                    marked: markedDates[selectedDate]?.marked,
+                    dotColor: "#fff",
+                  },
+                }
+              : {}),
+          }}
+          onDayPress={handleDayPress}
+          theme={{
+            todayTextColor: "#8E7EED",
+            arrowColor: "#8E7EED",
+            textSectionTitleColor: "#94A3B8",
+          }}
+        />
 
-      <View style={styles.listContainer}>
-        {selectedDate ? (
-          <>
-            <Text style={styles.dateTitle}>Activités du {selectedDate}</Text>
+        <View style={styles.listContainer}>
+          {selectedDate ? (
+            <>
+              <Text style={styles.dateTitle}>Activités du {selectedDate}</Text>
 
-            {activitiesOfDay.length > 0 ? (
-              <FlatList
-                data={activitiesOfDay}
-                keyExtractor={(item) => item._id}
-                renderItem={({ item }) => (
-                  <TouchableOpacity
-                    style={styles.activityCard}
-                    onPress={() => handleActivityPress(item)}
-                  >
-                    <Text style={styles.activityTitle}>{item.name}</Text>
-                    <Text style={styles.activityTime}>
-                      {new Date(item.dateBegin).toLocaleTimeString("fr-FR", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}{" "}
-                      -{" "}
-                      {new Date(item.dateEnd).toLocaleTimeString("fr-FR", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </Text>
-                  </TouchableOpacity>
-                )}
-              />
-            ) : (
-              <Text style={styles.noActivity}>
-                Aucune activité ce jour-là.{" "}
-              </Text>
-            )}
-          </>
-        ) : (
-          <Text style={styles.selectedDayText}>
-            Sélectionnez une date pour voir les activités.
-          </Text>
-        )}
+              {activitiesOfDay.length > 0 ? (
+                <FlatList
+                  data={activitiesOfDay}
+                  keyExtractor={(item) => item._id}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      style={styles.activityCard}
+                      onPress={() => handleActivityPress(item)}
+                    >
+                      <Text style={styles.activityTitle}>{item.name}</Text>
+                      <Text style={styles.activityTime}>
+                        {new Date(item.dateBegin).toLocaleTimeString("fr-FR", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}{" "}
+                        -{" "}
+                        {new Date(item.dateEnd).toLocaleTimeString("fr-FR", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                />
+              ) : (
+                <Text style={styles.noActivity}>
+                  Aucune activité ce jour-là.{" "}
+                </Text>
+              )}
+            </>
+          ) : (
+            <Text style={styles.selectedDayText}>
+              Sélectionnez une date pour voir les activités.
+            </Text>
+          )}
+        </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background?.[0] || "white",
+  },
   container: { flex: 1, backgroundColor: "#fff" },
   listContainer: { flex: 1, padding: 15 },
   dateTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 10 },
