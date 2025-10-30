@@ -31,6 +31,7 @@ import { PersistGate } from "redux-persist/integration/react";
 //async storage pour react-native car local storage ne fonctione pas
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 const userPersistConfig = {
   key: "user",
@@ -142,11 +143,13 @@ export default function App() {
     );
   };
   return (
-    <Provider store={store}>
-      <PersistGate persistor={persistor}>
-        <DisplayIsLogged />
-      </PersistGate>
-    </Provider>
+    <SafeAreaProvider>
+      <Provider store={store}>
+        <PersistGate persistor={persistor}>
+          <DisplayIsLogged />
+        </PersistGate>
+      </Provider>
+    </SafeAreaProvider>
   );
 }
 
