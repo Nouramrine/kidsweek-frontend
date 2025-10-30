@@ -80,6 +80,17 @@ const HomeScreen = ({ navigation }) => {
     return parseDate(a) - parseDate(b);
   });
 
+  // code couleur par jour
+  const dayColors = {
+    lundi: colors.blue,
+    mardi: colors.green,
+    mercredi: colors.purple,
+    jeudi: colors.orange,
+    vendredi: colors.pink,
+    samedi: colors.yellow,
+    dimanche: colors.skin,
+  };
+
   // fonction pour afficher l'heure au format HH:MM
   const formatTime = (dateStr) =>
     dateStr
@@ -118,7 +129,11 @@ const HomeScreen = ({ navigation }) => {
         <ScrollView contentContainerStyle={styles.scroll}>
           {/* --- Sélection des enfants (mock pour l’instant) --- */}
           <KWCard
-            style={{ backgroundColor: colors.background[0], marginBottom: 10 }}
+            style={{
+              backgroundColor: colors.background[0],
+              marginBottom: 15,
+              marginTop: -10,
+            }}
           >
             <KWCardBody style={styles.childSelector}>
               {["Enfant 1", "Enfant 2"].map((child, index) => (
@@ -162,48 +177,52 @@ const HomeScreen = ({ navigation }) => {
                   Aucune activité prévue pour le moment.
                 </KWText>
               )}
-              {sortedDays.map((day) => (
-                <View
-                  key={day + (groupedActivities[day][0]?._id || Math.random())}
-                  style={{ marginBottom: 12 }}
-                >
-                  <KWText
-                    type="h3"
-                    style={{
-                      fontWeight: "bold",
-                      marginBottom: 5,
-                      color: colors.purple[2],
-                    }}
-                  >
-                    {day}
-                  </KWText>
-                  {groupedActivities[day].map((a) => (
-                    <TouchableOpacity
-                      key={a._id}
-                      onPress={() =>
-                        navigation.navigate("ActivityDetails", { activity: a })
-                      }
+              {sortedDays.map((day) => {
+                // couleur selon le jour
+                const dayName = day.split(" ")[0].toLowerCase();
+                const palette = dayColors[dayName] || colors.blue;
+                return (
+                  <View key={day} style={{ marginBottom: 12 }}>
+                    <KWText
+                      type="h3"
+                      style={{
+                        fontWeight: "bold",
+                        marginBottom: 5,
+                        color: palette[2],
+                      }}
                     >
-                      <KWCard
-                        style={{
-                          backgroundColor: colors.blue[0],
-                          padding: 12,
-                          marginBottom: 8,
-                        }}
+                      {day}
+                    </KWText>
+                    {groupedActivities[day].map((a) => (
+                      <TouchableOpacity
+                        key={a._id}
+                        onPress={() =>
+                          navigation.navigate("ActivityDetails", {
+                            activity: a,
+                          })
+                        }
                       >
-                        <KWText
-                          style={{ fontWeight: "600", color: colors.blue[2] }}
+                        <KWCard
+                          style={{
+                            backgroundColor: palette[0],
+                            padding: 12,
+                            marginBottom: 8,
+                          }}
                         >
-                          {a.name}
-                        </KWText>
-                        <KWText color={colors.text[0]}>
-                          {formatTime(a.dateBegin)} → {formatTime(a.dateEnd)}
-                        </KWText>
-                      </KWCard>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              ))}
+                          <KWText
+                            style={{ fontWeight: "600", color: palette[2] }}
+                          >
+                            {a.name}
+                          </KWText>
+                          <KWText style={colors.text[0]}>
+                            {formatTime(a.dateBegin)} → {formatTime(a.dateEnd)}
+                          </KWText>
+                        </KWCard>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                );
+              })}
             </KWCardBody>
           </KWCard>
         </ScrollView>
