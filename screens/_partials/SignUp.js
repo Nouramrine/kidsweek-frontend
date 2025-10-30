@@ -8,9 +8,9 @@ import { signUpAsync } from "../../reducers/user";
 
 const SignUp = () => {
   const dispatch = useDispatch();
-  const [signUpFirstName, setSignUpFirstName] = useState("Kids1");
-  const [signUpLastName, setSignUpLastName] = useState("Week1");
-  const [signUpEmail, setSignUpEmail] = useState("user@kidsweek1.fr");
+  const [signUpFirstName, setSignUpFirstName] = useState("Kids");
+  const [signUpLastName, setSignUpLastName] = useState("Week");
+  const [signUpEmail, setSignUpEmail] = useState("user@kidsweek.fr");
   const [signUpPassword, setSignUpPassword] = useState("Pass1234");
   const [signUpConfirm, setSignUpConfirm] = useState("Pass1234");
   const [signUpError, setSignUpError] = useState("");
