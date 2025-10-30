@@ -123,7 +123,7 @@ const AddScreen = ({ navigation, route }) => {
   // Note
   const [note, setNote] = useState("");
 
-  // Populate fields if props exist (edit mode)
+  // assign fields if props exist (edit mode)
   useEffect(() => {
     if (Object.keys(props).length !== 0) {
       setActivityName(props.name);
