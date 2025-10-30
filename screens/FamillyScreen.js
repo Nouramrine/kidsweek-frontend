@@ -27,8 +27,6 @@ const FamillyScreen = ({ navigation }) => {
 
   //const [zones, setZones] = useState(zonesData);
   const zones = useSelector((state) => state.zones.value);
-  
-  console.log(zones)
 
   useEffect(() => {
     dispatch(fetchZonesAsync());
