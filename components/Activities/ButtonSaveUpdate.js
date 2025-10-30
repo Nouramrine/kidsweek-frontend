@@ -6,7 +6,7 @@ const ButtonSaveUpdate = ({
   dateEnd,
   handleSave,
   handleUpdate,
-  activityToEdit,
+  props,
 }) => {
   // Si les dates sont invalides
   if (dateEnd < dateBegin) {
@@ -20,14 +20,15 @@ const ButtonSaveUpdate = ({
   }
 
   // Si on est en mode "mise à jour"
-  if (activityToEdit !== null) {
+  console.log("ButtonSaveUpdate props:", props);
+  if (props && Object.keys(props).length !== 0) {
     return (
       <KWButton title="Mettre à jour" type="text" onPress={handleUpdate} />
     );
+  } else {
+    // Sinon, en mode création
+    return <KWButton title="Enregistrer" type="text" onPress={handleSave} />;
   }
-
-  // Sinon, en mode création
-  return <KWButton title="Enregistrer" type="text" onPress={handleSave} />;
 };
 
 export default ButtonSaveUpdate;
