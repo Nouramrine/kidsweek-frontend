@@ -38,7 +38,7 @@ export default function CalendarScreen() {
   useEffect(() => {
     const marks = {};
     activities.forEach((activity) => {
-      const date = activity.dateBegin?.split("T")[0];
+      const date = activity.dateBegin ? activity.dateBegin.split("T")[0] : null;
       if (date) {
         marks[date] = { marked: true, dotColor: colors.purple[2] };
       }
@@ -53,7 +53,7 @@ export default function CalendarScreen() {
 
     // Filtrer les activités de cette date
     const filtred = activities.filter(
-      (a) => a.dateBegin.split("T")[0] === day.dateString
+      (a) => a.dateBegin && a.dateBegin.split("T")[0] === day.dateString
     );
     setActivitiesOfDay(filtred);
   };
