@@ -150,6 +150,7 @@ const AddScreen = ({ navigation, route }) => {
       const dateOnly = new Date(selectedDate);
       dateOnly.setHours(0, 0, 0, 0);
       setDateBegin(dateOnly);
+      setDateEnd(dateOnly);
     }
   };
 
