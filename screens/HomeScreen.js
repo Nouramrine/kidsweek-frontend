@@ -5,6 +5,7 @@ import {
   FlatList,
   ScrollView,
   TouchableOpacity,
+  Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
@@ -93,15 +94,21 @@ const HomeScreen = ({ navigation }) => {
       <View style={styles.screen}>
         {/* Header avec icône cloche */}
         <View style={styles.header}>
-          <KWText type="h1">KidsWeek</KWText>
+          <Image
+            source={require("../assets/titre.png")}
+            style={styles.logo}
+            resizeMode="contain"
+          />
           <TouchableOpacity onPress={toggleModal} style={styles.bellContainer}>
             <Ionicons
               name="notifications-outline"
               size={28}
-              color={colors.orange[2]}
+              color={colors.purple[2]}
             />
             {notifications.length > 0 && (
-              <View style={styles.badge}>
+              <View
+                style={[styles.badge, { backgroundColor: colors.orange[1] }]}
+              >
                 <KWText style={styles.badgeText}>{notifications.length}</KWText>
               </View>
             )}
@@ -110,16 +117,20 @@ const HomeScreen = ({ navigation }) => {
 
         <ScrollView contentContainerStyle={styles.scroll}>
           {/* --- Sélection des enfants (mock pour l’instant) --- */}
-          <KWCard style={{ backgroundColor: colors.blue[0], marginBottom: 15 }}>
+          <KWCard
+            style={{ backgroundColor: colors.background[0], marginBottom: 10 }}
+          >
             <KWCardBody style={styles.childSelector}>
               {["Enfant 1", "Enfant 2"].map((child, index) => (
                 <KWButton
                   key={child + index}
                   title={child}
                   bgColor={
-                    selectedChild === child ? colors.blue[2] : colors.blue[1]
+                    selectedChild === child
+                      ? colors.purple[1]
+                      : colors.background[1]
                   }
-                  color={"white"}
+                  color={selectedChild === child ? "white" : colors.purple[2]}
                   onPress={() => setSelectedChild(child)}
                 />
               ))}
@@ -127,34 +138,41 @@ const HomeScreen = ({ navigation }) => {
           </KWCard>
 
           {/* --- Liste des activités par jour --- */}
-          <KWCard style={{ backgroundColor: colors.green[0] }}>
+          <KWCard
+            style={{ backgroundColor: colors.background[0], marginBottom: 15 }}
+          >
             <KWCardHeader>
               <KWCardIcon>
                 <Ionicons
                   name="calendar-outline"
                   size={20}
-                  color={colors.green[2]}
+                  color={colors.purple[2]}
                 />
               </KWCardIcon>
               <KWCardTitle>
-                <KWText type="h2" style={{ color: colors.green[2] }}>
+                <KWText type="h2" style={{ color: colors.purple[2] }}>
                   Mon planning
                 </KWText>
               </KWCardTitle>
             </KWCardHeader>
 
             <KWCardBody>
+              {sortedDays.length === 0 && (
+                <KWText color={colors.text[0]}>
+                  Aucune activité prévue pour le moment.
+                </KWText>
+              )}
               {sortedDays.map((day) => (
                 <View
                   key={day + (groupedActivities[day][0]?._id || Math.random())}
-                  style={{ marginBottom: 10 }}
+                  style={{ marginBottom: 12 }}
                 >
                   <KWText
                     type="h3"
                     style={{
                       fontWeight: "bold",
                       marginBottom: 5,
-                      color: colors.text[0],
+                      color: colors.purple[2],
                     }}
                   >
                     {day}
@@ -168,15 +186,13 @@ const HomeScreen = ({ navigation }) => {
                     >
                       <KWCard
                         style={{
-                          backgroundColor: colors.yellow[0],
+                          backgroundColor: colors.blue[0],
                           padding: 12,
                           marginBottom: 8,
-                          borderLeftWidth: 4,
-                          borderLeftColor: colors.yellow[2],
                         }}
                       >
                         <KWText
-                          style={{ fontWeight: "600", color: colors.yellow[2] }}
+                          style={{ fontWeight: "600", color: colors.blue[2] }}
                         >
                           {a.name}
                         </KWText>
@@ -196,7 +212,7 @@ const HomeScreen = ({ navigation }) => {
         <KWModal visible={isModalVisible} onRequestClose={toggleModal}>
           <KWText
             type="h2"
-            style={{ marginBottom: 10, color: colors.orange[2] }}
+            style={{ marginBottom: 10, color: colors.purple[2] }}
           >
             Notifications
           </KWText>
@@ -224,12 +240,12 @@ const HomeScreen = ({ navigation }) => {
                     <View style={styles.actionButtons}>
                       <KWButton
                         title="Accepter"
-                        bgColor={colors.green[2]}
+                        bgColor={colors.green[1]}
                         onPress={() => console.log("accept")}
                       />
                       <KWButton
                         title="Refuser"
-                        bgColor={colors.red[2]}
+                        bgColor={colors.red[1]}
                         onPress={() => console.log("decline")}
                       />
                     </View>
@@ -247,18 +263,26 @@ const HomeScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.background?.[0] || "white",
+    backgroundColor: "white",
   },
   screen: {
     flex: 1,
-    backgroundColor: colors.background?.[0] || "white",
+    backgroundColor: "white",
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 20,
-    padddingTop: 40,
+    padddingTop: 10,
+    position: "relative",
+    marginBottom: 10,
+  },
+  logo: {
+    width: "80%",
+    height: undefined,
+    aspectRatio: 3,
+    marginBottom: 10,
   },
   title: {
     color: colors.blue[2],
@@ -268,8 +292,11 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   bellContainer: {
-    position: "relative",
+    position: "absolute",
+    top: 5,
+    right: 5,
     padding: 5,
+    zIndex: 10,
   },
   badge: {
     position: "absolute",
