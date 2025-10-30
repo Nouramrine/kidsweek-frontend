@@ -8,17 +8,27 @@ import KWColorPicker from "../KWColorPicker";
 import { createZoneAsync } from "../../reducers/zones";
 import { useDispatch } from "react-redux";
 
-const ZoneForm = ({ onReturn }) => {
+const ZoneForm = ({ zone, onReturn }) => {
   const dispatch = useDispatch();
 
-  const [nameInput, setNameInput] = useState('');
-  const [selectedColor, setSelectedColor] = useState('');
+  console.log("Zone edition", zone)
+
+  const [nameInput, setNameInput] = useState(zone ? zone.name : '');
+  const [selectedColor, setSelectedColor] = useState(zone ? zone.color : '');
 
   const handleValidation = async () => {
-    const createZone = await dispatch(createZoneAsync({ name: nameInput, color: selectedColor, members: [] })).unwrap();
-    if (createZone) {
-      setNameInput('');
-      onReturn();
+    if(!zone) {
+      const createZone = await dispatch(createZoneAsync({ name: nameInput, color: selectedColor, members: [] })).unwrap();
+      if (createZone) {
+        setNameInput('');
+        onReturn();
+      }
+    } else {
+      const updateZone = await dispatch(createZoneAsync({ name: nameInput, color: selectedColor })).unwrap();
+      if (updateZone) {
+        setNameInput('');
+        onReturn();
+      }
     }
   }
 
