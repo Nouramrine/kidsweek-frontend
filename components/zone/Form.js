@@ -31,7 +31,12 @@ const ZoneForm = ({ onReturn }) => {
           value={nameInput}
           onChangeText={setNameInput}
         />
-        <KWColorPicker title="Couleur de la zone" userColorSelection={userColorSelection} selectedColor={selectedColor} onColorSelect={(colorName) => setSelectedColor(colorName)} />
+        <KWColorPicker 
+          title="Couleur de la zone" 
+          userColorSelection={userColorSelection} 
+          selectedColor={selectedColor || userColorSelection[0] } 
+          onColorSelect={(colorName) => setSelectedColor(colorName)} 
+        />
       </ScrollView>
       <View style={styles.buttonsFooter}>
         <KWButton title="Annuler" bgColor={colors.red[1]} styles={styles.button} onPress={onReturn} />

@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet, Pressable, Text } from "react-native";
 import { colors } from "../theme/colors";
 
-const KWColorPicker = ({ title, userColorSelection, selectedColor = '', onColorSelect }) => {
+const KWColorPicker = ({ title, userColorSelection, selectedColor, onColorSelect }) => {
   return (
     <View style={styles.inputContainer}>
         <Text style={styles.inputLabel}>{title}</Text>
