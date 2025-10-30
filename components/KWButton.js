@@ -3,9 +3,9 @@ import { colors } from '../theme/colors';
 import { FontAwesome5 } from '@expo/vector-icons';
 import KWText from './KWText';
 
-const KWButton = ({ icon, title, bgColor, color, onPress }) => {
+const KWButton = ({ icon, title, bgColor, color, style, onPress }) => {
     return (
-        <TouchableOpacity style={[styles.button, { backgroundColor: bgColor ? bgColor : colors.green[1] }]} onPress={onPress}>
+        <TouchableOpacity style={[styles.button, { backgroundColor: bgColor ? bgColor : colors.green[1] }, style]} onPress={onPress}>
             {icon && <FontAwesome5 name={icon} size={12} color={color ? color : 'white'} style={styles.icon} /> }
             <KWText style={[styles.text, { color: color ? color : 'white' }]}>{title}</KWText>
         </TouchableOpacity>

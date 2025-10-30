@@ -13,28 +13,25 @@ const MemberForm = ({ data, onReturn }) => {
 
   const [firstName, setFirstName] = useState(data?.member?.firstName || '');
   const [lastName, setLastName] = useState(data?.member?.lastName || '');
-  const [email, setEmail] = useState(data?.member?.email || '');
   const [isChildren, setIsChildren] = useState(data?.member?.isChildren || false);
 
   const handleValidation = async () => {
     if (!data?.member) {
       const createMember = dispatch(
-        createMemberAsync({ firstName, lastName, email, isChildren })
+        createMemberAsync({ firstName, lastName, isChildren })
       );
       if (createMember) {
         setFirstName('');
         setLastName('');
-        setEmail('');
         setIsChildren(false);
         onReturn();
       }
     } else {
-      const updateData = { id: data.member._id, firstName, lastName, email, isChildren };
+      const updateData = { id: data.member._id, firstName, lastName, isChildren };
       const updateMember = dispatch(updateMemberAsync(updateData));
       if (updateMember) {
         setFirstName('');
         setLastName('');
-        setEmail('');
         setIsChildren(false);
         onReturn();
       }

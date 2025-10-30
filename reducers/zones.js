@@ -90,7 +90,8 @@ export const deleteZoneAsync = createAsyncThunk(
 
 export const addMemberToZoneAsync = createAsyncThunk(
   "zones/addMemberToZoneAsync",
-  async ({ token, zoneId, memberId }) => {
+  async ( { zoneId, memberId }, { getState }) => {
+    const token = getState().user.value.token;
     const response = await fetch(`${BACKEND_URL}/zones/${zoneId}/add-member`, {
       method: "PUT",
       headers: {
@@ -100,7 +101,7 @@ export const addMemberToZoneAsync = createAsyncThunk(
       body: JSON.stringify({ memberId }),
     });
     const data = await response.json();
-    if (!response.ok)
+    if (!data.result)
       console.log("Zones reducer : ", data.message || "Erreur lors de l'ajout du membre à la zone");
     return data.zone;
   }
