@@ -29,7 +29,7 @@ import {
   KWCardBody,
 } from "../components/KWCard";
 import KWDateTimePicker from "../components/KWDateTimePicker";
-import { colors } from "../theme/colors";
+import { colors, userColorSelection } from "../theme/colors";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -42,7 +42,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import KWModal from "../components/KWModal";
 import MemberAdd from "../components/member/Add";
 import zones from "../reducers/zones";
-import members from "../reducers/members";
+import { fetchZonesAsync } from "../reducers/zones";
 
 import { fetchMembersAsync } from "../reducers/members";
 
@@ -647,7 +647,7 @@ const AddScreen = ({ navigation, route }) => {
           <KWColorPicker
             title="Choisissez une couleur pour l'activité"
             userColorSelection={userColorSelection}
-            selectedColor={selectedColor}
+            selectedColor={color}
             onColorSelect={(color) => setColor(color)}
           />
         </View>
