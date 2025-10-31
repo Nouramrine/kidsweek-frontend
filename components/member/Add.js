@@ -73,7 +73,7 @@ const MemberAdd = ({ currentMembers, onReturn }) => {
           title="Retour"
           bgColor={colors.red[1]}
           styles={styles.button}
-          onPress={() => onReturn(null)}
+          onPress={() => onReturn()}
         />
       </View>
     </ScrollView>
