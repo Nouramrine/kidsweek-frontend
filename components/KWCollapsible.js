@@ -1,100 +1,78 @@
-// components/KWCollapsible.js
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState } from "react";
 import { View, TouchableOpacity, StyleSheet, Animated } from "react-native";
-import Collapsible from "react-native-collapsible";
-import * as Animatable from "react-native-animatable";
 import { Ionicons } from "@expo/vector-icons";
-import { KWCard } from "./KWCard";
 import KWText from "./KWText";
-import { colors } from "../theme/colors";
+import { KWCard } from "./KWCard";
 
 const KWCollapsible = ({
-  title = "Détails",
-  icon = "chevron-down",
+  title,
+  subtitle,
   children,
-  duration = 300,
   defaultCollapsed = true,
-  style = {},
+  onToggle,
+  paletteDay,
+  bgColorActivity,
 }) => {
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
-  const rotateAnim = useRef(
-    new Animated.Value(defaultCollapsed ? 0 : 1)
-  ).current;
+  const rotateAnim = useState(new Animated.Value(collapsed ? 0 : 1))[0];
 
-  // Gérer la rotation de la flèche
-  useEffect(() => {
+  const dayPalette = paletteDay || ["#fff", "#ccc", "#000"]; // fallback si paletteDay undefined
+
+  const toggle = () => {
     Animated.timing(rotateAnim, {
-      toValue: collapsed ? 0 : 1,
+      toValue: collapsed ? 1 : 0,
       duration: 200,
       useNativeDriver: true,
     }).start();
-  }, [collapsed]);
+    setCollapsed(!collapsed);
+    if (onToggle) onToggle();
+  };
 
-  const rotateInterpolate = rotateAnim.interpolate({
+  const rotation = rotateAnim.interpolate({
     inputRange: [0, 1],
     outputRange: ["0deg", "180deg"],
   });
 
   return (
-    <KWCard style={[styles.card, style]}>
-      <TouchableOpacity
-        style={styles.header}
-        onPress={() => setCollapsed(!collapsed)}
-        activeOpacity={0.8}
-      >
-        <View style={styles.headerContent}>
-          <KWText type="h3" style={styles.title}>
-            {title}
-          </KWText>
-          <Animated.View style={{ transform: [{ rotate: rotateInterpolate }] }}>
+    <View style={{ marginBottom: 8 }}>
+      <KWCard style={{ backgroundColor: bgColorActivity || dayPalette[0] }}>
+        <TouchableOpacity
+          onPress={toggle}
+          style={styles.headerContainer}
+          activeOpacity={0.8}
+        >
+          <View style={{ flex: 1 }}>
+            <KWText style={{ fontWeight: "600", color: dayPalette[2] }}>
+              {title}
+            </KWText>
+            {subtitle && <KWText color={dayPalette[2]}>{subtitle}</KWText>}
+          </View>
+          <Animated.View style={{ transform: [{ rotate: rotation }] }}>
             <Ionicons
-              name="chevron-down"
-              size={20}
-              color={colors.text[0] || "#333"}
+              name="chevron-down-outline"
+              size={22}
+              color={dayPalette[2]}
             />
           </Animated.View>
-        </View>
-      </TouchableOpacity>
+        </TouchableOpacity>
 
-      <Collapsible collapsed={collapsed} duration={duration}>
-        <Animatable.View
-          animation={collapsed ? undefined : "fadeInDown"}
-          duration={duration}
-          style={styles.content}
-        >
-          {children}
-        </Animatable.View>
-      </Collapsible>
-    </KWCard>
+        {!collapsed && <View style={styles.body}>{children}</View>}
+      </KWCard>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.background[0],
-    marginBottom: 8,
-    overflow: "hidden",
-  },
-  header: {
+  headerContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 10,
+    justifyContent: "space-between",
+    padding: 12,
+  },
+  body: {
     paddingHorizontal: 12,
-  },
-  headerContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    flex: 1,
-  },
-  title: {
-    fontWeight: "600",
-    color: colors.text[1] || "#444",
-  },
-  content: {
-    paddingHorizontal: 15,
-    paddingBottom: 10,
+    paddingBottom: 12,
+    paddingTop: 0,
   },
 });
 
