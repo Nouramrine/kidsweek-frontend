@@ -211,7 +211,8 @@ const HomeScreen = ({ navigation }) => {
                         )}`}
                         defaultCollapsed={expandedActivityId !== a._id}
                         onToggle={() => toggleActivity(a._id)}
-                        palette={palette}
+                        paletteDay={palette}
+                        bgColorActivity={a.color || palette[1]}
                       >
                         {/* Détails à l'intérieur de l'accordéon */}
                         <KWText>📍 {a.place || "Lieu non précisé"}</KWText>
@@ -228,12 +229,11 @@ const HomeScreen = ({ navigation }) => {
                             ))}
                           </>
                         )}
-
                         <View style={{ alignItems: "center", marginTop: 10 }}>
                           <KWButton
                             title="Modifier"
                             icon="edit"
-                            bgColor={palette[1]}
+                            bgColor={a.color || palette[1]}
                             onPress={() =>
                               navigation.navigate("AddScreen", {
                                 activityToEdit: a,
