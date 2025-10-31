@@ -19,6 +19,7 @@ import KWButton from "../components/KWButton";
 import KWTextInput from "../components/KWTextInput";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import KWText from "../components/KWText";
+import KWColorPicker from "../components/KWColorPicker";
 import {
   KWCard,
   KWCardHeader,
@@ -28,7 +29,7 @@ import {
   KWCardBody,
 } from "../components/KWCard";
 import KWDateTimePicker from "../components/KWDateTimePicker";
-import { colors } from "../theme/colors";
+import { colors, userColorSelection } from "../theme/colors";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -41,22 +42,16 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import KWModal from "../components/KWModal";
 import MemberAdd from "../components/member/Add";
 import zones from "../reducers/zones";
-import members from "../reducers/members";
-import {
-  fetchZonesAsync,
-  deleteZoneAsync,
-  removeMemberFromZoneAsync,
-  addMemberToZoneAsync,
-} from "../reducers/zones";
+import { fetchZonesAsync } from "../reducers/zones";
 
-import { fetchMembersAsync, deleteMemberAsync } from "../reducers/members";
+import { fetchMembersAsync } from "../reducers/members";
 
 const AddScreen = ({ navigation, route }) => {
   const { activityToEdit } = route.params || {};
   const props = activityToEdit || {};
 
   const dispatch = useDispatch();
-  const zones = useSelector((state) => state.zones.value);
+
   const members = useSelector((state) => state.members.value);
   const user = useSelector((state) => state.user.value);
   const activities = useSelector((state) => state.activities.value);
@@ -108,6 +103,8 @@ const AddScreen = ({ navigation, route }) => {
 
   // Note
   const [note, setNote] = useState("");
+  // couleur
+  const [color, setColor] = useState("skin");
   console.log("membres selectionnés", addMembers);
   // assign fields if props exist (edit mode)
   useEffect(() => {
@@ -650,8 +647,8 @@ const AddScreen = ({ navigation, route }) => {
           <KWColorPicker
             title="Choisissez une couleur pour l'activité"
             userColorSelection={userColorSelection}
-            selectedColor={selectedColor}
-            onColorSelect={(color) => setSelectedColor(color)}
+            selectedColor={color}
+            onColorSelect={(color) => setColor(color)}
           />
         </View>
         {/* Boutons */}
