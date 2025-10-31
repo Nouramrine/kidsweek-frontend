@@ -551,10 +551,10 @@ const AddScreen = ({ navigation, route }) => {
 
           <View>
             {addMembers.length > 0 ? (
-              addMembers.map((memberselect) => (
-                <View key={memberselect.member._id} style={styles.memberItem}>
+              addMembers.map((memberselect, key) => (
+                <View key={memberselect._id} style={styles.memberItem}>
                   <KWText type="text" style={styles.memberName}>
-                    {memberselect.member.firstName}
+                    {memberselect.firstName}
                   </KWText>
                   <TouchableOpacity
                     style={styles.removeButton}
@@ -587,12 +587,9 @@ const AddScreen = ({ navigation, route }) => {
           <MemberAdd
             currentMembers={addMembers}
             onReturn={(member) => {
-              setAddMembers((prev) => [
-                ...prev,
-                {
-                  member,
-                },
-              ]);
+              if (member) {
+                setAddMembers([...addMembers, member]);
+              }
               setAddMemberToActivityModal(false);
             }}
           />
