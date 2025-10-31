@@ -1,33 +1,20 @@
 import React, { useEffect, useState } from "react";
 import {
   View,
-  Text,
   StyleSheet,
-  TextInput,
   TouchableOpacity,
   Platform,
   Switch,
-  Button,
   ScrollView,
   KeyboardAvoidingView,
   Alert,
 } from "react-native";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import { Checkbox } from "expo-checkbox";
-import { Picker } from "@react-native-picker/picker";
 import KWButton from "../components/KWButton";
 import KWTextInput from "../components/KWTextInput";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import KWText from "../components/KWText";
 import KWColorPicker from "../components/KWColorPicker";
-import {
-  KWCard,
-  KWCardHeader,
-  KWCardIcon,
-  KWCardTitle,
-  KWCardButton,
-  KWCardBody,
-} from "../components/KWCard";
+import { KWCardButton } from "../components/KWCard";
 import KWDateTimePicker from "../components/KWDateTimePicker";
 import { colors, userColorSelection } from "../theme/colors";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -36,31 +23,32 @@ import {
   createActivityAsync,
   deleteActivityAsync,
 } from "../reducers/activities";
-import KWDropdown from "../components/Activities/KWDropdown";
 import ButtonSaveUpdate from "../components/Activities/ButtonSaveUpdate";
-import { SafeAreaView } from "react-native-safe-area-context";
+//import { SafeAreaView } from "react-native-safe-area-context";
 import KWModal from "../components/KWModal";
+import KWDropdown from "../components/Activities/KWDropdown";
 import MemberAdd from "../components/member/Add";
-import zones from "../reducers/zones";
+
 import { fetchZonesAsync } from "../reducers/zones";
 
 import { fetchMembersAsync } from "../reducers/members";
 
 const AddScreen = ({ navigation, route }) => {
+  // retrieve params if edit mode
   const { activityToEdit } = route.params || {};
   const props = activityToEdit || {};
-
+  // Redux
   const dispatch = useDispatch();
-
+  // zones members activities user
   const members = useSelector((state) => state.members.value);
   const user = useSelector((state) => state.user.value);
   const activities = useSelector((state) => state.activities.value);
-  //members.push(user);
-  console.log("Zones : ", zones);
-  console.log("Membres : ", members);
-
-  console.log("reducer user", user);
-
+  const zones = useSelector((state) => state.zones.value);
+  // console.log("Zones : ", zones);
+  // console.log("Membres : ", members);
+  // console.log("Activités : ", activities);
+  // console.log("reducer user", user);
+  console.log("Props écran modif activité :", props);
   //console.log("reducer activities =====>", activities);
   const [error, setError] = useState(false);
   //display switch
@@ -95,7 +83,7 @@ const AddScreen = ({ navigation, route }) => {
   // members
   const [addMemberToActivityModal, setAddMemberToActivityModal] =
     useState(false);
-  const [addMembers, setAddMembers] = useState([]); //{ id: 1, name: "Enfant" }
+  const [addMembers, setAddMembers] = useState([]); //{ id: 1, firstName: "Enfant" }
 
   // Checklist
   const [checklistItems, setChecklistItems] = useState([]); //{ id: 1, text: "Bouteille d'eau", checked: false }
@@ -104,8 +92,75 @@ const AddScreen = ({ navigation, route }) => {
   // Note
   const [note, setNote] = useState("");
   // couleur
-  const [color, setColor] = useState("skin");
-  console.log("membres selectionnés", addMembers);
+  const [colorAct, setColor] = useState("skin");
+
+  // create activity
+  const handleSave = async () => {
+    let memberIds;
+    if (addMembers.length > 0) {
+      memberIds = addMembers.map((m) => m._id);
+      console.log("ici", memberIds);
+    } else {
+      return;
+    }
+    // combine date and time
+    const fullDateBegin = combineDateAndTime(dateBegin, timeBegin);
+    const fullDateEnd = combineDateAndTime(dateEnd, timeEnd);
+
+    if (isEnabled !== true) {
+      setRecurrence(null);
+      setDateEndRecurrence(null);
+    }
+    if (!validateForm()) {
+      return; // Arrête si la validation échoue
+    }
+
+    const reminderDate = calculateReminderDate(
+      fullDateBegin,
+      reminderNumber,
+      reminderUnit
+    );
+
+    if (fullDateEnd <= fullDateBegin) {
+      setDateEnd(fullDateBegin);
+    }
+
+    console.log("Nom activité :", activityName);
+    console.log("Lieu activité :", activityPlace);
+    console.log("Date début :", fullDateBegin);
+    console.log("Date fin :", fullDateEnd);
+    console.log("Date fin récurrence :", dateEndRecurrence);
+    console.log("Récurrence :", recurrence);
+    console.log("Rappel :", reminderDate);
+    console.log("Tâches :", checklistItems);
+    console.log("Note :", note);
+    console.log("Membres :", memberIds);
+    console.log("Couleur :", colorAct);
+    try {
+      const result = await dispatch(
+        createActivityAsync({
+          name: activityName,
+          place: activityPlace,
+          dateBegin: fullDateBegin,
+          dateEnd: fullDateEnd,
+          dateEndRecurrence: dateEndRecurrence,
+          reminder: reminderDate,
+          task: checklistItems,
+          note: note,
+          recurrence: isEnabled ? recurrence : null,
+          token: user.token,
+          members: memberIds,
+          color: colorAct || "skin",
+        })
+      ).unwrap(); // unwrap pour obtenir la valeur résolue ou lancer une erreur
+      console.log("Activité créée avec succès:", result);
+
+      navigation.goBack();
+    } catch (error) {
+      Alert.alert("Erreur", error.message || "Impossible de créer l'activité");
+      console.error("Erreur création activité:", error);
+    }
+  };
   // assign fields if props exist (edit mode)
   useEffect(() => {
     if (Object.keys(props).length !== 0) {
@@ -131,7 +186,7 @@ const AddScreen = ({ navigation, route }) => {
         setTimeEnd(dateEnd);
       }
       setNote(props.note);
-
+      setColor(props.color || "skin");
       if (Object.keys(props.recurrence).length !== 0) {
         setIsEnabled(true);
         // Décomposition de dateEndRecurrence
@@ -148,13 +203,9 @@ const AddScreen = ({ navigation, route }) => {
       setReminderUnit(props.reminderUnit);
       if (props.members && props.members.length > 0) {
         //console.log("props members:", props.members);
-        // setChildren(children);
-        //setParents(parents);
+        setAddMembers(props.members);
       }
       setChecklistItems(props.checklistItems);
-    } else {
-      dispatch(fetchZonesAsync());
-      dispatch(fetchMembersAsync());
     }
   }, []);
   // Handlers DateTimePicker dateBegin
@@ -216,16 +267,6 @@ const AddScreen = ({ navigation, route }) => {
     combined.setSeconds(0);
     combined.setMilliseconds(0);
     return combined;
-  };
-
-  //remove children
-  const removeChild = (id) => {
-    setChildren(children.filter((child) => child.id !== id));
-  };
-
-  //remove parents
-  const removeParent = (id) => {
-    setParents(parents.filter((parent) => parent.id !== id));
   };
 
   // Checklist handlers
@@ -290,7 +331,7 @@ const AddScreen = ({ navigation, route }) => {
     } else {
       setError(false);
     }
-    if (children.length === 0) {
+    if (addMembers.length === 0) {
       Alert.alert("Erreur", "Veuillez sélectionner au moins un enfant");
       return false;
     }
@@ -305,53 +346,7 @@ const AddScreen = ({ navigation, route }) => {
 
     return true;
   };
-  // create activity
-  const handleSave = async () => {
-    const fullDateBegin = combineDateAndTime(dateBegin, timeBegin);
-    const fullDateEnd = combineDateAndTime(dateEnd, timeEnd);
-    const members = [...children, ...parents];
-    if (isEnabled !== true) {
-      setRecurrence(null);
-      setDateEndRecurrence(null);
-    }
-    if (!validateForm()) {
-      return; // Arrête si la validation échoue
-    }
 
-    const reminderDate = calculateReminderDate(
-      fullDateBegin,
-      reminderNumber,
-      reminderUnit
-    );
-
-    if (fullDateEnd <= fullDateBegin) {
-      setDateEnd(fullDateBegin);
-    }
-
-    try {
-      const result = await dispatch(
-        createActivityAsync({
-          name: activityName,
-          place: activityPlace,
-          dateBegin: fullDateBegin,
-          dateEnd: fullDateEnd,
-          dateEndRecurrence: dateEndRecurrence,
-          reminder: reminderDate,
-          task: checklistItems,
-          note: note,
-          recurrence: isEnabled ? recurrence : null,
-          token: user.token,
-          members: members,
-        })
-      ).unwrap(); // unwrap pour obtenir la valeur résolue ou lancer une erreur
-      console.log("Activité créée avec succès:", result);
-
-      navigation.goBack();
-    } catch (error) {
-      Alert.alert("Erreur", error.message || "Impossible de créer l'activité");
-      console.error("Erreur création activité:", error);
-    }
-  };
   const handleDelete = async () => {
     // Logique de suppression
     try {
@@ -381,8 +376,6 @@ const AddScreen = ({ navigation, route }) => {
 
     setReminderNumber(10);
     setReminderUnit("Minutes");
-    setChildren(null);
-    setParents(null);
     setChecklistItems(null);
 
     navigation.goBack();
@@ -411,6 +404,7 @@ const AddScreen = ({ navigation, route }) => {
             placeholder="Ex : cours de danse, entrainement de foot..."
             value={activityName}
             onChangeText={setActivityName}
+            onBlur={() => setActivityName(activityName.trim())}
           />
         </View>
 
@@ -423,6 +417,7 @@ const AddScreen = ({ navigation, route }) => {
             placeholder="Ex : stade municipal, piscine..."
             value={activityPlace}
             onChangeText={setActivityPlace}
+            onBlur={() => setActivityPlace(activityPlace.trim())}
           />
         </View>
 
@@ -539,7 +534,27 @@ const AddScreen = ({ navigation, route }) => {
             </View>
           )}
         </View>
-
+        {/* Rappel */}
+        <View style={styles.section}>
+          <View style={styles.reminderContainer}>
+            <KWTextInput
+              label="Rappel"
+              style={styles.reminderInput}
+              value={reminderNumber}
+              onChangeText={setReminderNumber}
+              keyboardType="numeric"
+            />
+            <KWDropdown
+              selectedValue={reminderUnit}
+              onValueChange={(itemValue, itemIndex) =>
+                setReminderUnit(itemValue)
+              }
+            />
+            <KWText type="text" style={styles.reminderText}>
+              avant
+            </KWText>
+          </View>
+        </View>
         {/* membres(s) */}
         <View style={styles.section}>
           <KWText type="text" style={[styles.label, { marginLeft: 20 }]}>
@@ -603,6 +618,7 @@ const AddScreen = ({ navigation, route }) => {
                 placeholder="Nouvel élément"
                 value={newChecklistItem}
                 onChangeText={setNewChecklistItem}
+                onBlur={() => setNewChecklistItem(newChecklistItem.trim())}
               />
               <TouchableOpacity
                 style={styles.addChecklistButton}
@@ -639,6 +655,7 @@ const AddScreen = ({ navigation, route }) => {
             placeholder="Ajouter une note..."
             value={note}
             onChangeText={setNote}
+            onBlur={() => setNote(note.trim())}
             multiline
           />
         </View>
@@ -647,8 +664,8 @@ const AddScreen = ({ navigation, route }) => {
           <KWColorPicker
             title="Choisissez une couleur pour l'activité"
             userColorSelection={userColorSelection}
-            selectedColor={color}
-            onColorSelect={(color) => setColor(color)}
+            selectedColor={colorAct}
+            onColorSelect={(colorAct) => setColor(colorAct)}
           />
         </View>
         {/* Boutons */}

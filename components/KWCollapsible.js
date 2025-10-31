@@ -1,78 +1,179 @@
-import React, { useState } from "react";
-import { View, TouchableOpacity, StyleSheet, Animated } from "react-native";
+import React, { useRef, useEffect } from "react";
+import {
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  Animated,
+  Easing,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import KWText from "./KWText";
-import { KWCard } from "./KWCard";
 
 const KWCollapsible = ({
   title,
   subtitle,
   children,
-  defaultCollapsed = true,
+  palette,
+  isExpanded,
   onToggle,
-  paletteDay,
-  bgColorActivity,
 }) => {
-  const [collapsed, setCollapsed] = useState(defaultCollapsed);
-  const rotateAnim = useState(new Animated.Value(collapsed ? 0 : 1))[0];
+  // Animation hauteur et opacité du contenu
+  const animatedHeight = useRef(new Animated.Value(0)).current;
+  const animatedOpacity = useRef(new Animated.Value(0)).current;
 
-  const dayPalette = paletteDay || ["#fff", "#ccc", "#000"]; // fallback si paletteDay undefined
+  // Animation de rotation du chevron
+  const rotation = useRef(new Animated.Value(0)).current;
 
-  const toggle = () => {
-    Animated.timing(rotateAnim, {
-      toValue: collapsed ? 1 : 0,
-      duration: 200,
-      useNativeDriver: true,
-    }).start();
-    setCollapsed(!collapsed);
-    if (onToggle) onToggle();
-  };
+  // Animation du borderRadius du header
+  const headerRadius = useRef(new Animated.Value(12)).current;
 
-  const rotation = rotateAnim.interpolate({
+  useEffect(() => {
+    if (isExpanded) {
+      Animated.parallel([
+        Animated.timing(animatedHeight, {
+          toValue: 1,
+          duration: 300,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: false,
+        }),
+        Animated.timing(animatedOpacity, {
+          toValue: 1,
+          duration: 250,
+          useNativeDriver: false,
+        }),
+        Animated.timing(rotation, {
+          toValue: 1,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+        Animated.timing(headerRadius, {
+          toValue: 0,
+          duration: 250,
+          useNativeDriver: false,
+        }),
+      ]).start();
+    } else {
+      Animated.parallel([
+        Animated.timing(animatedHeight, {
+          toValue: 0,
+          duration: 300,
+          easing: Easing.in(Easing.cubic),
+          useNativeDriver: false,
+        }),
+        Animated.timing(animatedOpacity, {
+          toValue: 0,
+          duration: 150,
+          useNativeDriver: false,
+        }),
+        Animated.timing(rotation, {
+          toValue: 0,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+        Animated.timing(headerRadius, {
+          toValue: 12,
+          duration: 250,
+          useNativeDriver: false,
+        }),
+      ]).start();
+    }
+  }, [isExpanded]);
+
+  // Interpolation du chevron (rotation de 0° à 180°)
+  const rotateInterpolate = rotation.interpolate({
     inputRange: [0, 1],
     outputRange: ["0deg", "180deg"],
   });
 
+  // Interpolation hauteur max (0 → 500px arbitraire, ajustable)
+  const maxHeightInterpolate = animatedHeight.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 500],
+  });
+
   return (
-    <View style={{ marginBottom: 8 }}>
-      <KWCard style={{ backgroundColor: bgColorActivity || dayPalette[0] }}>
+    <View style={styles.wrapper}>
+      {/* HEADER - toujours visible avec fond coloré */}
+      <Animated.View
+        style={[
+          styles.header,
+          {
+            backgroundColor: palette[0],
+            borderBottomLeftRadius: headerRadius,
+            borderBottomRightRadius: headerRadius,
+          },
+        ]}
+      >
         <TouchableOpacity
-          onPress={toggle}
-          style={styles.headerContainer}
+          style={styles.headerTouchable}
+          onPress={onToggle}
           activeOpacity={0.8}
         >
           <View style={{ flex: 1 }}>
-            <KWText style={{ fontWeight: "600", color: dayPalette[2] }}>
+            <KWText type="h3" style={{ color: palette[2] }}>
               {title}
             </KWText>
-            {subtitle && <KWText color={dayPalette[2]}>{subtitle}</KWText>}
+            {subtitle && (
+              <KWText style={{ color: palette[2], fontSize: 13 }}>
+                {subtitle}
+              </KWText>
+            )}
           </View>
-          <Animated.View style={{ transform: [{ rotate: rotation }] }}>
-            <Ionicons
-              name="chevron-down-outline"
-              size={22}
-              color={dayPalette[2]}
-            />
+          <Animated.View style={{ transform: [{ rotate: rotateInterpolate }] }}>
+            <Ionicons name="chevron-down" size={22} color={palette[2]} />
           </Animated.View>
         </TouchableOpacity>
+      </Animated.View>
 
-        {!collapsed && <View style={styles.body}>{children}</View>}
-      </KWCard>
+      {/* CONTENU - s'anime avec maxHeight */}
+      <Animated.View
+        style={[
+          styles.expandableSection,
+          {
+            backgroundColor: palette[0],
+            maxHeight: maxHeightInterpolate,
+            opacity: animatedOpacity,
+          },
+        ]}
+      >
+        <View style={[styles.body, { backgroundColor: palette[1] + "33" }]}>
+          {children}
+        </View>
+      </Animated.View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  headerContainer: {
+  wrapper: {
+    borderRadius: 12,
+    marginBottom: 8,
+    overflow: "hidden",
+  },
+  header: {
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "space-between",
-    padding: 12,
+    alignItems: "center",
+    padding: 10,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+  },
+  headerTouchable: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    flex: 1,
+  },
+  expandableSection: {
+    overflow: "hidden",
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
+    paddingHorizontal: 10,
   },
   body: {
-    paddingHorizontal: 12,
-    paddingBottom: 12,
-    paddingTop: 0,
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 10,
   },
 });
 
