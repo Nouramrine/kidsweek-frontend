@@ -8,12 +8,12 @@ import { signUpAsync } from "../../reducers/user";
 
 const SignUp = () => {
   const dispatch = useDispatch();
-  const [signUpFirstName, setSignUpFirstName] = useState("Kids");
-  const [signUpLastName, setSignUpLastName] = useState("Week");
-  const [signUpEmail, setSignUpEmail] = useState("user@kidsweek.fr");
-  const [signUpPassword, setSignUpPassword] = useState("Pass1234");
-  const [signUpConfirm, setSignUpConfirm] = useState("Pass1234");
-  const [signUpError, setSignUpError] = useState("");
+  const [signUpFirstName, setSignUpFirstName] = useState('');
+  const [signUpLastName, setSignUpLastName] = useState('');
+  const [signUpEmail, setSignUpEmail] = useState('');
+  const [signUpPassword, setSignUpPassword] = useState('');
+  const [signUpConfirm, setSignUpConfirm] = useState('');
+  const [signUpError, setSignUpError] = useState('');
 
   const handleSignUp = async () => {
     if (signUpPassword !== signUpConfirm) {
@@ -49,6 +49,44 @@ const SignUp = () => {
 
   return (
     <View>
+
+      <View style={{ marginBottom: 20 }}>
+        <KWButton 
+          title="User1" 
+          onPress={() => { 
+            setSignUpEmail("user@kidsweek.fr");
+            setSignUpFirstName("Parent");
+            setSignUpLastName("Famille1");
+            setSignUpPassword('Pass12345!');
+            setSignUpConfirm('Pass12345!');
+            
+          }}
+        />
+        <KWButton 
+          title="User2" 
+          onPress={() => { 
+            setSignUpEmail("user2@kidsweek.fr");
+            setSignUpFirstName("Parent2");
+            setSignUpLastName("Famille1");
+            setSignUpPassword('Pass12345!');
+            setSignUpConfirm('Pass12345!');
+            
+          }}
+        />
+        <KWButton 
+          title="User3" 
+          onPress={() => { 
+            setSignUpEmail("user3@kidsweek.fr");
+            setSignUpFirstName("Parent3");
+            setSignUpLastName("Famille1");
+            setSignUpPassword('Pass12345!');
+            setSignUpConfirm('Pass12345!');
+            
+          }}
+        />
+      </View>
+
+
       <KWTextInput
         label="Prénom"
         value={signUpFirstName}

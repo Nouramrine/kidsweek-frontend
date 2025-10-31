@@ -31,6 +31,31 @@ const SignIn = () => {
 
   return (
     <View>
+
+      <View style={{ marginBottom: 20 }}>
+        <KWButton 
+          title="User1" 
+          onPress={() => { 
+            setSignInEmail("user@kidsweek.fr");
+            setSignInPassword('Pass1234');
+          }}
+        />
+        <KWButton 
+          title="User2" 
+          onPress={() => { 
+            setSignInEmail("user2@kidsweek.fr");
+            setSignInPassword('Pass12345!');
+          }}
+        />
+        <KWButton 
+          title="User3" 
+          onPress={() => { 
+            setSignInEmail("user3@kidsweek.fr");
+            setSignInPassword('Pass12345!');
+          }}
+        />
+      </View>
+
       <KWTextInput
         label="Email"
         value={signInEmail}
