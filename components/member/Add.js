@@ -2,9 +2,7 @@ import { View, StyleSheet, ScrollView } from "react-native";
 import { useEffect } from "react";
 import { colors } from "../../theme/colors";
 import KWText from "../KWText";
-import KWTextInput from "../KWTextInput";
 import KWButton from "../KWButton";
-import KWCheckbox from "../KWCheckbox";
 import {
   KWCard,
   KWCardHeader,
