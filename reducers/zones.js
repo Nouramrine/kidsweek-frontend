@@ -18,7 +18,7 @@ export const fetchZonesAsync = createAsyncThunk(
     const data = await response.json();
     //console.log(data)
     if (!data.result)
-      console.log("Zones reducer : ", data.error || "Erreur lors du fetch des zones");
+      throw console.log("Zones reducer : ", data.error || "Erreur lors du fetch des zones");
     return data.zones || [];
   }  
 );
@@ -40,7 +40,7 @@ export const createZoneAsync = createAsyncThunk(
     });
     const data = await response.json();
     if (!response.ok)
-      console.log("Zones reducer : ", data.error || "Erreur lors de la création de la zone");
+      throw console.log("Zones reducer : ", data.error || "Erreur lors de la création de la zone");
     return data.zone || [];
   }
 );
@@ -61,7 +61,7 @@ export const updateZoneAsync = createAsyncThunk(
     });
     const data = await response.json();
     if (!data.result)
-      console.log("Zones reducer : ", data.error || "Erreur lors de la mise à jour de la zone");
+      throw console.log("Zones reducer : ", data.error || "Erreur lors de la mise à jour de la zone");
     return data.zone || [];
   }
 );
@@ -81,7 +81,7 @@ export const deleteZoneAsync = createAsyncThunk(
     });
     const data = await response.json();
     if (!data.result)
-      console.log("Zones reducer : ", data.error || "Erreur lors de la suppression de la zone");
+      throw console.log("Zones reducer : ", data.error || "Erreur lors de la suppression de la zone");
     return data.zone || '';
   }
 );
@@ -102,7 +102,7 @@ export const addMemberToZoneAsync = createAsyncThunk(
     const data = await response.json();
     console.log("Retour Async Ajout membre de zone : ", data)
     if (!data.result)
-      console.log("Zones reducer : ", data.error || "Erreur lors de l'ajout du membre à la zone");
+      throw console.log("Zones reducer : ", data.error || "Erreur lors de l'ajout du membre à la zone");
     return data.zone;
   }
 );
@@ -125,9 +125,8 @@ export const removeMemberFromZoneAsync = createAsyncThunk(
       }
     );
     const data = await response.json();
-    console.log("Retour Async Remove membre de zone : ", data)
     if (!data.result)
-      console.log("Zones reducer : ", data.error || "Erreur lors du retrait du membre de la zone");
+      throw console.log("Zones Async remove : ", data.error || "Erreur lors du retrait du membre de la zone");
     return data.zone;
   }
 );
