@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import {
   View,
   TouchableOpacity,
   StyleSheet,
-  LayoutAnimation,
+  Animated,
+  Easing,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import KWText from "./KWText";
@@ -16,49 +17,163 @@ const KWCollapsible = ({
   isExpanded,
   onToggle,
 }) => {
-  LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+  // Animation hauteur et opacité du contenu
+  const animatedHeight = useRef(new Animated.Value(0)).current;
+  const animatedOpacity = useRef(new Animated.Value(0)).current;
+
+  // Animation de rotation du chevron
+  const rotation = useRef(new Animated.Value(0)).current;
+
+  // Animation du borderRadius du header
+  const headerRadius = useRef(new Animated.Value(12)).current;
+
+  useEffect(() => {
+    if (isExpanded) {
+      Animated.parallel([
+        Animated.timing(animatedHeight, {
+          toValue: 1,
+          duration: 300,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: false,
+        }),
+        Animated.timing(animatedOpacity, {
+          toValue: 1,
+          duration: 250,
+          useNativeDriver: false,
+        }),
+        Animated.timing(rotation, {
+          toValue: 1,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+        Animated.timing(headerRadius, {
+          toValue: 0,
+          duration: 250,
+          useNativeDriver: false,
+        }),
+      ]).start();
+    } else {
+      Animated.parallel([
+        Animated.timing(animatedHeight, {
+          toValue: 0,
+          duration: 300,
+          easing: Easing.in(Easing.cubic),
+          useNativeDriver: false,
+        }),
+        Animated.timing(animatedOpacity, {
+          toValue: 0,
+          duration: 150,
+          useNativeDriver: false,
+        }),
+        Animated.timing(rotation, {
+          toValue: 0,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+        Animated.timing(headerRadius, {
+          toValue: 12,
+          duration: 250,
+          useNativeDriver: false,
+        }),
+      ]).start();
+    }
+  }, [isExpanded]);
+
+  // Interpolation du chevron (rotation de 0° à 180°)
+  const rotateInterpolate = rotation.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["0deg", "180deg"],
+  });
+
+  // Interpolation hauteur max (0 → 500px arbitraire, ajustable)
+  const maxHeightInterpolate = animatedHeight.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 500],
+  });
 
   return (
-    <View style={[styles.container, { backgroundColor: palette[0] }]}>
-      <TouchableOpacity style={styles.header} onPress={onToggle}>
-        <View style={{ flex: 1 }}>
-          <KWText type="h3" style={{ color: palette[2] }}>
-            {title}
-          </KWText>
-          {subtitle && (
-            <KWText style={{ color: palette[2], fontSize: 13 }}>
-              {subtitle}
+    <View style={styles.wrapper}>
+      {/* HEADER - toujours visible avec fond coloré */}
+      <Animated.View
+        style={[
+          styles.header,
+          {
+            backgroundColor: palette[0],
+            borderBottomLeftRadius: headerRadius,
+            borderBottomRightRadius: headerRadius,
+          },
+        ]}
+      >
+        <TouchableOpacity
+          style={styles.headerTouchable}
+          onPress={onToggle}
+          activeOpacity={0.8}
+        >
+          <View style={{ flex: 1 }}>
+            <KWText type="h3" style={{ color: palette[2] }}>
+              {title}
             </KWText>
-          )}
-        </View>
-        <Ionicons
-          name={isExpanded ? "chevron-up" : "chevron-down"}
-          size={20}
-          color={palette[2]}
-        />
-      </TouchableOpacity>
+            {subtitle && (
+              <KWText style={{ color: palette[2], fontSize: 13 }}>
+                {subtitle}
+              </KWText>
+            )}
+          </View>
+          <Animated.View style={{ transform: [{ rotate: rotateInterpolate }] }}>
+            <Ionicons name="chevron-down" size={22} color={palette[2]} />
+          </Animated.View>
+        </TouchableOpacity>
+      </Animated.View>
 
-      {isExpanded && <View style={styles.body}>{children}</View>}
+      {/* CONTENU - s'anime avec maxHeight */}
+      <Animated.View
+        style={[
+          styles.expandableSection,
+          {
+            backgroundColor: palette[0],
+            maxHeight: maxHeightInterpolate,
+            opacity: animatedOpacity,
+          },
+        ]}
+      >
+        <View style={[styles.body, { backgroundColor: palette[1] + "33" }]}>
+          {children}
+        </View>
+      </Animated.View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  wrapper: {
     borderRadius: 12,
-    padding: 10,
     marginBottom: 8,
+    overflow: "hidden",
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    padding: 10,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+  },
+  headerTouchable: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    flex: 1,
+  },
+  expandableSection: {
+    overflow: "hidden",
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
+    paddingHorizontal: 10,
   },
   body: {
-    marginTop: 8,
-    backgroundColor: "rgba(255,255,255,0.2)",
     borderRadius: 8,
     padding: 10,
+    marginBottom: 10,
   },
 });
 
