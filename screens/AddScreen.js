@@ -646,6 +646,14 @@ const AddScreen = ({ navigation, route }) => {
           />
         </View>
 
+        <View style={styles.section}>
+          <KWColorPicker
+            title="Choisissez une couleur pour l'activité"
+            userColorSelection={userColorSelection}
+            selectedColor={selectedColor}
+            onColorSelect={(color) => setSelectedColor(color)}
+          />
+        </View>
         {/* Boutons */}
         <View style={styles.buttonsContainer}>
           <KWButton title="Retour" onPress={handleAbort} />
