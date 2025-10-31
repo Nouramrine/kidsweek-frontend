@@ -45,6 +45,8 @@ export const createActivityAsync = createAsyncThunk(
       note,
       recurrence,
       token,
+      color,
+      members,
     } = payload;
     try {
       const response = await fetch(`${BACKEND_URL}/activities`, {
@@ -62,6 +64,8 @@ export const createActivityAsync = createAsyncThunk(
           task,
           note,
           recurrence,
+          color,
+          members,
         }),
       });
 
@@ -78,6 +82,8 @@ export const createActivityAsync = createAsyncThunk(
             task: data.task,
             note: data.note,
             recurrence: data.recurrence,
+            color: data.color,
+            members: data.members,
           })
         );
       } else {
