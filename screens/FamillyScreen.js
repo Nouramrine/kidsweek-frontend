@@ -61,8 +61,8 @@ const FamillyScreen = ({ navigation }) => {
         <KWModal visible={addMemberToZoneModal}>
           <MemberAdd 
             currentMembers={selectedZone?.members}
-            onReturn={(memberId) => {
-              if(memberId) dispatch(addMemberToZoneAsync({ zoneId: selectedZone?._id, memberId }))
+            onReturn={(member) => {
+              if(member) dispatch(addMemberToZoneAsync({ zoneId: selectedZone?._id, memberId: member._id }))
               setSelectedZone(null);
               setAddMemberToZoneModal(false);
             }} />

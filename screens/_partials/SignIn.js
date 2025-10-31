@@ -7,8 +7,8 @@ import KWText from "../../components/KWText";
 import { signInAsync } from "../../reducers/user";
 
 const SignIn = () => {
-  const [signInEmail, setSignInEmail] = useState("user@kidsweek.fr");
-  const [signInPassword, setSignInPassword] = useState("Pass1234");
+  const [signInEmail, setSignInEmail] = useState('');
+  const [signInPassword, setSignInPassword] = useState('');
   const [signInError, setSignInError] = useState("");
 
   const dispatch = useDispatch();

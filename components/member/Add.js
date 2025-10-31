@@ -19,8 +19,8 @@ const MemberAdd = ({ currentMembers, onReturn }) => {
     dispatch(fetchMembersAsync())
   }, [])
 
-  const handleValidation = async (memberId) => {
-    onReturn(memberId);
+  const handleValidation = async (member) => {
+    onReturn(member);
   }
 
   const currentIds = new Set(currentMembers.map(item => item._id))
@@ -44,7 +44,7 @@ const MemberAdd = ({ currentMembers, onReturn }) => {
                     {/* <KWText>1000 ans</KWText> */}
                 </KWCardTitle>
                 <KWCardButton>
-                    <KWButton style={styles.addButton} title="Ajouter" onPress={() => handleValidation(member._id)} />
+                    <KWButton style={styles.addButton} title="Ajouter" onPress={() => handleValidation(member)} />
                 </KWCardButton>
             </KWCardHeader>
         </KWCard>
