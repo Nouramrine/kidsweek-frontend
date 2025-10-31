@@ -78,7 +78,7 @@ const AddScreen = ({ navigation, route }) => {
   const [hasManuallySetTimeEnd, setHasManuallySetTimeEnd] = useState(false);
   // reminder
   const [reminderNumber, setReminderNumber] = useState("10");
-  const [reminderUnit, setReminderUnit] = useState("Minutes");
+  const [reminderUnit, setReminderUnit] = useState("minutes");
 
   // members
   const [addMemberToActivityModal, setAddMemberToActivityModal] =
@@ -124,18 +124,6 @@ const AddScreen = ({ navigation, route }) => {
     if (fullDateEnd <= fullDateBegin) {
       setDateEnd(fullDateBegin);
     }
-
-    console.log("Nom activité :", activityName);
-    console.log("Lieu activité :", activityPlace);
-    console.log("Date début :", fullDateBegin);
-    console.log("Date fin :", fullDateEnd);
-    console.log("Date fin récurrence :", dateEndRecurrence);
-    console.log("Récurrence :", recurrence);
-    console.log("Rappel :", reminderDate);
-    console.log("Tâches :", checklistItems);
-    console.log("Note :", note);
-    console.log("Membres :", memberIds);
-    console.log("Couleur :", colorAct);
     try {
       const result = await dispatch(
         createActivityAsync({
@@ -176,7 +164,9 @@ const AddScreen = ({ navigation, route }) => {
         // Pour l'heure
         setTimeBegin(dateBegin);
       }
-
+      if (props.tasks.length > 0) {
+        setChecklistItems(props.task);
+      }
       // Décomposition de dateEnd
       if (props.dateEnd) {
         const dateEnd = new Date(props.dateEnd);
@@ -187,7 +177,8 @@ const AddScreen = ({ navigation, route }) => {
       }
       setNote(props.note);
       setColor(props.color || "skin");
-      if (Object.keys(props.recurrence).length !== 0) {
+
+      /*if (Object.keys(props.recurrence).length !== 0) {
         setIsEnabled(true);
         // Décomposition de dateEndRecurrence
         const dateEndRecurrence = new Date(props.recurrence.dateFin);
@@ -198,14 +189,14 @@ const AddScreen = ({ navigation, route }) => {
         // Pour l'heure
         setTimeEndRecurrence(props.recurrence.dateFin);
         setRecurrence(props.recurrence.day);
-      }
+      }*/
       setReminderNumber(props.reminderNumber);
       setReminderUnit(props.reminderUnit);
       if (props.members && props.members.length > 0) {
         //console.log("props members:", props.members);
         setAddMembers(props.members);
       }
-      setChecklistItems(props.checklistItems);
+      setChecklistItems(props.tasks);
     }
   }, []);
   // Handlers DateTimePicker dateBegin
@@ -304,12 +295,7 @@ const AddScreen = ({ navigation, route }) => {
       case "jours":
         reminderDate.setDate(reminderDate.getDate() - number);
         break;
-      case "semaines":
-        reminderDate.setDate(reminderDate.getDate() - number * 7);
-        break;
-      case "mois":
-        reminderDate.setMonth(reminderDate.getMonth() - number);
-        break;
+
       default:
         return activityDate;
     }
@@ -375,7 +361,7 @@ const AddScreen = ({ navigation, route }) => {
     setRecurrence(null);
 
     setReminderNumber(10);
-    setReminderUnit("Minutes");
+    setReminderUnit("minutes");
     setChecklistItems(null);
 
     navigation.goBack();
@@ -632,8 +618,8 @@ const AddScreen = ({ navigation, route }) => {
           <View style={styles.checklistItemsContainer}>
             {checklistItems &&
               checklistItems.length > 0 &&
-              checklistItems.map((item) => (
-                <View key={item.id} style={styles.checklistItem}>
+              checklistItems.map((item, key) => (
+                <View key={item._id} style={styles.checklistItem}>
                   <KWText type="text" style={styles.checklistItemText}>
                     {item.text}
                   </KWText>
