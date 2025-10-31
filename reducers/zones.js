@@ -18,7 +18,7 @@ export const fetchZonesAsync = createAsyncThunk(
     const data = await response.json();
     //console.log(data)
     if (!data.result)
-      console.log("Zones reducer : ", data.message || "Erreur lors du fetch des zones");
+      console.log("Zones reducer : ", data.error || "Erreur lors du fetch des zones");
     return data.zones || [];
   }  
 );
@@ -40,7 +40,7 @@ export const createZoneAsync = createAsyncThunk(
     });
     const data = await response.json();
     if (!response.ok)
-      console.log("Zones reducer : ", data.message || "Erreur lors de la création de la zone");
+      console.log("Zones reducer : ", data.error || "Erreur lors de la création de la zone");
     return data.zone || [];
   }
 );
@@ -61,7 +61,7 @@ export const updateZoneAsync = createAsyncThunk(
     });
     const data = await response.json();
     if (!data.result)
-      console.log("Zones reducer : ", data.message || "Erreur lors de la mise à jour de la zone");
+      console.log("Zones reducer : ", data.error || "Erreur lors de la mise à jour de la zone");
     return data.zone || [];
   }
 );
@@ -86,8 +86,7 @@ export const deleteZoneAsync = createAsyncThunk(
   }
 );
 
-//Ajouter un memebre à une zone
-
+//Ajouter un membre à une zone
 export const addMemberToZoneAsync = createAsyncThunk(
   "zones/addMemberToZoneAsync",
   async ( { zoneId, memberId }, { getState }) => {
@@ -101,17 +100,19 @@ export const addMemberToZoneAsync = createAsyncThunk(
       body: JSON.stringify({ memberId }),
     });
     const data = await response.json();
+    console.log("Retour Async Ajout membre de zone : ", data)
     if (!data.result)
-      console.log("Zones reducer : ", data.message || "Erreur lors de l'ajout du membre à la zone");
+      console.log("Zones reducer : ", data.error || "Erreur lors de l'ajout du membre à la zone");
     return data.zone;
   }
 );
 
 //Retirer un membre d'une zone
-
 export const removeMemberFromZoneAsync = createAsyncThunk(
   "zones/removeMemberFromZoneAsync",
-  async ({ token, zoneId, memberId }) => {
+  async ({ zoneId, memberId }, { getState }) => {
+    console.log(typeof zoneId, typeof memberId)
+    const token = getState().user.value.token;
     const response = await fetch(
       `${BACKEND_URL}/zones/${zoneId}/remove-member`,
       {
@@ -124,8 +125,9 @@ export const removeMemberFromZoneAsync = createAsyncThunk(
       }
     );
     const data = await response.json();
-    if (!response.ok)
-      console.log("Zones reducer : ", data.message || "Erreur lors du retrait du membre de la zone");
+    console.log("Retour Async Remove membre de zone : ", data)
+    if (!data.result)
+      console.log("Zones reducer : ", data.error || "Erreur lors du retrait du membre de la zone");
     return data.zone;
   }
 );
