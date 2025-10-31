@@ -22,6 +22,7 @@ import KWText from "../components/KWText";
 import KWButton from "../components/KWButton";
 import { colors } from "../theme/colors";
 import { Ionicons } from "@expo/vector-icons";
+import KWCollapsible from "../components/KWCollapsible";
 
 const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -30,9 +31,14 @@ const HomeScreen = ({ navigation }) => {
 
   const [selectedChild, setSelectedChild] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [expandedActivityId, setExpandedActivityId] = useState(null);
+
+  //gestion de l'affichage accordéon
+  const toggleActivity = (id) => {
+    setExpandedActivityId(expandedActivityId === id ? null : id);
+  };
 
   //Mock notification pour le test
-
   const notifications = [
     {
       id: 1,
@@ -47,7 +53,6 @@ const HomeScreen = ({ navigation }) => {
   ];
 
   // Afficher la modal de notification au chargement si il y a des notifications
-
   const toggleModal = () => setIsModalVisible(!isModalVisible);
 
   // recupérer les activité du membre connecté
@@ -127,7 +132,7 @@ const HomeScreen = ({ navigation }) => {
         </View>
 
         <ScrollView contentContainerStyle={styles.scroll}>
-          {/* --- Sélection des enfants (mock pour l’instant) --- */}
+          {/* --- Sélection des enfants (mock pour l'instant) --- */}
           <KWCard
             style={{
               backgroundColor: colors.background[0],
@@ -177,48 +182,66 @@ const HomeScreen = ({ navigation }) => {
                   Aucune activité prévue pour le moment.
                 </KWText>
               )}
+
               {sortedDays.map((day) => {
-                // couleur selon le jour
                 const dayName = day.split(" ")[0].toLowerCase();
                 const palette = dayColors[dayName] || colors.blue;
+
                 return (
-                  <View key={day} style={{ marginBottom: 12 }}>
+                  <View key={day} style={{ marginBottom: 15 }}>
+                    {/* Nom du jour avec couleur */}
                     <KWText
                       type="h3"
                       style={{
                         fontWeight: "bold",
-                        marginBottom: 5,
+                        marginBottom: 8,
                         color: palette[2],
                       }}
                     >
                       {day}
                     </KWText>
+
+                    {/* Activités du jour */}
                     {groupedActivities[day].map((a) => (
-                      <TouchableOpacity
+                      <KWCollapsible
                         key={a._id}
-                        onPress={() =>
-                          navigation.navigate("ActivityDetails", {
-                            activity: a,
-                          })
-                        }
+                        title={a.name}
+                        subtitle={`${formatTime(a.dateBegin)} → ${formatTime(
+                          a.dateEnd
+                        )}`}
+                        defaultCollapsed={expandedActivityId !== a._id}
+                        onToggle={() => toggleActivity(a._id)}
+                        palette={palette}
                       >
-                        <KWCard
-                          style={{
-                            backgroundColor: palette[0],
-                            padding: 12,
-                            marginBottom: 8,
-                          }}
-                        >
-                          <KWText
-                            style={{ fontWeight: "600", color: palette[2] }}
-                          >
-                            {a.name}
-                          </KWText>
-                          <KWText style={colors.text[0]}>
-                            {formatTime(a.dateBegin)} → {formatTime(a.dateEnd)}
-                          </KWText>
-                        </KWCard>
-                      </TouchableOpacity>
+                        {/* Détails à l'intérieur de l'accordéon */}
+                        <KWText>📍 {a.place || "Lieu non précisé"}</KWText>
+                        {a.note && <KWText>📝 {a.note}</KWText>}
+                        {a.members?.length > 0 && (
+                          <>
+                            <KWText type="h2" style={{ marginTop: 8 }}>
+                              👥 Membres :
+                            </KWText>
+                            {a.members.map((m) => (
+                              <KWText key={m.email}>
+                                • {m.firstName || "Membre"}
+                              </KWText>
+                            ))}
+                          </>
+                        )}
+
+                        <View style={{ alignItems: "center", marginTop: 10 }}>
+                          <KWButton
+                            title="Modifier"
+                            icon="edit"
+                            bgColor={palette[1]}
+                            onPress={() =>
+                              navigation.navigate("AddScreen", {
+                                activityToEdit: a,
+                              })
+                            }
+                          />
+                        </View>
+                      </KWCollapsible>
                     ))}
                   </View>
                 );
@@ -235,6 +258,7 @@ const HomeScreen = ({ navigation }) => {
           >
             Notifications
           </KWText>
+
           {notifications.length === 0 ? (
             <KWText color={colors.text[0]}>Aucune notification.</KWText>
           ) : (
@@ -254,7 +278,6 @@ const HomeScreen = ({ navigation }) => {
                 >
                   <KWText>{item.message}</KWText>
 
-                  {/*bouton pour valider/refuser invitation*/}
                   {item.type === "validation" && (
                     <View style={styles.actionButtons}>
                       <KWButton

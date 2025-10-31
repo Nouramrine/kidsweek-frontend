@@ -7,6 +7,7 @@ const KWDateTimePicker = ({
   label,
   date,
   time,
+  color,
   onDateChange, // Fonction pour gérer le changement de date
   onTimeChange, // Fonction pour gérer le changement d'heure
   dateError,
@@ -63,6 +64,7 @@ const KWDateTimePicker = ({
       {/* Affichage du DateTimePicker pour la date */}
       {showDatePicker && (
         <DateTimePicker
+          color={color}
           value={date}
           mode="date"
           display="default"
