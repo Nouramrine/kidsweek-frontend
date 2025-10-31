@@ -100,7 +100,7 @@ const AddScreen = ({ navigation, route }) => {
   // members
   const [addMemberToActivityModal, setAddMemberToActivityModal] =
     useState(false);
-  const [addMembers, setMembers] = useState([]); //{ id: 1, name: "Enfant" }
+  const [addMembers, setAddMembers] = useState([]); //{ id: 1, name: "Enfant" }
 
   // Checklist
   const [checklistItems, setChecklistItems] = useState([]); //{ id: 1, text: "Bouteille d'eau", checked: false }
@@ -108,7 +108,7 @@ const AddScreen = ({ navigation, route }) => {
 
   // Note
   const [note, setNote] = useState("");
-
+  console.log("membres selectionnés", addMembers);
   // assign fields if props exist (edit mode)
   useEffect(() => {
     if (Object.keys(props).length !== 0) {
@@ -391,7 +391,7 @@ const AddScreen = ({ navigation, route }) => {
     navigation.goBack();
   };
   const handleRemoveMember = (id) => {
-    setMembers((prev) => prev.filter((m) => m._id !== id));
+    setAddMembers((prev) => prev.filter((m) => m._id !== id));
   };
   return (
     <KeyboardAvoidingView
@@ -546,22 +546,24 @@ const AddScreen = ({ navigation, route }) => {
         {/* membres(s) */}
         <View style={styles.section}>
           <KWText type="text" style={[styles.label, { marginLeft: 20 }]}>
-            Qui praticipera ?
+            Qui participera ?
           </KWText>
+
           <View>
             {addMembers.length > 0 ? (
-              <View>
-                {addMembers.map((memberselect) => (
-                  <View key={memberselect._id}>
-                    <Text type="text">{memberselect.name}</Text>
-                    <TouchableOpacity
-                      onPress={() => handleRemoveMember(memberselect._id)}
-                    >
-                      <FontAwesome5 name="times" size={14} color="#030303ff" />
-                    </TouchableOpacity>
-                  </View>
-                ))}
-              </View>
+              addMembers.map((memberselect) => (
+                <View key={memberselect.member._id} style={styles.memberItem}>
+                  <KWText type="text" style={styles.memberName}>
+                    {memberselect.member.firstName}
+                  </KWText>
+                  <TouchableOpacity
+                    style={styles.removeButton}
+                    onPress={() => handleRemoveMember(memberselect._id)}
+                  >
+                    <FontAwesome5 name="times" size={16} color="#EF4444" />
+                  </TouchableOpacity>
+                </View>
+              ))
             ) : (
               <KWText type="text" style={styles.noMembersText}>
                 Aucun membre sélectionné
@@ -584,14 +586,13 @@ const AddScreen = ({ navigation, route }) => {
         >
           <MemberAdd
             currentMembers={addMembers}
-            onReturn={(memberId) => {
-              if (memberId) {
-                // Recherche du membre sélectionné dans la liste globale
-                const selectedMember = members.find((m) => m._id === memberId);
-                if (selectedMember) {
-                  setMembers((prev) => [...prev, selectedMember]);
-                }
-              }
+            onReturn={(member) => {
+              setAddMembers((prev) => [
+                ...prev,
+                {
+                  member,
+                },
+              ]);
               setAddMemberToActivityModal(false);
             }}
           />
@@ -797,5 +798,35 @@ const styles = StyleSheet.create({
   memberNameSelected: {
     color: "#8E7EED",
     fontWeight: "700",
+  },
+  memberItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: "#f9fafb",
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    marginVertical: 5,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+
+  memberName: {
+    fontSize: 16,
+    color: colors.text[0],
+  },
+
+  removeButton: {
+    padding: 5,
+  },
+
+  noMembersText: {
+    fontStyle: "italic",
+    color: "#9ca3af",
+    textAlign: "center",
+    marginTop: 10,
   },
 });
