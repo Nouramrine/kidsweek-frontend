@@ -16,7 +16,7 @@ export const fetchMembersAsync = createAsyncThunk(
     });
     const data = await response.json();
     if (!data.result)
-      console.log( "Create member : ", data.error || "Erreur lors du fetch des membres");
+      throw console.log( "Create member : ", data.error || "Erreur lors du fetch des membres");
     return data.members;
   }
 );
@@ -35,8 +35,9 @@ export const createMemberAsync = createAsyncThunk(
       body: JSON.stringify(memberData),
     });
     const data = await response.json();
-    if (!data.result)
-      console.log( "Create member : ", data.error || "Erreur lors de la création du membre");
+    if (!data.result) {
+      throw console.log( "Create member : ", data.error || "Erreur lors de la création du membre");
+    }
     return data.member;
   }
 );
@@ -56,7 +57,7 @@ export const updateMemberAsync = createAsyncThunk(
     });
     const data = await response.json();
     if (!data.result)
-      console.log( "Update member : ", data.message || "Erreur lors de la mise à jour du membre");
+      throw console.log( "Update member : ", data.message || "Erreur lors de la mise à jour du membre");
     return data.member || [];
   }
 );
@@ -75,7 +76,7 @@ export const deleteMemberAsync = createAsyncThunk(
     });
     const data = await response.json();
     if (!data.result)
-      console.log( "Delete member : ", data.error || "Erreur lors de la suppression du membre");
+      throw console.log( "Delete member : ", data.error || "Erreur lors de la suppression du membre");
     return data.member || '';
   }
 );
