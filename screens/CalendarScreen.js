@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-} from "react-native";
+import { View, StyleSheet, FlatList } from "react-native";
 import { Calendar } from "react-native-calendars";
 import { useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
@@ -13,6 +7,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "../theme/colors";
 import { KWCard } from "../components/KWCard";
 import KWText from "../components/KWText";
+import KWCollapsible from "../components/KWCollapsible";
+import KWButton from "../components/KWButton";
 
 export default function CalendarScreen() {
   const navigation = useNavigation();
@@ -21,6 +17,11 @@ export default function CalendarScreen() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [markedDates, setMarkedDates] = useState({});
   const [activitiesOfDay, setActivitiesOfDay] = useState([]);
+  const [expandedActivityId, setExpandedActivityId] = useState(null);
+
+  const toggleActivity = (id) => {
+    setExpandedActivityId(expandedActivityId === id ? null : id);
+  };
 
   //code couleur par jour
   const dayColors = {
@@ -34,7 +35,6 @@ export default function CalendarScreen() {
   };
 
   // Marquer les dates avec des activités
-
   useEffect(() => {
     const marks = {};
     activities.forEach((activity) => {
@@ -47,9 +47,9 @@ export default function CalendarScreen() {
   }, [activities]);
 
   // Gérer la sélection d'une date
-
   const handleDayPress = (day) => {
     setSelectedDate(day.dateString);
+    setExpandedActivityId(null); // Fermer toutes les activités lors du changement de date
 
     // Filtrer les activités de cette date
     const filtred = activities.filter(
@@ -57,18 +57,21 @@ export default function CalendarScreen() {
     );
     setActivitiesOfDay(filtred);
   };
-  //mettre la date sous la forme DD/MM/YYYY
 
+  //mettre la date sous la forme DD/MM/YYYY
   const formatDateFR = (isoDate) => {
     if (!isoDate) return "";
     const [year, month, day] = isoDate.split("-");
     return `${day}/${month}/${year}`;
   };
-  // Cliquer sur une activité = ouvre ActivityDetailsScreen
 
-  const handleActivityPress = (activity) => {
-    navigation.navigate("ActivityDetails", { activity });
-  };
+  const formatTime = (dateStr) =>
+    dateStr
+      ? new Date(dateStr).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      : "";
 
   // Couleur dominante du jour sélectionné
   const getDayPalette = (dateStr) => {
@@ -126,50 +129,47 @@ export default function CalendarScreen() {
                   data={activitiesOfDay}
                   keyExtractor={(item) => item._id}
                   renderItem={({ item }) => (
-                    <TouchableOpacity
-                      key={item._id}
-                      style={styles.activityCard}
-                      onPress={() => handleActivityPress(item)}
+                    <KWCollapsible
+                      title={item.name}
+                      subtitle={`${formatTime(item.dateBegin)} → ${formatTime(
+                        item.dateEnd
+                      )}`}
+                      palette={palette}
+                      isExpanded={expandedActivityId === item._id}
+                      onToggle={() => toggleActivity(item._id)}
                     >
-                      <KWCard
-                        style={{
-                          backgroundColor: palette[0],
-                          borderLeftWidth: 5,
-                          borderLeftColor: palette[2],
-                          marginBottom: 10,
-                          paddingVertical: 10,
-                        }}
-                      >
-                        <KWText
-                          type="h3"
-                          style={{
-                            fontWeight: "600",
-                            color: palette[2],
-                          }}
-                        >
-                          {item.name}
-                        </KWText>
-                        <KWText style={{ color: "#222" }}>
-                          {new Date(item.dateBegin).toLocaleTimeString(
-                            "fr-FR",
-                            {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            }
-                          )}{" "}
-                          -{" "}
-                          {new Date(item.dateEnd).toLocaleTimeString("fr-FR", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </KWText>
-                      </KWCard>
-                    </TouchableOpacity>
+                      <KWText>📍 {item.place || "Lieu non précisé"}</KWText>
+                      {item.note && <KWText>📝 {item.note}</KWText>}
+                      {item.members?.length > 0 && (
+                        <>
+                          <KWText type="h3" style={{ marginTop: 8 }}>
+                            👥 Membres :
+                          </KWText>
+                          {item.members.map((m) => (
+                            <KWText key={m.email}>• {m.firstName}</KWText>
+                          ))}
+                        </>
+                      )}
+                      <View style={{ alignItems: "center", marginTop: 10 }}>
+                        <KWButton
+                          title="Modifier"
+                          icon="edit"
+                          bgColor={palette[1]}
+                          color="white"
+                          style={{ minWidth: 150 }}
+                          onPress={() =>
+                            navigation.navigate("AddScreen", {
+                              activityToEdit: item,
+                            })
+                          }
+                        />
+                      </View>
+                    </KWCollapsible>
                   )}
                 />
               ) : (
                 <KWText style={styles.noActivity}>
-                  Aucune activité ce jour-là.{" "}
+                  Aucune activité ce jour-là.
                 </KWText>
               )}
             </>
@@ -183,6 +183,7 @@ export default function CalendarScreen() {
     </SafeAreaView>
   );
 }
+
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
