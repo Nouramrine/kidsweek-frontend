@@ -14,30 +14,34 @@ const MemberForm = ({ data, onReturn }) => {
 
   const [firstName, setFirstName] = useState(data?.member?.firstName || '');
   const [lastName, setLastName] = useState(data?.member?.lastName || '');
-  const [color, setColor] = useState(data?.member?.color || 'skin')
+  const [email, setEmail] = useState(data?.member?.email || '');
+  const [color, setColor] = useState(data?.member?.color || 'skin');
   const [isChildren, setIsChildren] = useState(data?.member?.isChildren || false);
   
   const handleValidation = async () => {
     if (!data?.member) {
-      const createMember = dispatch(
-        createMemberAsync({ firstName, lastName, color, isChildren })
-      );
-      if (createMember) {
-        setFirstName('');
-        setLastName('');
-        setIsChildren(false);
-        onReturn();
-      }
+        const createMember = dispatch(
+          createMemberAsync({ firstName, lastName, color, isChildren })
+        );
+        if (createMember) {
+          setFirstName('');
+          setLastName('');
+          setEmail('');
+          setIsChildren(false);
+          onReturn();
+        }
     } else {
       const updateData = { id: data.member._id, firstName, lastName, color, isChildren };
       const updateMember = dispatch(updateMemberAsync(updateData));
       if (updateMember) {
         setFirstName('');
         setLastName('');
+        setEmail('');
         setIsChildren(false);
         onReturn();
       }
     }
+
   }
 
   return (
@@ -53,6 +57,11 @@ const MemberForm = ({ data, onReturn }) => {
           label="Nom"
           value={lastName}
           onChangeText={setLastName}
+        />
+        <KWTextInput
+          label="Email"
+          value={email}
+          onChangeText={setEmail}
         />
         <KWColorPicker 
           title="Couleur" 
