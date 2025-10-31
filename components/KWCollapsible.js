@@ -1,78 +1,64 @@
-import React, { useState } from "react";
-import { View, TouchableOpacity, StyleSheet, Animated } from "react-native";
+import React from "react";
+import {
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  LayoutAnimation,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import KWText from "./KWText";
-import { KWCard } from "./KWCard";
 
 const KWCollapsible = ({
   title,
   subtitle,
   children,
-  defaultCollapsed = true,
+  palette,
+  isExpanded,
   onToggle,
-  paletteDay,
-  bgColorActivity,
 }) => {
-  const [collapsed, setCollapsed] = useState(defaultCollapsed);
-  const rotateAnim = useState(new Animated.Value(collapsed ? 0 : 1))[0];
-
-  const dayPalette = paletteDay || ["#fff", "#ccc", "#000"]; // fallback si paletteDay undefined
-
-  const toggle = () => {
-    Animated.timing(rotateAnim, {
-      toValue: collapsed ? 1 : 0,
-      duration: 200,
-      useNativeDriver: true,
-    }).start();
-    setCollapsed(!collapsed);
-    if (onToggle) onToggle();
-  };
-
-  const rotation = rotateAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ["0deg", "180deg"],
-  });
+  LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
 
   return (
-    <View style={{ marginBottom: 8 }}>
-      <KWCard style={{ backgroundColor: bgColorActivity || dayPalette[0] }}>
-        <TouchableOpacity
-          onPress={toggle}
-          style={styles.headerContainer}
-          activeOpacity={0.8}
-        >
-          <View style={{ flex: 1 }}>
-            <KWText style={{ fontWeight: "600", color: dayPalette[2] }}>
-              {title}
+    <View style={[styles.container, { backgroundColor: palette[0] }]}>
+      <TouchableOpacity style={styles.header} onPress={onToggle}>
+        <View style={{ flex: 1 }}>
+          <KWText type="h3" style={{ color: palette[2] }}>
+            {title}
+          </KWText>
+          {subtitle && (
+            <KWText style={{ color: palette[2], fontSize: 13 }}>
+              {subtitle}
             </KWText>
-            {subtitle && <KWText color={dayPalette[2]}>{subtitle}</KWText>}
-          </View>
-          <Animated.View style={{ transform: [{ rotate: rotation }] }}>
-            <Ionicons
-              name="chevron-down-outline"
-              size={22}
-              color={dayPalette[2]}
-            />
-          </Animated.View>
-        </TouchableOpacity>
+          )}
+        </View>
+        <Ionicons
+          name={isExpanded ? "chevron-up" : "chevron-down"}
+          size={20}
+          color={palette[2]}
+        />
+      </TouchableOpacity>
 
-        {!collapsed && <View style={styles.body}>{children}</View>}
-      </KWCard>
+      {isExpanded && <View style={styles.body}>{children}</View>}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  headerContainer: {
+  container: {
+    borderRadius: 12,
+    padding: 10,
+    marginBottom: 8,
+  },
+  header: {
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "space-between",
-    padding: 12,
+    alignItems: "center",
   },
   body: {
-    paddingHorizontal: 12,
-    paddingBottom: 12,
-    paddingTop: 0,
+    marginTop: 8,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    borderRadius: 8,
+    padding: 10,
   },
 });
 
