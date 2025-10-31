@@ -1,10 +1,11 @@
 import { View, StyleSheet, ScrollView } from "react-native";
 import { useState } from 'react';
-import { colors } from "../../theme/colors";
+import { colors, userColorSelection } from "../../theme/colors";
 import KWText from "../KWText";
 import KWTextInput from "../KWTextInput";
 import KWButton from "../KWButton";
 import KWCheckbox from "../KWCheckbox";
+import KWColorPicker from "../KWColorPicker";
 import { createMemberAsync, updateMemberAsync } from "../../reducers/members";
 import { useDispatch } from "react-redux";
 
@@ -13,12 +14,13 @@ const MemberForm = ({ data, onReturn }) => {
 
   const [firstName, setFirstName] = useState(data?.member?.firstName || '');
   const [lastName, setLastName] = useState(data?.member?.lastName || '');
+  const [color, setColor] = useState(data?.member?.color || 'skin')
   const [isChildren, setIsChildren] = useState(data?.member?.isChildren || false);
-
+  
   const handleValidation = async () => {
     if (!data?.member) {
       const createMember = dispatch(
-        createMemberAsync({ firstName, lastName, isChildren })
+        createMemberAsync({ firstName, lastName, color, isChildren })
       );
       if (createMember) {
         setFirstName('');
@@ -27,7 +29,7 @@ const MemberForm = ({ data, onReturn }) => {
         onReturn();
       }
     } else {
-      const updateData = { id: data.member._id, firstName, lastName, isChildren };
+      const updateData = { id: data.member._id, firstName, lastName, color, isChildren };
       const updateMember = dispatch(updateMemberAsync(updateData));
       if (updateMember) {
         setFirstName('');
@@ -51,6 +53,12 @@ const MemberForm = ({ data, onReturn }) => {
           label="Nom"
           value={lastName}
           onChangeText={setLastName}
+        />
+        <KWColorPicker 
+          title="Couleur" 
+          userColorSelection={userColorSelection} 
+          selectedColor={color} 
+          onColorSelect={(colorName) => setColor(colorName)} 
         />
         <KWCheckbox
           value={isChildren}

@@ -13,7 +13,7 @@ const KWDropDown = ({ id, icon, options, openId, setOpenId, onSelect }) => {
       setOpenId(null);
     } else if (buttonRef.current) {
       buttonRef.current.measureInWindow((x, y, width, height) => {
-        setDropdownPos({ top: height, right: 0 });
+        setDropdownPos({ bottom: -height, right: width + 5 });
         setOpenId(id);
       });
     }
@@ -32,7 +32,7 @@ const KWDropDown = ({ id, icon, options, openId, setOpenId, onSelect }) => {
       </TouchableOpacity>
 
       {visible && (
-        <View style={[styles.dropdown, { top: dropdownPos.top + 5, right: dropdownPos.right, position: 'absolute' }]}>
+        <View style={[styles.dropdown, { top: dropdownPos.bottom, right: dropdownPos.right, position: 'absolute' }]}>
           {options.map((item, j) => (
             <TouchableOpacity key={j} style={styles.item} onPress={() => handleSelect(item.action)}>
               <KWText style={[styles.optionText, item.color && { color: item.color }]}>{item.label}</KWText>

@@ -81,6 +81,10 @@ const styles = StyleSheet.create({
     cardTitle: {
         marginLeft: 15,
     },
+    cardButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
     leftContainer: {
         flexDirection: 'row',
         alignItems: 'center',

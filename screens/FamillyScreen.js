@@ -16,16 +16,14 @@ import { useSelector, useDispatch } from "react-redux";
 import { fetchZonesAsync, deleteZoneAsync, removeMemberFromZoneAsync, addMemberToZoneAsync } from "../reducers/zones";
 import { fetchMembersAsync, deleteMemberAsync } from "../reducers/members";
 
-// ...imports inchangés
-
 const FamillyScreen = ({ navigation }) => {
   const dispatch = useDispatch();
 
   const zones = useSelector((state) => state.zones.value);
   const members = useSelector((state) => state.members.value);
 
-  console.log("Zones : ", zones)
-  console.log("Membres : ", members)
+  //console.log("Zones : ", zones)
+  //console.log("Membres : ", members)
 
   // Pour affichage modal et édition Zones
   const [zoneModal, setZoneModal] = useState(false);
@@ -50,9 +48,7 @@ const FamillyScreen = ({ navigation }) => {
       <ScrollView>
 
         {/* Modal création / édition de Zone */}
-        <KWModal
-          visible={zoneModal}
-        >
+        <KWModal visible={zoneModal}>
           <ZoneForm 
             data={selectedZone} 
             onReturn={() => { 
@@ -62,9 +58,7 @@ const FamillyScreen = ({ navigation }) => {
         </KWModal>
 
         {/* Modal Ajout d'un membre à la zone */}
-        <KWModal
-          visible={addMemberToZoneModal}
-        >
+        <KWModal visible={addMemberToZoneModal}>
           <MemberAdd 
             currentMembers={selectedZone?.members}
             onReturn={(memberId) => {
@@ -152,6 +146,7 @@ const FamillyScreen = ({ navigation }) => {
                 </KWCardHeader>
 
                 <KWCardBody>
+                  {/* Membres de la zone */}
                   {zone.members.map((member, j) => {
                     return (
                       <KWCard key={j} color={colors.background[1]} style={styles.memberCard}>
@@ -168,6 +163,7 @@ const FamillyScreen = ({ navigation }) => {
                             <View style={{ backgroundColor: colors.background[1], justifyContent: 'center', alignItems: 'center', paddingVertical: 5, paddingHorizontal: 10, borderRadius: 100 }}>
                               {member.isChildren ? <KWText color={colors.blue[1]}>Enfant</KWText> : <KWText color={colors.red[1]}>Parent</KWText>}
                             </View>
+                            {!zone.isReadOnly && <TouchableOpacity style={styles.iconBtn} onPress={() => dispatch(removeMemberFromZoneAsync({ zoneId: zone._id, memberId: member._id }))}><FontAwesome5 name="minus" size={13} color="white" /></TouchableOpacity>}
                           </KWCardButton>
                         </KWCardHeader>
                       </KWCard>
@@ -204,7 +200,7 @@ const FamillyScreen = ({ navigation }) => {
             {!members.length && <KWText style={styles.emptyText}>Aucun membre</KWText>}
             {members.map((member, j) => {
                 return (
-                <KWCard key={j} color={colors.skin[0]} style={styles.memberCard}>
+                <KWCard key={j} color={member.color ? colors[member.color][0] : colors.skin[0]} style={styles.memberCard}>
                   <KWCardHeader>
                     <KWCardIcon>
                       <View style={{ backgroundColor: "#d4d4d4ff", padding: 10, borderRadius: 10 }}>
@@ -292,4 +288,9 @@ const styles = StyleSheet.create({
     width: '100%',
     textAlign: 'center',
   },
+  iconBtn: {
+    padding: 5,
+    borderRadius: 50,
+    backgroundColor: colors.error[0],
+  }
 });
