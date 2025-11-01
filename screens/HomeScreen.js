@@ -23,21 +23,27 @@ import KWButton from "../components/KWButton";
 import { colors } from "../theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import KWCollapsible from "../components/KWCollapsible";
+import { fetchMembersAsync } from "../reducers/members";
 
 const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const activities = useSelector((state) => state.activities.value || []);
   const user = useSelector((state) => state.user.value || {});
+  const members = useSelector((state) => state.members.value || []);
 
   const [selectedChild, setSelectedChild] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [expandedActivityId, setExpandedActivityId] = useState(null);
+
+  const children = members.filter((m) => m.isChildren);
 
   const toggleActivity = (id) => {
     setExpandedActivityId(expandedActivityId === id ? null : id);
   };
 
   const toggleModal = () => setIsModalVisible(!isModalVisible);
+
+  // mock data pour notification
 
   const notifications = [
     {
@@ -53,10 +59,19 @@ const HomeScreen = ({ navigation }) => {
   ];
 
   useEffect(() => {
-    if (user.token) dispatch(fetchActivitiesAsync(user.token));
+    if (user.token) {
+      dispatch(fetchActivitiesAsync(user.token));
+      dispatch(fetchMembersAsync());
+    }
   }, [user.token]);
 
-  const groupedActivities = activities.reduce((acc, activity) => {
+  const filteredActivities = selectedChild
+    ? activities.filter((a) =>
+        a.members?.some((m) => m._id === selectedChild._id)
+      )
+    : activities;
+
+  const groupedActivities = filteredActivities.reduce((acc, activity) => {
     const date = new Date(activity.dateBegin);
     const key = date.toLocaleDateString("fr-FR", {
       weekday: "long",
@@ -126,19 +141,27 @@ const HomeScreen = ({ navigation }) => {
           {/* Sélecteur d’enfant */}
           <KWCard style={styles.childCard}>
             <KWCardBody style={styles.childSelector}>
-              {["Enfant 1", "Enfant 2"].map((child, i) => (
-                <KWButton
-                  key={`child-${i}`}
-                  title={child}
-                  bgColor={
-                    selectedChild === child
-                      ? colors.purple[1]
-                      : colors.background[1]
-                  }
-                  color={selectedChild === child ? "white" : colors.purple[2]}
-                  onPress={() => setSelectedChild(child)}
-                />
-              ))}
+              {children.length === 0 ? (
+                <KWText>Aucun enfant enregistré.</KWText>
+              ) : (
+                children.map((child) => {
+                  const palette = colors[child.color] || colors.purple;
+                  const isSelected = selectedChild?._id === child._id;
+                  return (
+                    <KWButton
+                      key={child._id}
+                      title={child.firstName}
+                      bgColor={isSelected ? palette[1] : colors.background[1]}
+                      color={isSelected ? "white" : palette[2]}
+                      onPress={() => setSelectedChild(child)}
+                      style={{
+                        borderWidth: isSelected ? 0 : 1,
+                        borderColor: palette[2],
+                      }}
+                    />
+                  );
+                })
+              )}
             </KWCardBody>
           </KWCard>
 
@@ -148,14 +171,33 @@ const HomeScreen = ({ navigation }) => {
               <KWCardIcon>
                 <Ionicons
                   name="calendar-outline"
-                  size={20}
+                  size={30}
                   color={colors.purple[2]}
                 />
               </KWCardIcon>
               <KWCardTitle>
-                <KWText type="h2" style={{ color: colors.purple[2] }}>
-                  Mon planning
-                </KWText>
+                <TouchableOpacity
+                  onPress={() => setSelectedChild(null)}
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    marginBottom: 10,
+                  }}
+                >
+                  {selectedChild && (
+                    <Ionicons
+                      name="arrow-back"
+                      size={22}
+                      color={colors.purple[2]}
+                      style={{ marginRight: 6 }}
+                    />
+                  )}
+                  <KWText type="h2" style={{ color: colors.purple[2] }}>
+                    {selectedChild
+                      ? `Planning de ${selectedChild.firstName}`
+                      : "Mon planning"}
+                  </KWText>
+                </TouchableOpacity>
               </KWCardTitle>
             </KWCardHeader>
 
