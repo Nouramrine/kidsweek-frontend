@@ -156,7 +156,7 @@ const HomeScreen = ({ navigation }) => {
               {children.length === 0 ? (
                 <KWText>Aucun enfant enregistré.</KWText>
               ) : (
-                children.map((child, key) => {
+                children.map((child) => {
                   const palette = colors[child.color] || colors.purple;
                   const isSelected = selectedChild?._id === child._id;
                   return (
@@ -229,7 +229,7 @@ const HomeScreen = ({ navigation }) => {
               {sortedDays.length === 0 ? (
                 <KWText>Aucune activité prévue.</KWText>
               ) : (
-                sortedDays.map((day, key) => {
+                sortedDays.map((day) => {
                   const dayName = day.split(" ")[0].toLowerCase();
                   const palette = dayColors[dayName] || colors.blue;
                   const activitiesOfDay = groupedActivities[day];
@@ -247,7 +247,7 @@ const HomeScreen = ({ navigation }) => {
                         {day}
                       </KWText>
 
-                      {activitiesOfDay.map((a, key) => (
+                      {activitiesOfDay.map((a) => (
                         <KWCollapsible
                           key={a._id}
                           title={a.name}
@@ -265,7 +265,7 @@ const HomeScreen = ({ navigation }) => {
                               <KWText type="h3" style={{ marginTop: 8 }}>
                                 👥 Membres :
                               </KWText>
-                              {a.members.map((m, key) => (
+                              {a.members.map((m) => (
                                 <KWText key={m.email}>• {m.firstName}</KWText>
                               ))}
                             </View>

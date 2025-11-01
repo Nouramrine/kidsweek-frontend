@@ -70,17 +70,7 @@ const AddScreen = ({ navigation, route }) => {
   const [showTimeEnd, setShowTimeEnd] = useState(false);
 
   // recurrence
-  const [recurrence, setRecurrence] = useState([
-    {
-      lun: false,
-      mar: false,
-      mer: false,
-      jeu: false,
-      ven: false,
-      sam: false,
-      dim: false,
-    },
-  ]);
+  const [recurrence, setRecurrence] = useState([{}]);
 
   const toggleDay = (day) => {
     setRecurrence({ ...recurrence, [day]: !recurrence[day] });
@@ -122,10 +112,10 @@ const AddScreen = ({ navigation, route }) => {
     const fullDateBegin = combineDateAndTime(dateBegin, timeBegin);
     const fullDateEnd = combineDateAndTime(dateEnd, timeEnd);
 
-    if (isEnabled !== true) {
+    /*if (isEnabled !== true) {
       setRecurrence(null);
       setDateEndRecurrence(null);
-    }
+    }*/
     if (!validateForm()) {
       return; // Arrête si la validation échoue
     }
@@ -135,11 +125,11 @@ const AddScreen = ({ navigation, route }) => {
       reminderNumber,
       reminderUnit
     );
-    console.log(recurrence);
+
     if (fullDateEnd <= fullDateBegin) {
       setDateEnd(fullDateBegin);
     }
-    /* try {
+    try {
       const result = await dispatch(
         createActivityAsync({
           name: activityName,
@@ -162,13 +152,16 @@ const AddScreen = ({ navigation, route }) => {
     } catch (error) {
       Alert.alert("Erreur", error.message || "Impossible de créer l'activité");
       console.error("Erreur création activité:", error);
-    }*/
+    }
   };
   // assign fields if props exist (edit mode)
   useEffect(() => {
+    // verfication props non vide
     if (Object.keys(props).length !== 0) {
+      //affectation de name et place
       setActivityName(props.name);
       setActivityPlace(props.place);
+
       // Décomposition de dateBegin
       if (props.dateBegin) {
         const dateBegin = new Date(props.dateBegin);
@@ -179,9 +172,7 @@ const AddScreen = ({ navigation, route }) => {
         // Pour l'heure
         setTimeBegin(dateBegin);
       }
-      if (props.tasks.length > 0) {
-        setChecklistItems(props.task);
-      }
+
       // Décomposition de dateEnd
       if (props.dateEnd) {
         const dateEnd = new Date(props.dateEnd);
@@ -190,23 +181,70 @@ const AddScreen = ({ navigation, route }) => {
         setDateEnd(dateEndOnly);
         setTimeEnd(dateEnd);
       }
+
+      // verification des taches non vide
+      if (props.tasks.length !== 0) {
+        setChecklistItems(props.task);
+      }
+      // affectation de la note et de la couleur
       setNote(props.note);
       setColor(props.color || "skin");
 
-      /*if (Object.keys(props.recurrence).length !== 0) {
+      if (props.recurrence && Object.keys(props.recurrence).length !== 0) {
         setIsEnabled(true);
+
         // Décomposition de dateEndRecurrence
-        const dateEndRecurrence = new Date(props.recurrence.dateFin);
-        // Pour la date (sans l'heure)
-        const dateOnly = new Date(dateEndRecurrence);
-        dateOnly.setHours(0, 0, 0, 0);
-        setDateEndRecurrence(dateOnly);
-        // Pour l'heure
-        setTimeEndRecurrence(props.recurrence.dateFin);
-        setRecurrence(props.recurrence.day);
-      }*/
-      setReminderNumber(props.reminderNumber);
-      setReminderUnit(props.reminderUnit);
+        if (props.recurrence.dateFin) {
+          const dateEndRecurrence = new Date(props.recurrence.dateFin);
+          // Pour la date (sans l'heure)
+          const dateOnly = new Date(dateEndRecurrence);
+          dateOnly.setHours(0, 0, 0, 0);
+          setDateEndRecurrence(dateOnly);
+        }
+
+        // CORRECTION : Les jours sont dans un tableau, il faut prendre le premier élément
+        if (props.recurrence.days && props.recurrence.days.length > 0) {
+          const daysObj = props.recurrence.days[0];
+          setRecurrence({
+            lun: daysObj.lun === "true",
+            mar: daysObj.mar === "true",
+            mer: daysObj.mer === "true",
+            jeu: daysObj.jeu === "true",
+            ven: daysObj.ven === "true",
+            sam: daysObj.sam === "true",
+            dim: daysObj.dim === "true",
+          });
+        }
+      }
+      if (props.reminder && props.dateBegin) {
+        const date1 = new Date(props.dateBegin); // CORRECTION : utiliser props.dateBegin
+        const date2 = new Date(props.reminder); // CORRECTION : utiliser props.reminder
+
+        // Calculer la différence en millisecondes
+        const diffInMs = Math.abs(date1 - date2);
+
+        // Convertir en différentes unités
+        const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+        const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+        const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+
+        // Déterminer l'unité la plus appropriée
+        let unit, value;
+
+        if (diffInDays > 0) {
+          unit = "jours";
+          value = diffInDays;
+        } else if (diffInHours > 0) {
+          unit = "heures";
+          value = diffInHours;
+        } else {
+          unit = "minutes";
+          value = diffInMinutes;
+        }
+
+        setReminderNumber(value.toString());
+        setReminderUnit(unit);
+      }
       if (props.members && props.members.length > 0) {
         //console.log("props members:", props.members);
         setAddMembers(props.members);
@@ -214,6 +252,7 @@ const AddScreen = ({ navigation, route }) => {
       setChecklistItems(props.tasks);
     }
   }, []);
+  console.log("recurrence=====>", recurrence);
   // Handlers DateTimePicker dateBegin
   const onChangeDateBegin = (event, selectedDate) => {
     setShowDateBegin(false);
