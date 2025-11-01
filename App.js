@@ -65,7 +65,7 @@ const TabNavigator = () => {
             iconName = "home-outline";
           } else if (route.name === "calendrier") {
             iconName = "calendar-clear-outline";
-          } else if (route.name === "famille") {
+          } else if (route.name === "Famille") {
             iconName = "people-outline";
           } else if (route.name === "Profil") {
             iconName = "person-outline";
@@ -103,7 +103,7 @@ const TabNavigator = () => {
           tabBarLabel: "", // Pas de label pour le bouton add
         }}
       />
-      <Tab.Screen name="famille" component={FamillyScreen} />
+      <Tab.Screen name="Famille" component={FamillyScreen} />
       <Tab.Screen name="Profil" component={ProfileScreen} />
     </Tab.Navigator>
   );
