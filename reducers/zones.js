@@ -39,9 +39,10 @@ export const createZoneAsync = createAsyncThunk(
       body: JSON.stringify(zoneData), 
     });
     const data = await response.json();
+
     if (!response.ok)
-      throw console.log("Zones reducer : ", data.error || "Erreur lors de la création de la zone");
-    return data.zone || [];
+      throw console.log("Create Zone reducer : ", data.error || "Erreur lors de la création de la zone");
+    return data.zones[0] || [];
   }
 );
 
@@ -62,7 +63,7 @@ export const updateZoneAsync = createAsyncThunk(
     const data = await response.json();
     if (!data.result)
       throw console.log("Zones reducer : ", data.error || "Erreur lors de la mise à jour de la zone");
-    return data.zone || [];
+    return data.zones[0] || [];
   }
 );
 
@@ -82,7 +83,7 @@ export const deleteZoneAsync = createAsyncThunk(
     const data = await response.json();
     if (!data.result)
       throw console.log("Zones reducer : ", data.error || "Erreur lors de la suppression de la zone");
-    return data.zone || '';
+    return data.zones[0] || '';
   }
 );
 
@@ -100,10 +101,9 @@ export const addMemberToZoneAsync = createAsyncThunk(
       body: JSON.stringify({ memberId }),
     });
     const data = await response.json();
-    console.log("Retour Async Ajout membre de zone : ", data)
     if (!data.result)
       throw console.log("Zones reducer : ", data.error || "Erreur lors de l'ajout du membre à la zone");
-    return data.zone;
+    return data.zones[0];
   }
 );
 
@@ -127,7 +127,7 @@ export const removeMemberFromZoneAsync = createAsyncThunk(
     const data = await response.json();
     if (!data.result)
       throw console.log("Zones Async remove : ", data.error || "Erreur lors du retrait du membre de la zone");
-    return data.zone;
+    return data.zones[0];
   }
 );
 

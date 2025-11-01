@@ -10,6 +10,7 @@ import KWDropDown from "../components/KWDropDown";
 import ZoneForm from "../components/zone/Form";
 import MemberForm from "../components/member/Form";
 import MemberAdd from "../components/member/Add";
+import ProfileScreen from "../screens/ProfileScreen";
 
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useSelector, useDispatch } from "react-redux";
@@ -42,6 +43,9 @@ const FamillyScreen = ({ navigation }) => {
     dispatch(fetchZonesAsync());
     dispatch(fetchMembersAsync());
   }, []);
+
+  /*if (selectedMember) 
+    return (<ProfileScreen member={selectedMember} onReturn={() => setSelectedMember(null)}/>)*/
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
@@ -120,7 +124,7 @@ const FamillyScreen = ({ navigation }) => {
                     <KWText>{zone.members.length} membres</KWText>
                   </KWCardTitle>
                   <KWCardButton> 
-                    {!zone.isReadOnly && 
+                    {zone.authLevel === 'admin' && 
                     <KWDropDown
                       id={zone._id}
                       icon="ellipsis-v"
@@ -171,7 +175,7 @@ const FamillyScreen = ({ navigation }) => {
                   })}
                   <KWButton 
                     icon="plus" 
-                    title="Ajouter" 
+                    title="Ajouter un membre" 
                     bgColor={colors.background[1]} 
                     color={colors.text[0]} 
                     onPress={() => { 
@@ -200,43 +204,48 @@ const FamillyScreen = ({ navigation }) => {
             {!members.length && <KWText style={styles.emptyText}>Aucun membre</KWText>}
             {members.map((member, j) => {
                 return (
-                <KWCard key={j} color={member.color ? colors[member.color][0] : colors.skin[0]} style={styles.memberCard}>
-                  <KWCardHeader>
-                    <KWCardIcon>
-                      <View style={{ backgroundColor: "#d4d4d4ff", padding: 10, borderRadius: 10 }}>
-                        <FontAwesome5 name="user" size={24} color="white" />
-                      </View>
-                    </KWCardIcon>
-                    <KWCardTitle>
-                      <KWText>{member.firstName}</KWText>
-                      {/* <KWText>1000 ans</KWText> */}
-                    </KWCardTitle>
-                    <KWCardButton>
-                      <KWDropDown
-                        id={member._id}
-                        icon="ellipsis-v"
-                        options={[
-                          {action: 'edit', label: 'Modifier', icon: 'pen'},
-                          {action: 'delete', label: 'Supprimer', color: colors.error[0], icon: 'trash'},
-                        ]}
-                        openId={openDropdownId}
-                        setOpenId={setOpenDropdownId}
-                        onSelect={(action) => {
-                          if(action === 'edit'){
-                            setSelectedMember({ member });
-                            setMemberModal(true);
-                          }
-                          if(action === 'delete'){
-                            dispatch(deleteMemberAsync(member._id));
-                            setOpenDropdownId(null);
-                          }
-                        }}
-                      />
-                    </KWCardButton>
-                  </KWCardHeader>
-                </KWCard>
+                /*<TouchableOpacity onPress={() => {
+                  setSelectedMember({ member }); 
+                  setMemberModal(true);
+                }}>*/
+                  <KWCard key={j} color={member.color ? colors[member.color][0] : colors.skin[0]} style={styles.memberCard}>
+                    <KWCardHeader>
+                      <KWCardIcon>
+                        <View style={{ backgroundColor: "#d4d4d4ff", padding: 10, borderRadius: 10 }}>
+                          <FontAwesome5 name="user" size={24} color="white" />
+                        </View>
+                      </KWCardIcon>
+                      <KWCardTitle>
+                        <KWText>{member.firstName}</KWText>
+                        {/* <KWText>1000 ans</KWText> */}
+                      </KWCardTitle>
+                      <KWCardButton>
+                        <KWDropDown
+                          id={member._id}
+                          icon="ellipsis-v"
+                          options={[
+                            {action: 'edit', label: 'Modifier', icon: 'pen'},
+                            {action: 'delete', label: 'Supprimer', color: colors.error[0], icon: 'trash'},
+                          ]}
+                          openId={openDropdownId}
+                          setOpenId={setOpenDropdownId}
+                          onSelect={(action) => {
+                            if(action === 'edit'){
+                              setSelectedMember({ member });
+                              setMemberModal(true);
+                            }
+                            if(action === 'delete'){
+                              dispatch(deleteMemberAsync(member._id));
+                              setOpenDropdownId(null);
+                            }
+                          }}
+                        />
+                      </KWCardButton>
+                    </KWCardHeader>
+                  </KWCard>
+                /*</TouchableOpacity>*/
                 )
-            })}          
+            })}        
           </View>
         </View>
       </ScrollView>
@@ -292,5 +301,12 @@ const styles = StyleSheet.create({
     padding: 5,
     borderRadius: 50,
     backgroundColor: colors.error[0],
-  }
+  },
+  button: {
+    padding: 10,
+    backgroundColor: colors.background[1],
+    borderRadius: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
