@@ -16,7 +16,7 @@ const ZoneForm = ({ data, onReturn }) => {
 
   const handleValidation = async () => {
     if(!data?.zone) {
-      const createZone = await dispatch(createZoneAsync({ name: nameInput, color: selectedColor, members: [] })).unwrap();
+      const createZone = await dispatch(createZoneAsync({ name: nameInput, color: selectedColor })).unwrap();
       if (createZone) {
         setNameInput('');
         onReturn();
