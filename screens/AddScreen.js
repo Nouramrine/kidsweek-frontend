@@ -515,7 +515,7 @@ const AddScreen = ({ navigation, route }) => {
                 <KWDateTimePicker
                   label="La récurrence se termine le :"
                   date={dateEndRecurrence}
-                  //time={timeEndRecurrence}
+                  time={timeEndRecurrence}
                   onDateChange={onChangeDateEndRecurrence}
                   dateError={
                     dateEndRecurrence < dateBegin
