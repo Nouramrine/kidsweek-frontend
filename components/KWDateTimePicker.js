@@ -6,11 +6,12 @@ import KWText from "./KWText";
 const KWDateTimePicker = ({
   label,
   date,
-  time,
+  time, // Optionnel maintenant
   color,
-  onDateChange, // Fonction pour gérer le changement de date
-  onTimeChange, // Fonction pour gérer le changement d'heure
+  onDateChange,
+  onTimeChange, // Optionnel maintenant
   dateError,
+  showTime = true, // Nouvelle prop pour contrôler l'affichage de l'heure
 }) => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
@@ -19,7 +20,7 @@ const KWDateTimePicker = ({
   const handleDateChange = (event, selectedDate) => {
     setShowDatePicker(false);
     if (event.type === "set" && selectedDate) {
-      onDateChange(event, selectedDate); // Transmet l'événement et la date sélectionnée
+      onDateChange(event, selectedDate);
     }
   };
 
@@ -27,7 +28,7 @@ const KWDateTimePicker = ({
   const handleTimeChange = (event, selectedTime) => {
     setShowTimePicker(false);
     if (event.type === "set" && selectedTime) {
-      onTimeChange(event, selectedTime); // Transmet l'événement et l'heure sélectionnée
+      onTimeChange(event, selectedTime);
     }
   };
 
@@ -40,25 +41,31 @@ const KWDateTimePicker = ({
       <View style={styles.dateTimeRow}>
         {/* Sélection de la date */}
         <TouchableOpacity
-          style={[styles.dateButton, { flex: 2, marginRight: 10 }]}
+          style={[
+            styles.dateButton,
+            showTime ? { flex: 2, marginRight: 10 } : { flex: 1 },
+          ]}
           onPress={() => setShowDatePicker(true)}
         >
           <KWText type="text" style={styles.dateButtonText}>
             {date.toLocaleDateString("fr-FR")}
           </KWText>
         </TouchableOpacity>
-        {/* Sélection de l'heure */}
-        <TouchableOpacity
-          style={[styles.dateButton, { flex: 1 }]}
-          onPress={() => setShowTimePicker(true)}
-        >
-          <KWText type="text" style={styles.dateButtonText}>
-            {time.toLocaleTimeString("fr-FR", {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </KWText>
-        </TouchableOpacity>
+
+        {/* Sélection de l'heure - affichée seulement si showTime est true */}
+        {showTime && time && (
+          <TouchableOpacity
+            style={[styles.dateButton, { flex: 1 }]}
+            onPress={() => setShowTimePicker(true)}
+          >
+            <KWText type="text" style={styles.dateButtonText}>
+              {time.toLocaleTimeString("fr-FR", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </KWText>
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Affichage du DateTimePicker pour la date */}
@@ -73,7 +80,7 @@ const KWDateTimePicker = ({
       )}
 
       {/* Affichage du DateTimePicker pour l'heure */}
-      {showTimePicker && (
+      {showTime && showTimePicker && time && (
         <DateTimePicker
           value={time}
           mode="time"

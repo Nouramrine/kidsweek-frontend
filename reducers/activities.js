@@ -44,6 +44,7 @@ export const createActivityAsync = createAsyncThunk(
       task,
       note,
       recurrence,
+      dateEndRecurrence,
       token,
       color,
       members,
@@ -64,6 +65,7 @@ export const createActivityAsync = createAsyncThunk(
           task,
           note,
           recurrence,
+          dateEndRecurrence,
           color,
           members,
         }),
@@ -82,6 +84,7 @@ export const createActivityAsync = createAsyncThunk(
             task: data.task,
             note: data.note,
             recurrence: data.recurrence,
+            dateEndRecurrence: data.dateEndRecurrence,
             color: data.color,
             members: data.members,
           })
