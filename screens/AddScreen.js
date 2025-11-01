@@ -70,15 +70,17 @@ const AddScreen = ({ navigation, route }) => {
   const [showTimeEnd, setShowTimeEnd] = useState(false);
 
   // recurrence
-  const [recurrence, setRecurrence] = useState({
-    lun: false,
-    mar: false,
-    mer: false,
-    jeu: false,
-    ven: false,
-    sam: false,
-    dim: false,
-  });
+  const [recurrence, setRecurrence] = useState([
+    {
+      lun: false,
+      mar: false,
+      mer: false,
+      jeu: false,
+      ven: false,
+      sam: false,
+      dim: false,
+    },
+  ]);
 
   const toggleDay = (day) => {
     setRecurrence({ ...recurrence, [day]: !recurrence[day] });
@@ -133,11 +135,11 @@ const AddScreen = ({ navigation, route }) => {
       reminderNumber,
       reminderUnit
     );
-
+    console.log(recurrence);
     if (fullDateEnd <= fullDateBegin) {
       setDateEnd(fullDateBegin);
     }
-    try {
+    /* try {
       const result = await dispatch(
         createActivityAsync({
           name: activityName,
@@ -148,7 +150,7 @@ const AddScreen = ({ navigation, route }) => {
           reminder: reminderDate,
           task: checklistItems,
           note: note,
-          recurrence: isEnabled ? recurrence : null,
+          recurrence: recurrence,
           token: user.token,
           members: memberIds,
           color: colorAct || "skin",
@@ -160,7 +162,7 @@ const AddScreen = ({ navigation, route }) => {
     } catch (error) {
       Alert.alert("Erreur", error.message || "Impossible de créer l'activité");
       console.error("Erreur création activité:", error);
-    }
+    }*/
   };
   // assign fields if props exist (edit mode)
   useEffect(() => {
@@ -488,7 +490,7 @@ const AddScreen = ({ navigation, route }) => {
                     { key: "ven", label: "Ven" },
                     { key: "sam", label: "Sam" },
                     { key: "dim", label: "Dim" },
-                  ].map((day) => (
+                  ].map((day, key) => (
                     <TouchableOpacity
                       key={day.key}
                       style={[
@@ -513,10 +515,10 @@ const AddScreen = ({ navigation, route }) => {
               {/* Date de fin de récurrence */}
               <View style={{ marginTop: 15 }}>
                 <KWDateTimePicker
-                  label="La récurrence se termine le :"
+                  label="Date de fin de récurrence"
                   date={dateEndRecurrence}
-                  time={timeEndRecurrence}
                   onDateChange={onChangeDateEndRecurrence}
+                  showTime={false}
                   dateError={
                     dateEndRecurrence < dateBegin
                       ? "La date de fin ne peut être avant la date de début"
@@ -625,7 +627,7 @@ const AddScreen = ({ navigation, route }) => {
           <View style={styles.checklistItemsContainer}>
             {checklistItems &&
               checklistItems.length > 0 &&
-              checklistItems.map((item, key) => (
+              checklistItems.map((item) => (
                 <View key={item._id} style={styles.checklistItem}>
                   <KWText type="text" style={styles.checklistItemText}>
                     {item.text}
