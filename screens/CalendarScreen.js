@@ -141,14 +141,15 @@ export default function CalendarScreen() {
                       <KWText>📍 {item.place || "Lieu non précisé"}</KWText>
                       {item.note && <KWText>📝 {item.note}</KWText>}
                       {item.members?.length > 0 && (
-                        <>
-                          <KWText type="h3" style={{ marginTop: 8 }}>
-                            👥 Membres :
-                          </KWText>
+                        <View
+                          key={item._d + "-members"}
+                          style={{ marginTop: 8 }}
+                        >
+                          <KWText type="h3">👥 Membres :</KWText>
                           {item.members.map((m) => (
                             <KWText key={m.email}>• {m.firstName}</KWText>
                           ))}
-                        </>
+                        </View>
                       )}
                       <View style={{ alignItems: "center", marginTop: 10 }}>
                         <KWButton
