@@ -6,6 +6,9 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
+  LayoutAnimation,
+  Platform,
+  UIManager,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
@@ -24,6 +27,15 @@ import { colors } from "../theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import KWCollapsible from "../components/KWCollapsible";
 import { fetchMembersAsync } from "../reducers/members";
+
+//petite animation
+
+if (
+  Platform.OS === "android" &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -177,7 +189,19 @@ const HomeScreen = ({ navigation }) => {
               </KWCardIcon>
               <KWCardTitle>
                 <TouchableOpacity
-                  onPress={() => setSelectedChild(null)}
+                  onPress={() => {
+                    LayoutAnimation.configureNext({
+                      duration: 250,
+                      update: {
+                        type: LayoutAnimation.Types.easeInEaseOut,
+                      },
+                      create: {
+                        type: LayoutAnimation.Types.easeInEaseOut,
+                        property: LayoutAnimation.Properties.opacity,
+                      },
+                    });
+                    setSelectedChild(null);
+                  }}
                   style={{
                     flexDirection: "row",
                     alignItems: "center",
