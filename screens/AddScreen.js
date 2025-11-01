@@ -70,7 +70,20 @@ const AddScreen = ({ navigation, route }) => {
   const [showTimeEnd, setShowTimeEnd] = useState(false);
 
   // recurrence
-  const [recurrence, setRecurrence] = useState(null);
+  const [recurrence, setRecurrence] = useState({
+    lun: false,
+    mar: false,
+    mer: false,
+    jeu: false,
+    ven: false,
+    sam: false,
+    dim: false,
+  });
+
+  const toggleDay = (day) => {
+    setRecurrence({ ...recurrence, [day]: !recurrence[day] });
+  };
+
   const [dateEndRecurrence, setDateEndRecurrence] = useState(new Date());
   const [timeEndRecurrence, setTimeEndRecurrence] = useState(new Date());
   const [showDateEndRecurrence, setShowDateEndRecurrence] = useState(false);
@@ -446,7 +459,7 @@ const AddScreen = ({ navigation, route }) => {
           {error && (
             <KWText type="inputError">
               La date de fin doit être supérieure à la date de début pour
-              appliquer une recurrence
+              appliquer une récurrence
             </KWText>
           )}
           <Switch
@@ -456,59 +469,53 @@ const AddScreen = ({ navigation, route }) => {
             onValueChange={toggleSwitch}
             value={isEnabled}
           />
-
           {isEnabled && (
             <View>
-              {/* Sélection du jour de récurrence */}
+              {/* Sélection des jours de récurrence */}
               <View style={{ marginTop: 10 }}>
                 <KWText
                   type="text"
                   style={{ marginBottom: 8, fontWeight: "500" }}
                 >
-                  Sélectionne un jour :
+                  Sélectionnez les jours :
                 </KWText>
                 <View style={styles.daysContainer}>
-                  {["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"].map(
-                    (day) => (
-                      <TouchableOpacity
-                        key={day}
+                  {[
+                    { key: "lun", label: "Lun" },
+                    { key: "mar", label: "Mar" },
+                    { key: "mer", label: "Mer" },
+                    { key: "jeu", label: "Jeu" },
+                    { key: "ven", label: "Ven" },
+                    { key: "sam", label: "Sam" },
+                    { key: "dim", label: "Dim" },
+                  ].map((day) => (
+                    <TouchableOpacity
+                      key={day.key}
+                      style={[
+                        styles.dayButton,
+                        recurrence[day.key] && styles.dayButtonActive,
+                      ]}
+                      onPress={() => toggleDay(day.key)}
+                    >
+                      <KWText
+                        type="text"
                         style={[
-                          styles.dayButton,
-                          recurrence === day && styles.dayButtonActive,
+                          styles.dayText,
+                          recurrence[day.key] && styles.dayTextActive,
                         ]}
-                        onPress={() =>
-                          setRecurrence(recurrence === day ? null : day)
-                        }
                       >
-                        <KWText
-                          type="text"
-                          style={[
-                            styles.dayText,
-                            recurrence === day && styles.dayTextActive,
-                          ]}
-                        >
-                          {day}
-                        </KWText>
-                      </TouchableOpacity>
-                    )
-                  )}
+                        {day.label}
+                      </KWText>
+                    </TouchableOpacity>
+                  ))}
                 </View>
-                {recurrence && (
-                  <KWText type="text" style={styles.selectedDayText}>
-                    Répéter chaque :{" "}
-                    <KWText type="text" style={{ fontWeight: "bold" }}>
-                      {recurrence}
-                    </KWText>
-                  </KWText>
-                )}
               </View>
-
               {/* Date de fin de récurrence */}
               <View style={{ marginTop: 15 }}>
                 <KWDateTimePicker
                   label="La récurrence se termine le :"
                   date={dateEndRecurrence}
-                  time={timeEndRecurrence}
+                  //time={timeEndRecurrence}
                   onDateChange={onChangeDateEndRecurrence}
                   dateError={
                     dateEndRecurrence < dateBegin
@@ -733,16 +740,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "white",
   },
-  displayDays: {
+  daysContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-
     justifyContent: "space-between",
     marginBottom: 8,
   },
   dayButton: {
-    flex: 1,
-    marginHorizontal: 3,
+    width: "13.5%", // Pour 7 jours sur une ligne
+    marginHorizontal: 2,
     paddingVertical: 8,
     borderWidth: 1,
     borderColor: "#D1D5DB",
@@ -753,6 +759,14 @@ const styles = StyleSheet.create({
   dayButtonActive: {
     backgroundColor: "#8E7EED",
     borderColor: "#8E7EED",
+  },
+  dayText: {
+    fontSize: 12,
+    color: "#1F2937",
+  },
+  dayTextActive: {
+    color: "white",
+    fontWeight: "bold",
   },
   buttonsContainer: {
     flexDirection: "row",
