@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, Button } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../reducers/user";
-const ProfilScreen = (navigation) => {
+
+const ProfilScreen = ({ navigation , member, onReturn }) => {
   const dispatch = useDispatch();
   const handledisconnect = () => {
     dispatch(logout());
@@ -10,7 +11,8 @@ const ProfilScreen = (navigation) => {
   return (
     <View style={styles.container}>
       <Text>Profil</Text>
-      <Button title="Deconnexion" onPress={handledisconnect} />
+      
+      {member ? <Button title="Retour" onPress={onReturn} /> : <Button title="Deconnexion" onPress={handledisconnect} />}
     </View>
   );
 };
