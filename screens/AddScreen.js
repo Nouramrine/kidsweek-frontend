@@ -743,11 +743,13 @@ const styles = StyleSheet.create({
   daysContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "space-between",
+    justifyContent: "space-around",
     marginBottom: 8,
   },
   dayButton: {
-    width: "13.5%", // Pour 7 jours sur une ligne
+    width: "30%",
+    marginTop: 5,
+    marginBottom: 5,
     marginHorizontal: 2,
     paddingVertical: 8,
     borderWidth: 1,
