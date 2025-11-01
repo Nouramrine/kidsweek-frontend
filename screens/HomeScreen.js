@@ -128,7 +128,7 @@ const HomeScreen = ({ navigation }) => {
             <KWCardBody style={styles.childSelector}>
               {["Enfant 1", "Enfant 2"].map((child, i) => (
                 <KWButton
-                  key={i}
+                  key={`child-${i}`}
                   title={child}
                   bgColor={
                     selectedChild === child
@@ -195,14 +195,14 @@ const HomeScreen = ({ navigation }) => {
                           <KWText>📍 {a.place || "Lieu non précisé"}</KWText>
                           {a.note && <KWText>📝 {a.note}</KWText>}
                           {a.members?.length > 0 && (
-                            <>
+                            <View>
                               <KWText type="h3" style={{ marginTop: 8 }}>
                                 👥 Membres :
                               </KWText>
                               {a.members.map((m) => (
                                 <KWText key={m.email}>• {m.firstName}</KWText>
                               ))}
-                            </>
+                            </View>
                           )}
                           <View style={{ alignItems: "center", marginTop: 10 }}>
                             <KWButton
