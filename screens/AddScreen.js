@@ -146,7 +146,7 @@ const AddScreen = ({ navigation, route }) => {
           dateEnd: fullDateEnd,
           dateEndRecurrence: dateEndRecurrence,
           reminder: reminderDate,
-          task: checklistItems,
+          tasks: checklistItems,
           note: note,
           recurrence: isEnabled ? recurrence : null,
           token: user.token,
@@ -178,7 +178,7 @@ const AddScreen = ({ navigation, route }) => {
         setTimeBegin(dateBegin);
       }
       if (props.tasks.length > 0) {
-        setChecklistItems(props.task);
+        setChecklistItems(props.tasks);
       }
       // Décomposition de dateEnd
       if (props.dateEnd) {
