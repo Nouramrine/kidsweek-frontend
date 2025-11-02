@@ -46,7 +46,7 @@ const AddScreen = ({ navigation, route }) => {
   const activities = useSelector((state) => state.activities.value);
   const zones = useSelector((state) => state.zones.value);
   // console.log("Zones : ", zones);
-  // console.log("Membres : ", members);
+  //console.log("Membres : ===> ", members);
   // console.log("Activités : ", activities);
   // console.log("reducer user", user);
   console.log("Props écran modif activité :", props);
@@ -72,17 +72,15 @@ const AddScreen = ({ navigation, route }) => {
 
   // recurrence
 
-  const [recurrence, setRecurrence] = useState([
-    {
-      lun: false,
-      mar: false,
-      mer: false,
-      jeu: false,
-      ven: false,
-      sam: false,
-      dim: false,
-    },
-  ]);
+  const [recurrence, setRecurrence] = useState({
+    lun: false,
+    mar: false,
+    mer: false,
+    jeu: false,
+    ven: false,
+    sam: false,
+    dim: false,
+  });
 
   const toggleDay = (day) => {
     setRecurrence({ ...recurrence, [day]: !recurrence[day] });
@@ -177,13 +175,10 @@ const AddScreen = ({ navigation, route }) => {
         // Pour l'heure
         setTimeBegin(dateBegin);
       }
-<<<<<<< HEAD
 
-=======
       if (props.tasks.length > 0) {
         setChecklistItems(props.tasks);
       }
->>>>>>> dev
       // Décomposition de dateEnd
       if (props.dateEnd) {
         const dateEnd = new Date(props.dateEnd);
@@ -213,16 +208,15 @@ const AddScreen = ({ navigation, route }) => {
           setDateEndRecurrence(dateOnly);
         }
 
-        if (props.recurrence.days && props.recurrence.days.length > 0) {
-          const daysObj = props.recurrence.days[0];
+        if (props.recurrence.days) {
           setRecurrence({
-            lun: daysObj.lun === true,
-            mar: daysObj.mar === true,
-            mer: daysObj.mer === true,
-            jeu: daysObj.jeu === true,
-            ven: daysObj.ven === true,
-            sam: daysObj.sam === true,
-            dim: daysObj.dim === true,
+            lun: props.recurrence.days.lun === true,
+            mar: props.recurrence.days.mar === true,
+            mer: props.recurrence.days.mer === true,
+            jeu: props.recurrence.days.jeu === true,
+            ven: props.recurrence.days.ven === true,
+            sam: props.recurrence.days.sam === true,
+            dim: props.recurrence.days.dim === true,
           });
         }
       }
@@ -262,6 +256,7 @@ const AddScreen = ({ navigation, route }) => {
     if (props.color) {
       setColorAct(props.color);
     }
+    //dispatch(fetchMembersAsync());
   }, [props._id]);
 
   // Handlers DateTimePicker dateBegin
@@ -330,7 +325,7 @@ const AddScreen = ({ navigation, route }) => {
     if (newChecklistItem.trim()) {
       setChecklistItems([
         ...checklistItems,
-        { id: Date.now(), text: newChecklistItem, checked: false },
+        { _id: Date.now(), text: newChecklistItem, checked: false },
       ]);
       setNewChecklistItem("");
     }
@@ -338,7 +333,7 @@ const AddScreen = ({ navigation, route }) => {
 
   // remove checklist item
   const removeChecklistItem = (id) => {
-    setChecklistItems(checklistItems.filter((item) => item.id !== id));
+    setChecklistItems(checklistItems.filter((item) => item._id !== id));
   };
 
   // Calculate reminder date
@@ -419,21 +414,23 @@ const AddScreen = ({ navigation, route }) => {
   };
 
   const handleUpdate = async () => {
+    console.log("🟢 handleUpdate déclenché !");
     let memberIds;
+    console.log("update1");
     if (addMembers.length > 0) {
       memberIds = addMembers.map((m) => m._id);
     } else {
       Alert.alert("Erreur", "Veuillez sélectionner au moins un enfant");
       return;
     }
-
+    console.log("update2");
     const fullDateBegin = combineDateAndTime(dateBegin, timeBegin);
     const fullDateEnd = combineDateAndTime(dateEnd, timeEnd);
 
     if (!validateForm()) {
       return;
     }
-
+    console.log("update3");
     const reminderDate = calculateReminderDate(
       fullDateBegin,
       reminderNumber,
@@ -446,15 +443,15 @@ const AddScreen = ({ navigation, route }) => {
 
     if (isEnabled === true) {
       recurrenceData = {
-        lun: recurrence?.lun || false,
-        mar: recurrence?.mar || false,
-        mer: recurrence?.mer || false,
-        jeu: recurrence?.jeu || false,
-        ven: recurrence?.ven || false,
-        sam: recurrence?.sam || false,
-        dim: recurrence?.dim || false,
+        lun: recurrence.lun || false,
+        mar: recurrence.mar || false,
+        mer: recurrence.mer || false,
+        jeu: recurrence.jeu || false,
+        ven: recurrence.ven || false,
+        sam: recurrence.sam || false,
+        dim: recurrence.dim || false,
       };
-      dateEndRec = combineDateAndTime(dateEndRecurrence, timeEndRecurrence);
+      dateEndRec = dateEndRecurrence;
     }
 
     try {
@@ -710,7 +707,7 @@ const AddScreen = ({ navigation, route }) => {
 
           <View>
             {addMembers.length > 0 ? (
-              addMembers.map((memberselect, key) => (
+              addMembers.map((memberselect) => (
                 <View key={memberselect._id} style={styles.memberItem}>
                   <KWText type="text" style={styles.memberName}>
                     {memberselect.firstName}
@@ -836,6 +833,7 @@ const AddScreen = ({ navigation, route }) => {
             props={props}
           />
         </View>
+        <View style={styles.footer}></View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -1003,5 +1001,9 @@ const styles = StyleSheet.create({
     color: "#9ca3af",
     textAlign: "center",
     marginTop: 10,
+  },
+  footer: {
+    height: 10,
+    marginBottom: 40,
   },
 });
