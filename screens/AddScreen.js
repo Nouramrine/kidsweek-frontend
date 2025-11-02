@@ -22,6 +22,7 @@ import { useSelector, useDispatch } from "react-redux";
 import {
   createActivityAsync,
   deleteActivityAsync,
+  updateActivityAsync,
 } from "../reducers/activities";
 import ButtonSaveUpdate from "../components/Activities/ButtonSaveUpdate";
 //import { SafeAreaView } from "react-native-safe-area-context";
@@ -59,26 +60,35 @@ const AddScreen = ({ navigation, route }) => {
   const [activityPlace, setActivityPlace] = useState("");
 
   // Dates and times
-  const [dateBegin, setDateBegin] = useState(new Date());
   const [showDateBegin, setShowDateBegin] = useState(false);
-  const [timeBegin, setTimeBegin] = useState(new Date());
+  const [dateBegin, setDateBegin] = useState(new Date());
   const [showTimeBegin, setShowTimeBegin] = useState(false);
+  const [timeBegin, setTimeBegin] = useState(new Date());
   //console.log("date", dateBegin + "time" + timeBegin);
-  const [dateEnd, setDateEnd] = useState(new Date());
   const [showDateEnd, setShowDateEnd] = useState(false);
-  const [timeEnd, setTimeEnd] = useState(new Date());
+  const [dateEnd, setDateEnd] = useState(new Date());
   const [showTimeEnd, setShowTimeEnd] = useState(false);
+  const [timeEnd, setTimeEnd] = useState(new Date());
 
   // recurrence
-  const [recurrence, setRecurrence] = useState([{}]);
+
+  const [recurrence, setRecurrence] = useState([
+    {
+      lun: false,
+      mar: false,
+      mer: false,
+      jeu: false,
+      ven: false,
+      sam: false,
+      dim: false,
+    },
+  ]);
 
   const toggleDay = (day) => {
     setRecurrence({ ...recurrence, [day]: !recurrence[day] });
   };
 
   const [dateEndRecurrence, setDateEndRecurrence] = useState(new Date());
-  const [timeEndRecurrence, setTimeEndRecurrence] = useState(new Date());
-  const [showDateEndRecurrence, setShowDateEndRecurrence] = useState(false);
   const [hasManuallySetDateEnd, setHasManuallySetDateEnd] = useState(false);
   const [hasManuallySetTimeEnd, setHasManuallySetTimeEnd] = useState(false);
   // reminder
@@ -97,25 +107,20 @@ const AddScreen = ({ navigation, route }) => {
   // Note
   const [note, setNote] = useState("");
   // couleur
-  const [colorAct, setColor] = useState("skin");
+  const [colorAct, setColorAct] = useState("skin");
 
   // create activity
   const handleSave = async () => {
     let memberIds;
-    if (addMembers.length > 0) {
-      memberIds = addMembers.map((m) => m._id);
-      console.log("ici", memberIds);
-    } else {
+    if (addMembers.length === 0) {
+      Alert.alert("Erreur", "Veuillez sélectionner au moins un enfant");
       return;
     }
+    memberIds = addMembers.map((m, key) => m._id);
     // combine date and time
     const fullDateBegin = combineDateAndTime(dateBegin, timeBegin);
     const fullDateEnd = combineDateAndTime(dateEnd, timeEnd);
 
-    /*if (isEnabled !== true) {
-      setRecurrence(null);
-      setDateEndRecurrence(null);
-    }*/
     if (!validateForm()) {
       return; // Arrête si la validation échoue
     }
@@ -143,7 +148,7 @@ const AddScreen = ({ navigation, route }) => {
           recurrence: recurrence,
           token: user.token,
           members: memberIds,
-          color: colorAct || "skin",
+          color: colorAct,
         })
       ).unwrap(); // unwrap pour obtenir la valeur résolue ou lancer une erreur
       console.log("Activité créée avec succès:", result);
@@ -184,11 +189,11 @@ const AddScreen = ({ navigation, route }) => {
 
       // verification des taches non vide
       if (props.tasks.length !== 0) {
-        setChecklistItems(props.task);
+        setChecklistItems(props.tasks);
       }
       // affectation de la note et de la couleur
       setNote(props.note);
-      setColor(props.color || "skin");
+      setColorAct(props.color);
 
       if (props.recurrence && Object.keys(props.recurrence).length !== 0) {
         setIsEnabled(true);
@@ -202,24 +207,22 @@ const AddScreen = ({ navigation, route }) => {
           setDateEndRecurrence(dateOnly);
         }
 
-        // CORRECTION : Les jours sont dans un tableau, il faut prendre le premier élément
         if (props.recurrence.days && props.recurrence.days.length > 0) {
           const daysObj = props.recurrence.days[0];
           setRecurrence({
-            lun: daysObj.lun === "true",
-            mar: daysObj.mar === "true",
-            mer: daysObj.mer === "true",
-            jeu: daysObj.jeu === "true",
-            ven: daysObj.ven === "true",
-            sam: daysObj.sam === "true",
-            dim: daysObj.dim === "true",
+            lun: daysObj.lun === true,
+            mar: daysObj.mar === true,
+            mer: daysObj.mer === true,
+            jeu: daysObj.jeu === true,
+            ven: daysObj.ven === true,
+            sam: daysObj.sam === true,
+            dim: daysObj.dim === true,
           });
         }
       }
       if (props.reminder && props.dateBegin) {
-        const date1 = new Date(props.dateBegin); // CORRECTION : utiliser props.dateBegin
-        const date2 = new Date(props.reminder); // CORRECTION : utiliser props.reminder
-
+        const date1 = new Date(props.dateBegin);
+        const date2 = new Date(props.reminder);
         // Calculer la différence en millisecondes
         const diffInMs = Math.abs(date1 - date2);
 
@@ -246,13 +249,15 @@ const AddScreen = ({ navigation, route }) => {
         setReminderUnit(unit);
       }
       if (props.members && props.members.length > 0) {
-        //console.log("props members:", props.members);
         setAddMembers(props.members);
       }
       setChecklistItems(props.tasks);
     }
-  }, []);
-  console.log("recurrence=====>", recurrence);
+    if (props.color) {
+      setColorAct(props.color);
+    }
+  }, [props._id]);
+
   // Handlers DateTimePicker dateBegin
   const onChangeDateBegin = (event, selectedDate) => {
     setShowDateBegin(false);
@@ -361,7 +366,10 @@ const AddScreen = ({ navigation, route }) => {
     setIsEnabled(!isEnabled);
   };
   // Form validation
-  const validateForm = (fullDateEnd, fullDateBegin) => {
+  const validateForm = () => {
+    const fullDateBegin = combineDateAndTime(dateBegin, timeBegin);
+    const fullDateEnd = combineDateAndTime(dateEnd, timeEnd);
+
     if (fullDateBegin < Date.now()) {
       Alert.alert("Erreur", "La date de début ne doit pas être passée");
       return false;
@@ -403,7 +411,75 @@ const AddScreen = ({ navigation, route }) => {
       console.error("Erreur de suppression activité:", error);
     }
   };
-  const handleUpdateUpdate = () => {};
+
+  const handleUpdate = async () => {
+    let memberIds;
+    if (addMembers.length > 0) {
+      memberIds = addMembers.map((m) => m._id);
+    } else {
+      Alert.alert("Erreur", "Veuillez sélectionner au moins un enfant");
+      return;
+    }
+
+    const fullDateBegin = combineDateAndTime(dateBegin, timeBegin);
+    const fullDateEnd = combineDateAndTime(dateEnd, timeEnd);
+
+    if (!validateForm()) {
+      return;
+    }
+
+    const reminderDate = calculateReminderDate(
+      fullDateBegin,
+      reminderNumber,
+      reminderUnit
+    );
+
+    // Préparer les données de récurrence
+    let recurrenceData = null;
+    let dateEndRec = null;
+
+    if (isEnabled === true) {
+      recurrenceData = {
+        lun: recurrence?.lun || false,
+        mar: recurrence?.mar || false,
+        mer: recurrence?.mer || false,
+        jeu: recurrence?.jeu || false,
+        ven: recurrence?.ven || false,
+        sam: recurrence?.sam || false,
+        dim: recurrence?.dim || false,
+      };
+      dateEndRec = combineDateAndTime(dateEndRecurrence, timeEndRecurrence);
+    }
+
+    try {
+      const result = await dispatch(
+        updateActivityAsync({
+          activityId: props._id,
+          name: activityName,
+          place: activityPlace,
+          dateBegin: fullDateBegin,
+          dateEnd: fullDateEnd,
+          dateEndRecurrence: dateEndRec,
+          reminder: reminderDate,
+          task: checklistItems,
+          note: note,
+          recurrence: recurrenceData,
+          token: user.token,
+          members: memberIds,
+          color: colorAct || "skin",
+        })
+      ).unwrap();
+
+      console.log("Activité mise à jour avec succès:", result);
+      navigation.goBack();
+    } catch (error) {
+      Alert.alert(
+        "Erreur",
+        error.message || "Impossible de mettre à jour l'activité"
+      );
+      console.error("Erreur mise à jour activité:", error);
+    }
+  };
   const handleAbort = () => {
     setActivityName("");
     setActivityPlace("");
@@ -422,6 +498,26 @@ const AddScreen = ({ navigation, route }) => {
   };
   const handleRemoveMember = (id) => {
     setAddMembers((prev) => prev.filter((m) => m._id !== id));
+  };
+
+  const validateReminderNumber = (value, unit) => {
+    const numValue = parseInt(value) || 0;
+
+    const limits = {
+      minutes: 60,
+      heures: 24,
+      jours: 365,
+    };
+
+    const maxValue = limits[unit] || 365;
+
+    if (numValue > maxValue) {
+      return maxValue.toString();
+    } else if (numValue < 0) {
+      return "0";
+    } else {
+      return value;
+    }
   };
   return (
     <KeyboardAvoidingView
@@ -575,14 +671,25 @@ const AddScreen = ({ navigation, route }) => {
               label="Rappel"
               style={styles.reminderInput}
               value={reminderNumber}
-              onChangeText={setReminderNumber}
+              onChangeText={(value) => {
+                const validatedValue = validateReminderNumber(
+                  value,
+                  reminderUnit
+                );
+                setReminderNumber(validatedValue);
+              }}
               keyboardType="numeric"
             />
             <KWDropdown
               selectedValue={reminderUnit}
-              onValueChange={(itemValue, itemIndex) =>
-                setReminderUnit(itemValue)
-              }
+              onValueChange={(itemValue) => {
+                const validatedValue = validateReminderNumber(
+                  reminderNumber,
+                  itemValue
+                );
+                setReminderNumber(validatedValue);
+                setReminderUnit(itemValue);
+              }}
             />
             <KWText type="text" style={styles.reminderText}>
               avant
@@ -672,7 +779,7 @@ const AddScreen = ({ navigation, route }) => {
                     {item.text}
                   </KWText>
                   <TouchableOpacity
-                    onPress={() => removeChecklistItem(item.id)}
+                    onPress={() => removeChecklistItem(item._id)}
                   >
                     <Ionicons name="close" size={18} color="#666" />
                   </TouchableOpacity>
@@ -699,7 +806,7 @@ const AddScreen = ({ navigation, route }) => {
             title="Choisissez une couleur pour l'activité"
             userColorSelection={userColorSelection}
             selectedColor={colorAct}
-            onColorSelect={(colorAct) => setColor(colorAct)}
+            onColorSelect={(colorAct) => setColorAct(colorAct)}
           />
         </View>
         {/* Boutons */}
@@ -719,7 +826,7 @@ const AddScreen = ({ navigation, route }) => {
             dateBegin={dateBegin}
             dateEnd={dateEnd}
             handleSave={handleSave}
-            handleUpdate={handleUpdateUpdate}
+            handleUpdate={handleUpdate}
             props={props}
           />
         </View>
