@@ -59,3 +59,8 @@ typings/
 
 # next.js build output
 .next
+
+# Fichiers de test
+__tests__/
+*.test.js
+*.spec.js

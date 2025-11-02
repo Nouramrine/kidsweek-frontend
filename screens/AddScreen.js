@@ -844,7 +844,7 @@ export default AddScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: colors.background[1],
   },
   header: {
     height: 50,
@@ -853,7 +853,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 20,
     marginBottom: 10,
-    backgroundColor: colors.background[1],
+    backgroundColor: colors.blue[0],
   },
   headerText: {
     fontSize: 24,
@@ -864,7 +864,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     padding: 15,
     borderRadius: 10,
-    borderWidth: 1,
+    //borderWidth: 1,
     borderColor: "#E5E7EB",
   },
   label: {
