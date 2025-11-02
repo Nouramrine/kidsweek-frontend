@@ -177,7 +177,13 @@ const AddScreen = ({ navigation, route }) => {
         // Pour l'heure
         setTimeBegin(dateBegin);
       }
+<<<<<<< HEAD
 
+=======
+      if (props.tasks.length > 0) {
+        setChecklistItems(props.tasks);
+      }
+>>>>>>> dev
       // Décomposition de dateEnd
       if (props.dateEnd) {
         const dateEnd = new Date(props.dateEnd);
