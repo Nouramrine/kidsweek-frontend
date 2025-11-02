@@ -104,7 +104,23 @@ export const createActivityAsync = createAsyncThunk(
 // Mettre à jour une activité
 export const updateActivityAsync = createAsyncThunk(
   "activities/updateActivityAsync",
-  async ({ token, activityId, activityData }) => {
+  async (payload, { dispatch }) => {
+    const {
+      activityId,
+      name,
+      place,
+      dateBegin,
+      dateEnd,
+      reminder,
+      task,
+      note,
+      recurrence,
+      dateEndRecurrence,
+      token,
+      color,
+      members,
+    } = payload;
+
     try {
       const response = await fetch(`${BACKEND_URL}/activities/${activityId}`, {
         method: "PUT",
@@ -112,13 +128,28 @@ export const updateActivityAsync = createAsyncThunk(
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(activityData),
+        body: JSON.stringify({
+          name,
+          place,
+          dateBegin,
+          dateEnd,
+          reminder,
+          task,
+          note,
+          recurrence,
+          dateEndRecurrence,
+          color,
+          members,
+        }),
       });
+
       const data = await response.json();
-      //console.log("Update activity response:", data);
+      console.log("Update activity response:", data);
+
       if (!response.ok) {
         throw new Error(data.message || "Erreur lors de la mise à jour");
       }
+
       return data.activity;
     } catch (error) {
       console.error("Erreur réseau:", error);
