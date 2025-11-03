@@ -128,45 +128,47 @@ export default function CalendarScreen() {
                 <FlatList
                   data={activitiesOfDay}
                   keyExtractor={(item) => item._id}
-                  renderItem={({ item }) => (
-                    <KWCollapsible
-                      title={item.name}
-                      subtitle={`${formatTime(item.dateBegin)} → ${formatTime(
-                        item.dateEnd
-                      )}`}
-                      palette={palette}
-                      isExpanded={expandedActivityId === item._id}
-                      onToggle={() => toggleActivity(item._id)}
-                    >
-                      <KWText>📍 {item.place || "Lieu non précisé"}</KWText>
-                      {item.note && <KWText>📝 {item.note}</KWText>}
-                      {item.members?.length > 0 && (
-                        <View
-                          key={item._d + "-members"}
-                          style={{ marginTop: 8 }}
-                        >
-                          <KWText type="h3">👥 Membres :</KWText>
-                          {item.members.map((m) => (
-                            <KWText key={m.email}>• {m.firstName}</KWText>
-                          ))}
+                  renderItem={({ item }) => {
+                    // ✅ Utilise la couleur de l'activité au lieu de celle du jour
+                    const activityPalette = colors[item.color] || colors.purple;
+
+                    return (
+                      <KWCollapsible
+                        title={item.name}
+                        subtitle={`${formatTime(item.dateBegin)} → ${formatTime(
+                          item.dateEnd
+                        )}`}
+                        palette={activityPalette}
+                        isExpanded={expandedActivityId === item._id}
+                        onToggle={() => toggleActivity(item._id)}
+                      >
+                        <KWText>📍 {item.place || "Lieu non précisé"}</KWText>
+                        {item.note && <KWText>📝 {item.note}</KWText>}
+                        {item.members?.length > 0 && (
+                          <View style={{ marginTop: 8 }}>
+                            <KWText type="h3">👥 Membres :</KWText>
+                            {item.members.map((m) => (
+                              <KWText key={m._id}>• {m.firstName}</KWText>
+                            ))}
+                          </View>
+                        )}
+                        <View style={{ alignItems: "center", marginTop: 10 }}>
+                          <KWButton
+                            title="Modifier"
+                            icon="edit"
+                            bgColor={activityPalette[1]}
+                            color="white"
+                            style={{ minWidth: 150 }}
+                            onPress={() =>
+                              navigation.navigate("AddScreen", {
+                                activityToEdit: item,
+                              })
+                            }
+                          />
                         </View>
-                      )}
-                      <View style={{ alignItems: "center", marginTop: 10 }}>
-                        <KWButton
-                          title="Modifier"
-                          icon="edit"
-                          bgColor={palette[1]}
-                          color="white"
-                          style={{ minWidth: 150 }}
-                          onPress={() =>
-                            navigation.navigate("AddScreen", {
-                              activityToEdit: item,
-                            })
-                          }
-                        />
-                      </View>
-                    </KWCollapsible>
-                  )}
+                      </KWCollapsible>
+                    );
+                  }}
                 />
               ) : (
                 <KWText style={styles.noActivity}>
