@@ -44,7 +44,7 @@ export default function CalendarScreen() {
         const isPast = date < today;
         marks[date] = {
           marked: true,
-          dotColor: isPast ? colors.gray : colors.purple[2],
+          dotColor: isPast ? "gray" : activity.color,
         };
       }
     });

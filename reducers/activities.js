@@ -8,13 +8,16 @@ export const fetchActivitiesAsync = createAsyncThunk(
   "activities/fetchActivitiesAsync",
   async (token) => {
     try {
-      const response = await fetch(`${BACKEND_URL}/activities`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `${BACKEND_URL}/activities?includePast=true`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       const data = await response.json();
       //console.log("Fetch activities response:", data);

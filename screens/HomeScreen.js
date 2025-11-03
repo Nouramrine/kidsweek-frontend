@@ -93,10 +93,6 @@ const HomeScreen = ({ navigation }) => {
   const upcomingActivities = activities.filter(
     (a) => new Date(a.dateBegin) >= now
   );
-  const pastActivities = activities
-    .filter((a) => new Date(a.dateEnd) < now)
-    .sort((a, b) => new Date(b.dateEnd) - new Date(a.dateEnd))
-    .slice(0, 3);
 
   const filteredActivities = selectedChild
     ? upcomingActivities.filter((a) =>
@@ -155,6 +151,15 @@ const HomeScreen = ({ navigation }) => {
       message: `Nouvelle activité "${i.name}" à valider.`,
     })),
   ];
+
+  // 🔹 3 dernières activités passées (triées du plus récent au plus ancien)
+  const pastActivities = activities
+    .filter((a) => new Date(a.dateEnd || a.dateBegin) < now)
+    .filter((a) =>
+      selectedChild ? a.members?.some((m) => m._id === selectedChild._id) : true
+    )
+    .sort((a, b) => new Date(b.dateBegin) - new Date(a.dateBegin))
+    .slice(0, 3);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -323,6 +328,59 @@ const HomeScreen = ({ navigation }) => {
               )}
             </KWCardBody>
           </KWCard>
+
+          {/* 🔹 Nouvelle section : Activités passées */}
+          <KWCard style={styles.planningCard}>
+            <KWCardHeader>
+              <KWCardIcon>
+                <Ionicons
+                  name="time-outline"
+                  size={30}
+                  color={colors.purple[2]}
+                />
+              </KWCardIcon>
+              <KWCardTitle>
+                <KWText type="h2" style={{ color: colors.purple[2] }}>
+                  Activités passées
+                </KWText>
+              </KWCardTitle>
+            </KWCardHeader>
+
+            <KWCardBody>
+              {pastActivities.length === 0 ? (
+                <KWText>Aucune activité récente.</KWText>
+              ) : (
+                pastActivities.map((a) => {
+                  const palette = colors[a.color] || colors.gray;
+                  return (
+                    <View
+                      key={a._id}
+                      style={{
+                        marginBottom: 10,
+                        backgroundColor: palette[0],
+                        borderRadius: 10,
+                        padding: 10,
+                      }}
+                    >
+                      <KWText
+                        type="h3"
+                        style={{ color: palette[2], fontWeight: "bold" }}
+                      >
+                        {a.name}
+                      </KWText>
+                      <KWText>{`📅 ${new Date(a.dateBegin).toLocaleDateString(
+                        "fr-FR"
+                      )}`}</KWText>
+                      <KWText>{`🕒 ${formatTime(a.dateBegin)} → ${formatTime(
+                        a.dateEnd
+                      )}`}</KWText>
+                      {a.place && <KWText>📍 {a.place}</KWText>}
+                    </View>
+                  );
+                })
+              )}
+            </KWCardBody>
+          </KWCard>
         </ScrollView>
 
         {/* MODAL Notifications */}
@@ -359,7 +417,7 @@ const HomeScreen = ({ navigation }) => {
           )}
         </KWModal>
 
-        {/* MODAL Tutoriel - Étape 0 */}
+        {/* MODAL Tutoriel */}
         {tutorialStep === 0 && (
           <KWModal visible={true}>
             <KWText
