@@ -135,6 +135,7 @@ export default function CalendarScreen() {
     return Math.round((completedTasks / tasks.length) * 100);
   };
   return (
+  <SafeAreaView>
     <View style={styles.container}>
       <Calendar
         markedDates={{
