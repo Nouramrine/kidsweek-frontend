@@ -548,7 +548,7 @@ const AddScreen = ({ navigation, route }) => {
 
         {/* Intitulé de l'activité */}
 
-        <View style={[styles.section, { backgroundColor: colors.blue[0] }]}>
+        <View style={styles.section}>
           <KWTextInput
             type="text"
             label="Intitulé de l'activité"
@@ -561,7 +561,7 @@ const AddScreen = ({ navigation, route }) => {
         </View>
 
         {/* Intitulé du lieu */}
-        <View style={[styles.section, { backgroundColor: colors.red[0] }]}>
+        <View style={styles.section}>
           <KWTextInput
             type="text"
             label="Lieu de l'activité"
@@ -574,7 +574,7 @@ const AddScreen = ({ navigation, route }) => {
         </View>
 
         {/* date début */}
-        <View style={[styles.section, { backgroundColor: colors.green[0] }]}>
+        <View style={styles.section}>
           <KWDateTimePicker
             label="Début"
             date={dateBegin}
@@ -605,7 +605,7 @@ const AddScreen = ({ navigation, route }) => {
         </View>
 
         {/* Récurrence */}
-        <View style={[styles.section, { backgroundColor: colors.yellow[0] }]}>
+        <View style={styles.section}>
           <KWText type="text" style={styles.label}>
             Récurrence
           </KWText>
@@ -681,7 +681,7 @@ const AddScreen = ({ navigation, route }) => {
           )}
         </View>
         {/* Rappel */}
-        <View style={[styles.section, { backgroundColor: colors.orange[0] }]}>
+        <View style={styles.section}>
           <View style={styles.reminderContainer}>
             <KWTextInput
               label="Rappel"
@@ -713,7 +713,7 @@ const AddScreen = ({ navigation, route }) => {
           </View>
         </View>
         {/* membres(s) */}
-        <View style={[styles.section, { backgroundColor: colors.purple[0] }]}>
+        <View style={styles.section}>
           <KWText type="text" style={[styles.label, { marginLeft: 20 }]}>
             Qui participera ?
           </KWText>
@@ -766,7 +766,7 @@ const AddScreen = ({ navigation, route }) => {
 
         {/* cheklist */}
 
-        <View style={[styles.section, { backgroundColor: colors.pink[0] }]}>
+        <View style={styles.section}>
           <View style={styles.checklistHeader}>
             <View style={styles.addChecklistContainer}>
               <KWTextInput
@@ -781,7 +781,7 @@ const AddScreen = ({ navigation, route }) => {
                 style={styles.addChecklistButton}
                 onPress={addChecklistItem}
               >
-                <Ionicons name="add" size={24} color="#8E7EED" />
+                <Ionicons name="add-circle-outline" size={30} color="#8E7EED" />
               </TouchableOpacity>
             </View>
           </View>
@@ -805,7 +805,7 @@ const AddScreen = ({ navigation, route }) => {
         </View>
 
         {/* Note */}
-        <View style={[styles.section, { backgroundColor: colors.blue[0] }]}>
+        <View style={styles.section}>
           <KWTextInput
             label="Note"
             style={styles.noteInput}
@@ -817,7 +817,7 @@ const AddScreen = ({ navigation, route }) => {
           />
         </View>
 
-        <View style={[styles.section, { backgroundColor: colors.skin[0] }]}>
+        <View style={styles.section}>
           <KWColorPicker
             title="Choisissez une couleur pour l'activité"
             userColorSelection={userColorSelection}
@@ -863,7 +863,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 20,
     marginBottom: 10,
-    backgroundColor: colors.blue[0],
+    // backgroundColor: colors.blue[0],
   },
   headerText: {
     fontSize: 24,
@@ -921,15 +921,15 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
   },
   dayButtonActive: {
-    backgroundColor: "#8E7EED",
-    borderColor: "#8E7EED",
+    backgroundColor: "#F3E5F5",
+    borderColor: "#b0a6ecff",
   },
   dayText: {
     fontSize: 12,
     color: "#1F2937",
   },
   dayTextActive: {
-    color: "white",
+    color: "black",
     fontWeight: "bold",
   },
   buttonsContainer: {
@@ -1024,8 +1024,13 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 5,
+    marginTop: 10,
     marginBottom: 5,
+    paddingLeft: 5,
+    paddingRight: 5,
+    borderWidth: 1,
+    borderRadius: 10,
+    borderColor: "#a6c9f1ff",
   },
   addChecklistContainer: {
     flex: 1,
