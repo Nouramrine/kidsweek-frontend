@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   View,
   StyleSheet,
@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
+  Animated,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
@@ -34,14 +35,13 @@ import KWCollapsible from "../components/KWCollapsible";
 // Fonction utilitaire pour déterminer la couleur du texte adaptée
 const getContrastColor = (hexColor) => {
   if (!hexColor) return "white";
-  const c = hexColor.substring(1); // retire le "#"
-  const rgb = parseInt(c, 16); // convertit en nombre
+  const c = hexColor.substring(1);
+  const rgb = parseInt(c, 16);
   const r = (rgb >> 16) & 0xff;
   const g = (rgb >> 8) & 0xff;
   const b = rgb & 0xff;
-  // formule de luminance perçue
   const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
-  return luminance > 180 ? "black" : "white"; // seuil ~180 = bon équilibre
+  return luminance > 180 ? "black" : "white";
 };
 
 const HomeScreen = ({ navigation }) => {
@@ -50,7 +50,6 @@ const HomeScreen = ({ navigation }) => {
   const activities = useSelector((state) => state.activities.value || []);
   const user = useSelector((state) => state.user.value || {});
   const members = useSelector((state) => state.members.value || []);
-
   const { invitations, reminders, loading } = useSelector(
     (state) => state.notifications
   );
@@ -58,6 +57,10 @@ const HomeScreen = ({ navigation }) => {
   const [selectedChild, setSelectedChild] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [expandedActivityId, setExpandedActivityId] = useState(null);
+
+  // 🔹 State local pour notifications affichées
+  const [modalNotifications, setModalNotifications] = useState([]);
+  const fadeAnim = useRef(new Animated.Value(1)).current;
 
   const tutorialStep = user.tutorialStep || 0;
   const children = members.filter((m) => m.isChildren);
@@ -77,15 +80,53 @@ const HomeScreen = ({ navigation }) => {
     }
   }, [user.token]);
 
-  // 🔹 Réponse invitation
-  const handleResponse = (activityId, validate) => {
-    dispatch(
-      respondToInvitationAsync({
-        token: user.token,
-        activityId,
-        validate,
-      })
-    );
+  // 🔹 Préparer les notifications locales
+  useEffect(() => {
+    const allNotifs = [
+      ...reminders.map((r) => ({
+        id: r._id,
+        type: "reminder",
+        message: `Rappel: ${r.name} à ${formatTime(r.dateBegin)}.`,
+      })),
+      ...invitations.map((i) => ({
+        id: i._id,
+        type: "validation",
+        message: `Nouvelle activité "${i.name}" à valider.`,
+        activityId: i._id,
+      })),
+    ];
+    setModalNotifications(allNotifs);
+  }, [reminders, invitations]);
+
+  // 🔹 Réponse invitation avec fade-out
+  const handleResponse = async (activityId, validate) => {
+    try {
+      await dispatch(
+        respondToInvitationAsync({
+          token: user.token,
+          activityID: activityId,
+          validate,
+        })
+      ).unwrap();
+
+      // Animation fade-out
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => {
+        setModalNotifications((prev) =>
+          prev.filter((n) => n.id !== activityId)
+        );
+        fadeAnim.setValue(1);
+
+        if (modalNotifications.length <= 1) {
+          setIsModalVisible(false);
+        }
+      });
+    } catch (err) {
+      console.error("Erreur réponse invitation:", err);
+    }
   };
 
   // 🔹 Tri des activités
@@ -139,20 +180,7 @@ const HomeScreen = ({ navigation }) => {
         })
       : "";
 
-  const allNotifications = [
-    ...reminders.map((r) => ({
-      id: r._id,
-      type: "reminder",
-      message: `Rappel: ${r.name} à ${formatTime(r.dateBegin)}.`,
-    })),
-    ...invitations.map((i) => ({
-      id: i._id,
-      type: "validation",
-      message: `Nouvelle activité "${i.name}" à valider.`,
-    })),
-  ];
-
-  // 🔹 3 dernières activités passées (triées du plus récent au plus ancien)
+  // 🔹 Activités passées
   const pastActivities = activities
     .filter((a) => new Date(a.dateEnd || a.dateBegin) < now)
     .filter((a) =>
@@ -177,12 +205,12 @@ const HomeScreen = ({ navigation }) => {
               size={28}
               color={colors.purple[2]}
             />
-            {allNotifications.length > 0 && (
+            {modalNotifications.length > 0 && (
               <View
                 style={[styles.badge, { backgroundColor: colors.orange[1] }]}
               >
                 <KWText style={styles.badgeText}>
-                  {allNotifications.length}
+                  {modalNotifications.length}
                 </KWText>
               </View>
             )}
@@ -329,7 +357,7 @@ const HomeScreen = ({ navigation }) => {
             </KWCardBody>
           </KWCard>
 
-          {/* 🔹 Nouvelle section : Activités passées */}
+          {/* Activités passées */}
           <KWCard style={styles.planningCard}>
             <KWCardHeader>
               <KWCardIcon>
@@ -393,25 +421,43 @@ const HomeScreen = ({ navigation }) => {
           </KWText>
           {loading ? (
             <KWText>Chargement...</KWText>
-          ) : allNotifications.length === 0 ? (
+          ) : modalNotifications.length === 0 ? (
             <KWText>Aucune notification.</KWText>
           ) : (
             <FlatList
-              data={allNotifications}
+              data={modalNotifications}
               keyExtractor={(item) => item.id.toString()}
               renderItem={({ item }) => (
-                <KWCard
-                  style={{
-                    width: "100%",
-                    marginBottom: 10,
-                    backgroundColor:
-                      item.type === "reminder"
-                        ? colors.purple[0]
-                        : colors.pink[0],
-                  }}
-                >
-                  <KWText>{item.message}</KWText>
-                </KWCard>
+                <Animated.View style={{ opacity: fadeAnim }}>
+                  <KWCard
+                    style={{
+                      width: "100%",
+                      marginBottom: 10,
+                      backgroundColor:
+                        item.type === "reminder"
+                          ? colors.purple[0]
+                          : colors.pink[0],
+                    }}
+                  >
+                    <KWText>{item.message}</KWText>
+                    {item.type === "validation" && (
+                      <View style={styles.actionButtons}>
+                        <KWButton
+                          title="Accepter"
+                          bgColor={colors.green[1]}
+                          onPress={() => handleResponse(item.activityId, true)}
+                          style={{ minWidth: 100 }}
+                        />
+                        <KWButton
+                          title="Refuser"
+                          bgColor={colors.red[1]}
+                          onPress={() => handleResponse(item.activityId, false)}
+                          style={{ minWidth: 100 }}
+                        />
+                      </View>
+                    )}
+                  </KWCard>
+                </Animated.View>
               )}
             />
           )}
@@ -479,6 +525,12 @@ const styles = StyleSheet.create({
   childCard: { backgroundColor: colors.background[0], marginBottom: 15 },
   childSelector: { flexDirection: "row", justifyContent: "space-evenly" },
   planningCard: { backgroundColor: colors.background[0], marginBottom: 15 },
+  actionButtons: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 10,
+    marginTop: 10,
+  },
 });
 
 export default HomeScreen;
