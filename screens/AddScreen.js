@@ -414,23 +414,22 @@ const AddScreen = ({ navigation, route }) => {
   };
 
   const handleUpdate = async () => {
-    console.log("🟢 handleUpdate déclenché !");
     let memberIds;
-    console.log("update1");
+
     if (addMembers.length > 0) {
       memberIds = addMembers.map((m) => m._id);
     } else {
       Alert.alert("Erreur", "Veuillez sélectionner au moins un enfant");
       return;
     }
-    console.log("update2");
+
     const fullDateBegin = combineDateAndTime(dateBegin, timeBegin);
     const fullDateEnd = combineDateAndTime(dateEnd, timeEnd);
 
     if (!validateForm()) {
       return;
     }
-    console.log("update3");
+
     const reminderDate = calculateReminderDate(
       fullDateBegin,
       reminderNumber,
@@ -538,10 +537,21 @@ const AddScreen = ({ navigation, route }) => {
               Nouvelle activité
             </KWText>
           )}
+          {props && Object.keys(props).length !== 0 && (
+            <KWCardButton style={styles.deleteButton}>
+              <Ionicons
+                name="trash-outline"
+                size={25}
+                color="#EF4444"
+                onPress={handleDelete}
+              />
+            </KWCardButton>
+          )}
         </View>
 
         {/* Intitulé de l'activité */}
-        <View style={styles.section}>
+
+        <View style={[styles.section, { backgroundColor: colors.blue[0] }]}>
           <KWTextInput
             type="text"
             label="Intitulé de l'activité"
@@ -554,7 +564,7 @@ const AddScreen = ({ navigation, route }) => {
         </View>
 
         {/* Intitulé du lieu */}
-        <View style={styles.section}>
+        <View style={[styles.section, { backgroundColor: colors.red[0] }]}>
           <KWTextInput
             type="text"
             label="Lieu de l'activité"
@@ -567,7 +577,7 @@ const AddScreen = ({ navigation, route }) => {
         </View>
 
         {/* date début */}
-        <View style={styles.section}>
+        <View style={[styles.section, { backgroundColor: colors.green[0] }]}>
           <KWDateTimePicker
             label="Début"
             date={dateBegin}
@@ -598,7 +608,7 @@ const AddScreen = ({ navigation, route }) => {
         </View>
 
         {/* Récurrence */}
-        <View style={styles.section}>
+        <View style={[styles.section, { backgroundColor: colors.yellow[0] }]}>
           <KWText type="text" style={styles.label}>
             Récurrence
           </KWText>
@@ -674,7 +684,7 @@ const AddScreen = ({ navigation, route }) => {
           )}
         </View>
         {/* Rappel */}
-        <View style={styles.section}>
+        <View style={[styles.section, { backgroundColor: colors.orange[0] }]}>
           <View style={styles.reminderContainer}>
             <KWTextInput
               label="Rappel"
@@ -706,7 +716,7 @@ const AddScreen = ({ navigation, route }) => {
           </View>
         </View>
         {/* membres(s) */}
-        <View style={styles.section}>
+        <View style={[styles.section, { backgroundColor: colors.purple[0] }]}>
           <KWText type="text" style={[styles.label, { marginLeft: 20 }]}>
             Qui participera ?
           </KWText>
@@ -759,7 +769,7 @@ const AddScreen = ({ navigation, route }) => {
 
         {/* cheklist */}
 
-        <View style={styles.section}>
+        <View style={[styles.section, { backgroundColor: colors.pink[0] }]}>
           <View style={styles.checklistHeader}>
             <View style={styles.addChecklistContainer}>
               <KWTextInput
@@ -798,7 +808,7 @@ const AddScreen = ({ navigation, route }) => {
         </View>
 
         {/* Note */}
-        <View style={styles.section}>
+        <View style={[styles.section, { backgroundColor: colors.blue[0] }]}>
           <KWTextInput
             label="Note"
             style={styles.noteInput}
@@ -820,17 +830,12 @@ const AddScreen = ({ navigation, route }) => {
         </View>
         {/* Boutons */}
         <View style={styles.buttonsContainer}>
-          <KWButton title="Retour" onPress={handleAbort} />
-          {props && Object.keys(props).length !== 0 && (
-            <KWCardButton style={styles.deleteButton}>
-              <Ionicons
-                name="trash-outline"
-                size={28}
-                color="#EF4444"
-                onPress={handleDelete}
-              />
-            </KWCardButton>
-          )}
+          <KWButton
+            bgColor={colors.red[1]}
+            title="Retour"
+            onPress={handleAbort}
+          />
+
           <ButtonSaveUpdate
             dateBegin={dateBegin}
             dateEnd={dateEnd}
@@ -853,6 +858,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background[1],
   },
   header: {
+    flex: 1,
+    flexDirection: "row",
     height: 50,
     width: "100%",
     justifyContent: "center",
@@ -865,13 +872,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
   },
   section: {
-    backgroundColor: "white",
     marginHorizontal: 20,
     marginBottom: 15,
     padding: 15,
     borderRadius: 10,
     //borderWidth: 1,
     borderColor: "#E5E7EB",
+    // overflow: "hidden",
   },
   label: {
     fontSize: 14,
