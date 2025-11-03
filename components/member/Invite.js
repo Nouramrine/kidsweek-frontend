@@ -1,6 +1,7 @@
 import { View, StyleSheet, ScrollView } from "react-native";
 import { useState, useEffect } from 'react';
 import { colors, userColorSelection } from "../../theme/colors";
+import * as Sharing from "expo-sharing";
 import KWText from "../KWText";
 import KWTextInput from "../KWTextInput";
 import KWButton from "../KWButton";
@@ -12,6 +13,7 @@ const ZoneForm = ({ data, onReturn }) => {
 
   const [emailInput, setEmailInput] = useState('jeremy.guerlin@gmail.com');
   const [formErrors, setFormErrors] = useState({});
+  const [invitationUrl, setInvitationUrl] = useState(null);
 
   const formValidation = () => {
     const newErrors = {};
@@ -25,34 +27,54 @@ const ZoneForm = ({ data, onReturn }) => {
     if(formValidation()) {
         const emailData = { invitedId: data?.member._id, emailAddress: emailInput };
         const sendMail = await dispatch(createInviteAsync(emailData)).unwrap()
-        console.log(sendMail)
         if(sendMail.result) {
-
+          console.log(sendMail)
+          //onReturn();
         } else {
-
-        }
-        
+          setFormErrors({ emailInput: `Echec d'envoi du mail d'invitation` });
+        } 
     }
   }
 
-  return (
-    <View style={styles.container}>
-      <KWText type="h1">Inviter un proche</KWText>
-      <ScrollView>
-        <KWTextInput
-          label="Email"
-          value={emailInput}
-          error={formErrors?.emailInput || null}
-          onChangeText={setEmailInput}
-        />
-      </ScrollView>
-      <View style={styles.buttonsFooter}>
-        <KWButton title="Annuler" bgColor={colors.red[1]} styles={styles.button} onPress={onReturn} />
-        <KWButton title="Inviter" bgColor={colors.green[1]} styles={styles.button} onPress={handleSubmit} />
+  const handleSharing = async () => {
+    await Sharing.shareAsync(invitationUrl);
+  }
+
+  if(!invitationUrl) {
+    return (
+      <View style={styles.container}>
+        <KWText type="h1">Inviter un proche</KWText>
+        <ScrollView>
+          <KWTextInput
+            label="Email"
+            value={emailInput}
+            error={formErrors?.emailInput || null}
+            onChangeText={setEmailInput}
+          />
+        </ScrollView>
+        <View style={styles.buttonsFooter}>
+          <KWButton title="Annuler" bgColor={colors.red[1]} styles={styles.button} onPress={onReturn} />
+          <KWButton title="Inviter" bgColor={colors.green[1]} styles={styles.button} onPress={handleSubmit} />
+        </View>
       </View>
-    </View>
-  );
-};
+    );
+  } else {
+    return (
+      <View style={styles.container}>
+        <KWText type="h1">Inivtation envoyée</KWText>
+        <KWText>Une invitation a été envoyée par email à l'adresse {emailInput}.</KWText>
+        <KWText>Vous pouvez également partager cette invitation via vos réseaux sociaux <KWButton title="Partager" icon="share" /></KWText>
+        <ScrollView>
+
+        </ScrollView>
+        <View style={styles.buttonsFooter}>
+          <KWButton title="Annuler" bgColor={colors.red[1]} styles={styles.button} onPress={onReturn} />
+          <KWButton title="Inviter" bgColor={colors.green[1]} styles={styles.button} onPress={handleSubmit} />
+        </View>
+      </View>
+    ); 
+  } 
+}
 
 const styles = StyleSheet.create({
   container: {

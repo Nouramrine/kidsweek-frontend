@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,12 +8,25 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
 } from "react-native";
+import * as Linking from 'expo-linking';
 import SignIn from "./_partials/SignIn";
 import SignUp from "./_partials/SignUp";
 import KWText from "../components/KWText";
 
 const AuthScreen = () => {
   const [isSignIn, setIsSignIn] = useState(true);
+
+  useEffect(() => {
+    const sub = Linking.addEventListener('url', (event) => {
+      const url = new URL(event.url);
+      const t = url.searchParams.get('token');
+      if (t) {
+        setToken(t);
+        setIsSignIn(false);
+      }
+    });
+    return () => sub.remove();
+  }, []);
 
   return (
     <View style={styles.container}>
