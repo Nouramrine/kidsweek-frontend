@@ -167,7 +167,7 @@ const FamillyScreen = ({ navigation }) => {
                             <View style={{ backgroundColor: colors.background[1], justifyContent: 'center', alignItems: 'center', paddingVertical: 5, paddingHorizontal: 10, borderRadius: 100 }}>
                               {member.isChildren ? <KWText color={colors.blue[1]}>Enfant</KWText> : <KWText color={colors.red[1]}>Parent</KWText>}
                             </View>
-                            {!zone.isReadOnly && <TouchableOpacity style={styles.iconBtn} onPress={() => dispatch(removeMemberFromZoneAsync({ zoneId: zone._id, memberId: member._id }))}><FontAwesome5 name="minus" size={13} color="white" /></TouchableOpacity>}
+                            {member.isChildren && <TouchableOpacity style={styles.iconBtn} onPress={() => dispatch(removeMemberFromZoneAsync({ zoneId: zone._id, memberId: member._id }))}><FontAwesome5 name="minus" size={13} color="white" /></TouchableOpacity>}
                           </KWCardButton>
                         </KWCardHeader>
                       </KWCard>
