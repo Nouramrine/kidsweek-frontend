@@ -8,12 +8,14 @@ import KWColorPicker from "../KWColorPicker";
 import { createZoneAsync, updateZoneAsync } from "../../reducers/zones";
 import { useDispatch } from "react-redux";
 
-const ZoneForm = ({ data, onReturn }) => {
+const ZoneForm = ({ zone, onReturn }) => {
   const dispatch = useDispatch();
 
-  const [nameInput, setNameInput] = useState(data?.zone?.name || '');
-  const [selectedColor, setSelectedColor] = useState(data?.zone?.color || userColorSelection[0]);
+  const [nameInput, setNameInput] = useState(zone.name || '');
+  const [selectedColor, setSelectedColor] = useState(zone.color || userColorSelection[0]);
   const [formErrors, setFormErrors] = useState({});
+
+ 
 
   const formValidation = () => {
     const newErrors = {};
@@ -24,7 +26,7 @@ const ZoneForm = ({ data, onReturn }) => {
 
   const handleSubmit = async () => {
     if(formValidation()) {
-      const savedZone = !data?.zone ? dispatch(createZoneAsync({ name: nameInput, color: selectedColor })) : dispatch(updateZoneAsync({ id: data.zone._id, name: nameInput, color: selectedColor }));
+      const savedZone = !zone ? dispatch(createZoneAsync({ name: nameInput, color: selectedColor })) : dispatch(updateZoneAsync({ id: zone._id, name: nameInput, color: selectedColor }));
       if (savedZone) {
         setNameInput('');
         onReturn();
@@ -34,7 +36,7 @@ const ZoneForm = ({ data, onReturn }) => {
 
   return (
     <View style={styles.container}>
-      <KWText type="h1">{ data?.zone ? "Modifier zone" : "Nouvelle zone" }</KWText>
+      <KWText type="h1">{ zone ? "Modifier zone" : "Nouvelle zone" }</KWText>
       <ScrollView>
         <KWTextInput
           label="Nom de la zone"
@@ -51,7 +53,7 @@ const ZoneForm = ({ data, onReturn }) => {
       </ScrollView>
       <View style={styles.buttonsFooter}>
         <KWButton title="Annuler" bgColor={colors.red[1]} styles={styles.button} onPress={onReturn} />
-        <KWButton title={ data?.zone ? "Modifier" : "Ajouter" } bgColor={colors.green[1]} styles={styles.button} onPress={handleSubmit} />
+        <KWButton title={ zone ? "Modifier" : "Ajouter" } bgColor={colors.green[1]} styles={styles.button} onPress={handleSubmit} />
       </View>
     </View>
   );

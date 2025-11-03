@@ -36,6 +36,7 @@ const FamillyScreen = () => {
   const zones = useSelector((state) => state.zones.value);
   const members = useSelector((state) => state.members.value);
   const user = useSelector((state) => state.user.value);
+  const invites = useSelector((state) => state.invites.value);
   const tutorialStep = user.tutorialStep || 0;
 
   // Modals
@@ -71,9 +72,10 @@ const FamillyScreen = () => {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       <ScrollView>
+
         {/* --- Modals Tutoriel --- */}
         {tutorialStep === 1 && (
-          <KWModal visible={true}>
+          <KWModal visible={zones.length ? false : true}>
             <KWText
               type="h2"
               style={{
@@ -103,7 +105,7 @@ const FamillyScreen = () => {
         {/* Modal création / édition de Zone */}
         <KWModal visible={zoneModal}>
           <ZoneForm 
-            data={selectedZone} 
+            zone={selectedZone} 
             onReturn={() => { 
               setZoneModal(false);
               setOpenDropdownId(null);
@@ -127,6 +129,7 @@ const FamillyScreen = () => {
             data={selectedMember}
             onReturn={() => {
               setSelectedMember(null);
+              setOpenDropdownId(null);
               setInvitationModal(false);
             }} />
         </KWModal>
@@ -277,22 +280,27 @@ const FamillyScreen = () => {
             ))}
           </View>
 
+          {/* Modal création / édition de Membre */}
+          <KWModal visible={memberModal}>
+            <MemberForm 
+              data={selectedMember} 
+              onReturn={() => { 
+                setMemberModal(false);
+                setOpenDropdownId(null);
+              }} />
+          </KWModal>
+
           {/* Membres */}
           <View style={styles.membersContainer}>
             <KWText type='h2'>Tous les membres</KWText>
             {!members.length && <KWText style={styles.emptyText}>Aucun membre</KWText>}
             {members.map((member, j) => {
-                const options = [];
-                if (member.type === 'local') options.push({action: 'invitation', label: 'Inviter', icon: 'paper-plane'});
-                options.push(
+                const options = [
                   {action: 'edit', label: 'Modifier', icon: 'pen'},
                   {action: 'delete', label: 'Supprimer', color: colors.error[0], icon: 'trash'},
-                );
+                ];
+                if (member.type === 'local') options.unshift({action: 'invitation', label: 'Inviter', icon: 'paper-plane'});
                 return (
-                /*<TouchableOpacity onPress={() => {
-                  setSelectedMember({ member }); 
-                  setMemberModal(true);
-                }}>*/
                   <KWCard key={j} color={member.color ? colors[member.color][0] : colors.skin[0]} style={styles.memberCard}>
                     <KWCardHeader>
                       <KWCardIcon>
@@ -315,10 +323,12 @@ const FamillyScreen = () => {
                             if(action === 'invitation'){
                               setSelectedMember({ member });
                               setInvitationModal(true);
+                              setOpenDropdownId(null);
                             }
                             if(action === 'edit'){
                               setSelectedMember({ member });
                               setMemberModal(true);
+                              setOpenDropdownId(null);
                             }
                             if(action === 'delete'){
                               dispatch(deleteMemberAsync(member._id));
@@ -329,7 +339,6 @@ const FamillyScreen = () => {
                       </KWCardButton>
                     </KWCardHeader>
                   </KWCard>
-                /*</TouchableOpacity>*/
                 )
             })}        
           </View>
