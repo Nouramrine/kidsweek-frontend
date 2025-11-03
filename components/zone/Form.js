@@ -13,18 +13,19 @@ const ZoneForm = ({ data, onReturn }) => {
 
   const [nameInput, setNameInput] = useState(data?.zone?.name || '');
   const [selectedColor, setSelectedColor] = useState(data?.zone?.color || userColorSelection[0]);
+  const [formErrors, setFormErrors] = useState({});
 
-  const handleValidation = async () => {
-    if(!data?.zone) {
-      const createZone = await dispatch(createZoneAsync({ name: nameInput, color: selectedColor })).unwrap();
-      if (createZone) {
-        setNameInput('');
-        onReturn();
-      }
-    } else {
-      const updateData = { id: data.zone._id, name: nameInput, color: selectedColor }
-      const updateZone = dispatch(updateZoneAsync(updateData));
-      if (updateZone) {
+  const formValidation = () => {
+    const newErrors = {};
+    if (nameInput.length === 0) newErrors.nameInput = "Le nom de la zone est requis";
+    setFormErrors(newErrors);
+    return Object.keys(newErrors).length > 0 ? false : true;
+  }
+
+  const handleSubmit = async () => {
+    if(formValidation()) {
+      const savedZone = !data?.zone ? dispatch(createZoneAsync({ name: nameInput, color: selectedColor })) : dispatch(updateZoneAsync({ id: data.zone._id, name: nameInput, color: selectedColor }));
+      if (savedZone) {
         setNameInput('');
         onReturn();
       }
@@ -38,6 +39,7 @@ const ZoneForm = ({ data, onReturn }) => {
         <KWTextInput
           label="Nom de la zone"
           value={nameInput}
+          error={formErrors?.nameInput || null}
           onChangeText={setNameInput}
         />
         <KWColorPicker 
@@ -49,7 +51,7 @@ const ZoneForm = ({ data, onReturn }) => {
       </ScrollView>
       <View style={styles.buttonsFooter}>
         <KWButton title="Annuler" bgColor={colors.red[1]} styles={styles.button} onPress={onReturn} />
-        <KWButton title={ data?.zone ? "Modifier" : "Ajouter" } bgColor={colors.green[1]} styles={styles.button} onPress={handleValidation} />
+        <KWButton title={ data?.zone ? "Modifier" : "Ajouter" } bgColor={colors.green[1]} styles={styles.button} onPress={handleSubmit} />
       </View>
     </View>
   );
