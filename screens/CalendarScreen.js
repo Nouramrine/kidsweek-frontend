@@ -5,7 +5,6 @@ import { useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "../theme/colors";
-import { KWCard } from "../components/KWCard";
 import KWText from "../components/KWText";
 import KWCollapsible from "../components/KWCollapsible";
 import KWButton from "../components/KWButton";
@@ -23,7 +22,7 @@ export default function CalendarScreen() {
     setExpandedActivityId(expandedActivityId === id ? null : id);
   };
 
-  //code couleur par jour
+  // Code couleur par jour
   const dayColors = {
     lundi: colors.blue,
     mardi: colors.green,
@@ -34,31 +33,37 @@ export default function CalendarScreen() {
     dimanche: colors.skin,
   };
 
-  // Marquer les dates avec des activités
+  // 🔹 Marquer les dates avec des activités (passées = gris, à venir = violet)
   useEffect(() => {
     const marks = {};
+    const today = new Date().toISOString().split("T")[0];
+
     activities.forEach((activity) => {
       const date = activity.dateBegin ? activity.dateBegin.split("T")[0] : null;
       if (date) {
-        marks[date] = { marked: true, dotColor: colors.purple[2] };
+        const isPast = date < today;
+        marks[date] = {
+          marked: true,
+          dotColor: isPast ? colors.gray : colors.purple[2],
+        };
       }
     });
     setMarkedDates(marks);
   }, [activities]);
 
-  // Gérer la sélection d'une date
+  // 🔹 Gérer la sélection d'une date
   const handleDayPress = (day) => {
     setSelectedDate(day.dateString);
-    setExpandedActivityId(null); // Fermer toutes les activités lors du changement de date
+    setExpandedActivityId(null);
 
-    // Filtrer les activités de cette date
+    // Afficher toutes les activités de la date choisie (passées ou à venir)
     const filtred = activities.filter(
       (a) => a.dateBegin && a.dateBegin.split("T")[0] === day.dateString
     );
     setActivitiesOfDay(filtred);
   };
 
-  //mettre la date sous la forme DD/MM/YYYY
+  // 🔹 Formatage date & heure
   const formatDateFR = (isoDate) => {
     if (!isoDate) return "";
     const [year, month, day] = isoDate.split("-");
@@ -73,7 +78,7 @@ export default function CalendarScreen() {
         })
       : "";
 
-  // Couleur dominante du jour sélectionné
+  // 🔹 Couleur dominante du jour sélectionné
   const getDayPalette = (dateStr) => {
     if (!dateStr) return colors.blue;
     const dayIndex = new Date(dateStr).getDay();
@@ -126,15 +131,20 @@ export default function CalendarScreen() {
 
               {activitiesOfDay.length > 0 ? (
                 <FlatList
-                  data={activitiesOfDay}
+                  data={activitiesOfDay.sort(
+                    (a, b) => new Date(a.dateBegin) - new Date(b.dateBegin)
+                  )}
                   keyExtractor={(item) => item._id}
                   renderItem={({ item }) => {
-                    // ✅ Utilise la couleur de l'activité au lieu de celle du jour
                     const activityPalette = colors[item.color] || colors.purple;
+                    const isPast =
+                      new Date(item.dateEnd) < new Date() ? true : false;
 
                     return (
                       <KWCollapsible
-                        title={item.name}
+                        title={
+                          isPast ? `🕓 ${item.name} (terminée)` : item.name
+                        }
                         subtitle={`${formatTime(item.dateBegin)} → ${formatTime(
                           item.dateEnd
                         )}`}
@@ -188,21 +198,8 @@ export default function CalendarScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "white",
-  },
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
-  listContainer: {
-    flex: 1,
-    padding: 15,
-  },
-  noActivity: {
-    textAlign: "center",
-    color: "#94A3B8",
-    marginTop: 20,
-  },
+  safeArea: { flex: 1, backgroundColor: "white" },
+  container: { flex: 1, backgroundColor: "#fff" },
+  listContainer: { flex: 1, padding: 15 },
+  noActivity: { textAlign: "center", color: "#94A3B8", marginTop: 20 },
 });

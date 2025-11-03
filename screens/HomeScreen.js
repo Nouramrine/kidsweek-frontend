@@ -6,9 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
-  LayoutAnimation,
-  Platform,
-  UIManager,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
@@ -18,6 +15,7 @@ import {
   fetchNotificationsAsync,
   respondToInvitationAsync,
 } from "../reducers/notifications";
+import { saveTutorialStepAsync } from "../reducers/user";
 
 import KWModal from "../components/KWModal";
 import {
@@ -33,14 +31,6 @@ import { colors } from "../theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import KWCollapsible from "../components/KWCollapsible";
 
-// petite animation - Commenté pour éviter le warning avec la nouvelle architecture
-// if (
-//   Platform.OS === "android" &&
-//   UIManager.setLayoutAnimationEnabledExperimental
-// ) {
-//   UIManager.setLayoutAnimationEnabledExperimental(true);
-// }
-
 const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();
 
@@ -48,7 +38,6 @@ const HomeScreen = ({ navigation }) => {
   const user = useSelector((state) => state.user.value || {});
   const members = useSelector((state) => state.members.value || []);
 
-  // --- Notifications Redux ---
   const { invitations, reminders, loading } = useSelector(
     (state) => state.notifications
   );
@@ -57,6 +46,7 @@ const HomeScreen = ({ navigation }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [expandedActivityId, setExpandedActivityId] = useState(null);
 
+  const tutorialStep = user.tutorialStep || 0;
   const children = members.filter((m) => m.isChildren);
 
   const toggleActivity = (id) => {
@@ -65,16 +55,16 @@ const HomeScreen = ({ navigation }) => {
 
   const toggleModal = () => setIsModalVisible(!isModalVisible);
 
-  // 🔥 Fetch data
+  // 🔹 Fetch data
   useEffect(() => {
     if (user.token) {
       dispatch(fetchActivitiesAsync(user.token));
       dispatch(fetchMembersAsync());
-      dispatch(fetchNotificationsAsync(user.token)); // récupère les notifs
+      dispatch(fetchNotificationsAsync(user.token));
     }
   }, [user.token]);
 
-  // 🔥 Réponse invitation
+  // 🔹 Réponse invitation
   const handleResponse = (activityId, validate) => {
     dispatch(
       respondToInvitationAsync({
@@ -85,12 +75,21 @@ const HomeScreen = ({ navigation }) => {
     );
   };
 
-  // --- Tri des activités ---
+  // 🔹 Tri des activités
+  const now = new Date();
+  const upcomingActivities = activities.filter(
+    (a) => new Date(a.dateBegin) >= now
+  );
+  const pastActivities = activities
+    .filter((a) => new Date(a.dateEnd) < now)
+    .sort((a, b) => new Date(b.dateEnd) - new Date(a.dateEnd))
+    .slice(0, 3);
+
   const filteredActivities = selectedChild
-    ? activities.filter((a) =>
+    ? upcomingActivities.filter((a) =>
         a.members?.some((m) => m._id === selectedChild._id)
       )
-    : activities;
+    : upcomingActivities;
 
   const groupedActivities = filteredActivities.reduce((acc, activity) => {
     const date = new Date(activity.dateBegin);
@@ -131,7 +130,6 @@ const HomeScreen = ({ navigation }) => {
         })
       : "";
 
-  // 🔥 Notifications fusionnées
   const allNotifications = [
     ...reminders.map((r) => ({
       id: r._id,
@@ -202,7 +200,7 @@ const HomeScreen = ({ navigation }) => {
             </KWCardBody>
           </KWCard>
 
-          {/* Planning */}
+          {/* Planning à venir */}
           <KWCard style={styles.planningCard}>
             <KWCardHeader>
               <KWCardIcon>
@@ -214,10 +212,7 @@ const HomeScreen = ({ navigation }) => {
               </KWCardIcon>
               <KWCardTitle>
                 <TouchableOpacity
-                  onPress={() => {
-                    // Animation alternative sans LayoutAnimation
-                    setSelectedChild(null);
-                  }}
+                  onPress={() => setSelectedChild(null)}
                   style={{
                     flexDirection: "row",
                     alignItems: "center",
@@ -264,7 +259,6 @@ const HomeScreen = ({ navigation }) => {
                       </KWText>
 
                       {activitiesOfDay.map((a) => {
-                        // ✅ Utilise la couleur de l'activité au lieu de celle du jour
                         const activityPalette =
                           colors[a.color] || colors.purple;
 
@@ -281,32 +275,6 @@ const HomeScreen = ({ navigation }) => {
                           >
                             <KWText>📍 {a.place || "Lieu non précisé"}</KWText>
                             {a.note && <KWText>📝 {a.note}</KWText>}
-                            {a.members?.length > 0 && (
-                              <View>
-                                <KWText type="h3" style={{ marginTop: 8 }}>
-                                  👥 Membres :
-                                </KWText>
-                                {a.members.map((m) => (
-                                  <KWText key={m._id}>• {m.firstName}</KWText>
-                                ))}
-                              </View>
-                            )}
-                            <View
-                              style={{ alignItems: "center", marginTop: 10 }}
-                            >
-                              <KWButton
-                                title="Modifier"
-                                icon="edit"
-                                bgColor={activityPalette[1]}
-                                color="white"
-                                style={{ minWidth: 150 }}
-                                onPress={() =>
-                                  navigation.navigate("AddScreen", {
-                                    activityToEdit: a,
-                                  })
-                                }
-                              />
-                            </View>
                           </KWCollapsible>
                         );
                       })}
@@ -326,7 +294,6 @@ const HomeScreen = ({ navigation }) => {
           >
             Notifications
           </KWText>
-
           {loading ? (
             <KWText>Chargement...</KWText>
           ) : allNotifications.length === 0 ? (
@@ -347,27 +314,38 @@ const HomeScreen = ({ navigation }) => {
                   }}
                 >
                   <KWText>{item.message}</KWText>
-                  {item.type === "validation" && (
-                    <View style={styles.actionButtons}>
-                      <KWButton
-                        title="Accepter"
-                        bgColor={colors.green[1]}
-                        onPress={() => handleResponse(item.id, true)}
-                        style={{ minWidth: 100 }}
-                      />
-                      <KWButton
-                        title="Refuser"
-                        bgColor={colors.red[1]}
-                        onPress={() => handleResponse(item.id, false)}
-                        style={{ minWidth: 100 }}
-                      />
-                    </View>
-                  )}
                 </KWCard>
               )}
             />
           )}
         </KWModal>
+
+        {/* MODAL Tutoriel - Étape 0 */}
+        {tutorialStep === 0 && (
+          <KWModal visible={true}>
+            <KWText
+              type="h2"
+              style={{
+                marginBottom: 15,
+                fontWeight: "bold",
+                color: colors.purple[2],
+              }}
+            >
+              Bienvenue sur KidsWeek ! 👋
+            </KWText>
+            <KWText style={{ marginBottom: 20, lineHeight: 22 }}>
+              Pour commencer, nous allons créer votre foyer familial ensemble.
+            </KWText>
+            <KWButton
+              title="Créer mon foyer"
+              bgColor={colors.purple[1]}
+              onPress={() => {
+                dispatch(saveTutorialStepAsync({ email: user.email, step: 1 }));
+                navigation.navigate("Famille");
+              }}
+            />
+          </KWModal>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -404,12 +382,6 @@ const styles = StyleSheet.create({
   childCard: { backgroundColor: colors.background[0], marginBottom: 15 },
   childSelector: { flexDirection: "row", justifyContent: "space-evenly" },
   planningCard: { backgroundColor: colors.background[0], marginBottom: 15 },
-  actionButtons: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    gap: 10,
-    marginTop: 10,
-  },
 });
 
 export default HomeScreen;
