@@ -2,6 +2,41 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
+export const updateTaskAsync = createAsyncThunk(
+  "activities/deleteActivityAsync",
+  async (payload, { dispatch }) => {
+    const { activityId, taskId, isOk, token } = payload;
+
+    try {
+      const response = await fetch(
+        `${BACKEND_URL}/activities/${activityId}/tasks/${taskId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ isOk }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.result) {
+        // Récupérer toutes les activités pour mettre à jour le state
+
+        return data;
+      } else {
+        console.error("Erreur:", data.message);
+        return null;
+      }
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour de la tâche:", error);
+      return null;
+    }
+  }
+);
+
 // Fetch toutes les activités
 
 export const fetchActivitiesAsync = createAsyncThunk(
