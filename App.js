@@ -26,6 +26,7 @@ import user from "./reducers/user";
 import members from "./reducers/members";
 import activities from "./reducers/activities";
 import zones from "./reducers/zones";
+import notifications from "./reducers/notifications";
 import { Provider, useSelector } from "react-redux";
 import { persistStore, persistReducer } from "redux-persist";
 import { PersistGate } from "redux-persist/integration/react";
@@ -43,6 +44,7 @@ const rootReducer = combineReducers({
   members,
   activities,
   zones,
+  notifications,
 });
 const store = configureStore({
   reducer: rootReducer,
