@@ -31,6 +31,19 @@ import { colors } from "../theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import KWCollapsible from "../components/KWCollapsible";
 
+// Fonction utilitaire pour déterminer la couleur du texte adaptée
+const getContrastColor = (hexColor) => {
+  if (!hexColor) return "white";
+  const c = hexColor.substring(1); // retire le "#"
+  const rgb = parseInt(c, 16); // convertit en nombre
+  const r = (rgb >> 16) & 0xff;
+  const g = (rgb >> 8) & 0xff;
+  const b = rgb & 0xff;
+  // formule de luminance perçue
+  const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+  return luminance > 180 ? "black" : "white"; // seuil ~180 = bon équilibre
+};
+
 const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();
 
@@ -275,6 +288,32 @@ const HomeScreen = ({ navigation }) => {
                           >
                             <KWText>📍 {a.place || "Lieu non précisé"}</KWText>
                             {a.note && <KWText>📝 {a.note}</KWText>}
+                            {a.members?.length > 0 && (
+                              <View>
+                                <KWText type="h3" style={{ marginTop: 8 }}>
+                                  👥 Membres :
+                                </KWText>
+                                {a.members.map((m) => (
+                                  <KWText key={m._id}>• {m.firstName}</KWText>
+                                ))}
+                              </View>
+                            )}
+                            <View
+                              style={{ alignItems: "center", marginTop: 10 }}
+                            >
+                              <KWButton
+                                title="Modifier"
+                                icon="edit"
+                                bgColor={activityPalette[1]}
+                                color={getContrastColor(activityPalette[1])}
+                                style={{ minWidth: 150 }}
+                                onPress={() =>
+                                  navigation.navigate("AddScreen", {
+                                    activityToEdit: a,
+                                  })
+                                }
+                              />
+                            </View>
                           </KWCollapsible>
                         );
                       })}
