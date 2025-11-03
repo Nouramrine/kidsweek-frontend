@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   StyleSheet,
@@ -23,18 +23,52 @@ import {
   createActivityAsync,
   deleteActivityAsync,
   updateActivityAsync,
+  fetchActivitiesAsync,
 } from "../reducers/activities";
+
 import ButtonSaveUpdate from "../components/Activities/ButtonSaveUpdate";
 //import { SafeAreaView } from "react-native-safe-area-context";
 import KWModal from "../components/KWModal";
 import KWDropdown from "../components/Activities/KWDropdown";
 import MemberAdd from "../components/member/Add";
+import { useFocusEffect } from "@react-navigation/native";
 
 import { fetchZonesAsync } from "../reducers/zones";
 
 import { fetchMembersAsync } from "../reducers/members";
 
 const AddScreen = ({ navigation, route }) => {
+  useFocusEffect(
+    useCallback(() => {
+      if (!props || Object.keys(props).length === 0) {
+        // Remet tout à zéro
+        setActivityName("");
+        setActivityPlace("");
+        setDateBegin(new Date());
+        setTimeBegin(new Date());
+        setDateEnd(new Date());
+        setTimeEnd(new Date());
+        setRecurrence({
+          lun: false,
+          mar: false,
+          mer: false,
+          jeu: false,
+          ven: false,
+          sam: false,
+          dim: false,
+        });
+        setIsEnabled(false);
+        setDateEndRecurrence(new Date());
+        setReminderNumber("10");
+        setReminderUnit("minutes");
+        setAddMembers([]);
+        setChecklistItems([]);
+        setNewChecklistItem("");
+        setNote("");
+        setColorAct("skin");
+      }
+    }, [props])
+  );
   // retrieve params if edit mode
   const { activityToEdit } = route.params || {};
   const props = activityToEdit || {};
@@ -45,6 +79,7 @@ const AddScreen = ({ navigation, route }) => {
   const user = useSelector((state) => state.user.value);
   const activities = useSelector((state) => state.activities.value);
   const zones = useSelector((state) => state.zones.value);
+
   // console.log("Zones : ", zones);
   //console.log("Membres : ===> ", members);
   // console.log("Activités : ", activities);
@@ -111,7 +146,7 @@ const AddScreen = ({ navigation, route }) => {
   const handleSave = async () => {
     let memberIds;
     if (addMembers && addMembers.length === 0) {
-      Alert.alert("Erreur", "Veuillez sélectionner au moins un enfant");
+      Alert.alert("Oups !", "Veuillez sélectionner au moins un enfant");
       return;
     }
     memberIds = addMembers.map((m, key) => m._id);
@@ -150,6 +185,7 @@ const AddScreen = ({ navigation, route }) => {
         })
       ).unwrap(); // unwrap pour obtenir la valeur résolue ou lancer une erreur
       console.log("Activité créée avec succès:", result);
+      dispatch(fetchActivitiesAsync(user.token));
 
       navigation.goBack();
     } catch (error) {
@@ -361,6 +397,7 @@ const AddScreen = ({ navigation, route }) => {
   };
   // toggle switch display recurrence
   const toggleSwitch = () => {
+    setDateEndRecurrence(dateEnd);
     setIsEnabled(!isEnabled);
   };
   // Form validation
@@ -369,7 +406,7 @@ const AddScreen = ({ navigation, route }) => {
     const fullDateEnd = combineDateAndTime(dateEnd, timeEnd);
 
     if (fullDateBegin < Date.now()) {
-      Alert.alert("Erreur", "La date de début ne doit pas être passée");
+      Alert.alert("Oups !", "La date de début ne doit pas être passée");
       return false;
     }
     if (fullDateEnd <= fullDateBegin) {
@@ -378,15 +415,15 @@ const AddScreen = ({ navigation, route }) => {
       setError(false);
     }
     if (addMembers && addMembers.length === 0) {
-      Alert.alert("Erreur", "Veuillez sélectionner au moins un enfant");
+      Alert.alert("Oups !", "Veuillez sélectionner au moins un enfant");
       return false;
     }
     if (!activityName.trim()) {
-      Alert.alert("Erreur", "Le nom est obligatoire");
+      Alert.alert("Oups !", "Le nom est obligatoire");
       return false;
     }
     if (activityName.length < 3) {
-      Alert.alert("Erreur", "Le nom doit faire au moins 3 caractères");
+      Alert.alert("Oups !", "Le nom doit faire au moins 3 caractères");
       return false;
     }
 
