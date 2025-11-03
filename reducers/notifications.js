@@ -33,10 +33,10 @@ export const fetchNotificationsAsync = createAsyncThunk(
 
 export const respondToInvitationAsync = createAsyncThunk(
   "notifications/respondToInvitationAsync",
-  async ({ token, activityID, validate }) => {
+  async ({ token, activityId, validate }) => {
     try {
       const response = await fetch(
-        `${BACKEND_URL}/activities/${activityID}/validate`,
+        `${BACKEND_URL}/activities/${activityId}/validate`,
         {
           method: "PUT",
           headers: {
@@ -48,7 +48,7 @@ export const respondToInvitationAsync = createAsyncThunk(
       );
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || "Erreur serveur");
-      return { activityID, validate };
+      return { activityId, validate };
     } catch (err) {
       console.error("Erreur réponse invitation:", err);
       throw err;
