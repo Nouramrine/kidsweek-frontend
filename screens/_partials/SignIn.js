@@ -20,7 +20,6 @@ const SignIn = () => {
         password: signInPassword,
       })
     ).unwrap();
-    console.log(signIn)
     if (signIn.result) {
       setSignInEmail("");
       setSignInPassword("");
