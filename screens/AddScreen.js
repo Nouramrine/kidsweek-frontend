@@ -531,7 +531,7 @@ const AddScreen = ({ navigation, route }) => {
         <View style={styles.header}>
           {Object.keys(props).length !== 0 ? (
             <KWText type="h1" style={styles.headerText}>
-              Modifier l'activité
+              Modification de l'activité
             </KWText>
           ) : (
             <KWText type="h1" style={styles.headerText}>
