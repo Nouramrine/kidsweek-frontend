@@ -1,19 +1,24 @@
 import React, { useState, useEffect } from "react";
 import { View, StyleSheet, FlatList } from "react-native";
 import { Calendar } from "react-native-calendars";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "../theme/colors";
-import { KWCard } from "../components/KWCard";
 import KWText from "../components/KWText";
 import KWCollapsible from "../components/KWCollapsible";
 import KWButton from "../components/KWButton";
-
+import {
+  updateActivityAsync,
+  updateTaskAsync,
+  fetchActivitiesAsync,
+} from "../reducers/activities";
+import { FontAwesome5 } from "@expo/vector-icons";
+import BouncyCheckbox from "react-native-bouncy-checkbox";
 export default function CalendarScreen() {
   const navigation = useNavigation();
   const activities = useSelector((state) => state.activities.value);
-
+  const user = useSelector((state) => state.user.value || {});
   const [selectedDate, setSelectedDate] = useState(null);
   const [markedDates, setMarkedDates] = useState({});
   const [activitiesOfDay, setActivitiesOfDay] = useState([]);
@@ -22,8 +27,9 @@ export default function CalendarScreen() {
   const toggleActivity = (id) => {
     setExpandedActivityId(expandedActivityId === id ? null : id);
   };
+  const dispatch = useDispatch();
 
-  //code couleur par jour
+  // Code couleur par jour
   const dayColors = {
     lundi: colors.blue,
     mardi: colors.green,
@@ -34,31 +40,37 @@ export default function CalendarScreen() {
     dimanche: colors.skin,
   };
 
-  // Marquer les dates avec des activités
+  // 🔹 Marquer les dates avec des activités (passées = gris, à venir = violet)
   useEffect(() => {
     const marks = {};
+    const today = new Date().toISOString().split("T")[0];
+
     activities.forEach((activity) => {
       const date = activity.dateBegin ? activity.dateBegin.split("T")[0] : null;
       if (date) {
-        marks[date] = { marked: true, dotColor: colors.purple[2] };
+        const isPast = date < today;
+        marks[date] = {
+          marked: true,
+          dotColor: isPast ? "gray" : activity.color,
+        };
       }
     });
     setMarkedDates(marks);
-  }, [activities]);
+  }, [activities, selectedDate]);
 
-  // Gérer la sélection d'une date
+  // 🔹 Gérer la sélection d'une date
   const handleDayPress = (day) => {
     setSelectedDate(day.dateString);
-    setExpandedActivityId(null); // Fermer toutes les activités lors du changement de date
+    setExpandedActivityId(null);
 
-    // Filtrer les activités de cette date
+    // Afficher toutes les activités de la date choisie (passées ou à venir)
     const filtred = activities.filter(
       (a) => a.dateBegin && a.dateBegin.split("T")[0] === day.dateString
     );
     setActivitiesOfDay(filtred);
   };
 
-  //mettre la date sous la forme DD/MM/YYYY
+  // 🔹 Formatage date & heure
   const formatDateFR = (isoDate) => {
     if (!isoDate) return "";
     const [year, month, day] = isoDate.split("-");
@@ -73,7 +85,7 @@ export default function CalendarScreen() {
         })
       : "";
 
-  // Couleur dominante du jour sélectionné
+  // 🔹 Couleur dominante du jour sélectionné
   const getDayPalette = (dateStr) => {
     if (!dateStr) return colors.blue;
     const dayIndex = new Date(dateStr).getDay();
@@ -92,49 +104,83 @@ export default function CalendarScreen() {
 
   const palette = getDayPalette(selectedDate);
 
-  return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <Calendar
-          markedDates={{
-            ...markedDates,
-            ...(selectedDate
-              ? {
-                  [selectedDate]: {
-                    selected: true,
-                    selectedColor: palette[2],
-                    marked: markedDates[selectedDate]?.marked,
-                    dotColor: "#fff",
-                  },
-                }
-              : {}),
-          }}
-          onDayPress={handleDayPress}
-          theme={{
-            todayTextColor: palette[2],
-            arrowColor: palette[2],
-            textSectionTitleColor: "#94A3B8",
-          }}
-        />
+  const handleTaskToggle = async (activityId, taskId, isChecked) => {
+    try {
+      const result = await dispatch(
+        updateTaskAsync({
+          activityId,
+          taskId,
+          isOk: isChecked,
+          token: user.token,
+        })
+      ).unwrap();
 
-        <View style={styles.listContainer}>
-          {selectedDate ? (
-            <>
-              <KWText type="h2" style={{ marginBottom: 10 }}>
-                Activités du {formatDateFR(selectedDate)}
-              </KWText>
+      if (result) {
+        console.log("Tâche mise à jour avec succès");
+        await dispatch(fetchActivitiesAsync(user.token));
+        if (selectedDate) {
+          const filtred = activities.filter(
+            (a) => a.dateBegin && a.dateBegin.split("T")[0] === selectedDate
+          );
+          setActivitiesOfDay(filtred);
+        }
+      }
+    } catch (error) {
+      console.error(" Erreur lors de la mise à jour de la tâche:", error);
+    }
+  };
+  const calculateTaskCompletionPercentage = (tasks) => {
+    if (!tasks || tasks.length === 0) return 0;
+    const completedTasks = tasks.filter((task) => task.isOk).length;
+    return Math.round((completedTasks / tasks.length) * 100);
+  };
+  return (
+    <View style={styles.container}>
+      <Calendar
+        markedDates={{
+          ...markedDates,
+          ...(selectedDate
+            ? {
+                [selectedDate]: {
+                  selected: true,
+                  selectedColor: palette[2],
+                  marked: markedDates[selectedDate]?.marked,
+                  dotColor: "#fff",
+                },
+              }
+            : {}),
+        }}
+        onDayPress={handleDayPress}
+        theme={{
+          todayTextColor: palette[2],
+          arrowColor: palette[2],
+          textSectionTitleColor: "#94A3B8",
+        }}
+      />
+
+      <View style={styles.listContainer}>
+        {selectedDate ? (
+          <>
+            <KWText type="h2" style={{ marginBottom: 10 }}>
+              Activités du {formatDateFR(selectedDate)}
+            </KWText>
 
               {activitiesOfDay.length > 0 ? (
                 <FlatList
-                  data={activitiesOfDay}
+                  data={activitiesOfDay.sort(
+                    (a, b) => new Date(a.dateBegin) - new Date(b.dateBegin)
+                  )}
                   keyExtractor={(item) => item._id}
                   renderItem={({ item }) => {
-                    // ✅ Utilise la couleur de l'activité au lieu de celle du jour
                     const activityPalette = colors[item.color] || colors.purple;
+                    const isPast =
+                      new Date(item.dateEnd) < new Date() ? true : false;
 
                     return (
                       <KWCollapsible
-                        title={item.name}
+                        title={
+                          isPast ? `🕓 ${item.name} (terminée)` : item.name
+                        }
                         subtitle={`${formatTime(item.dateBegin)} → ${formatTime(
                           item.dateEnd
                         )}`}
