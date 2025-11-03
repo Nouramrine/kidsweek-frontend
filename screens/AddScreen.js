@@ -800,7 +800,7 @@ const AddScreen = ({ navigation, route }) => {
                   <TouchableOpacity
                     onPress={() => removeChecklistItem(item._id)}
                   >
-                    <Ionicons name="close" size={18} color="#666" />
+                    <Ionicons name="close" size={25} color="#fc0000ff" />
                   </TouchableOpacity>
                 </View>
               ))}
@@ -820,7 +820,7 @@ const AddScreen = ({ navigation, route }) => {
           />
         </View>
 
-        <View style={styles.section}>
+        <View style={[styles.section, { backgroundColor: colors.skin[0] }]}>
           <KWColorPicker
             title="Choisissez une couleur pour l'activité"
             userColorSelection={userColorSelection}
@@ -1018,5 +1018,14 @@ const styles = StyleSheet.create({
   footer: {
     height: 10,
     marginBottom: 40,
+  },
+
+  checklistItemsContainer: {
+    flex: 1,
+  },
+  checklistItem: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
 });
