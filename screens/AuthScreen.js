@@ -17,33 +17,33 @@ const AuthScreen = () => {
 
   return (
     <View style={styles.container}>
-      <KeyboardAvoidingView
+      {/* <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ width: '80%', alignItems: 'center' }}
+      > */}
+      <Image
+        source={require("../assets/titre.png")}
+        style={styles.logo}
+        resizeMode="contain"
+      />
+
+      {/*<KWText type='h1'>{isSignIn ? 'Connexion' : 'Inscription'}</KWText>*/}
+
+      <View style={styles.formContainer}>
+        {isSignIn ? <SignIn /> : <SignUp />}
+      </View>
+
+      <TouchableOpacity
+        onPress={() => setIsSignIn(!isSignIn)}
+        style={styles.switchContainer}
       >
-        <Image
-          source={require("../assets/titre.png")}
-          style={styles.logo}
-          resizeMode="contain"
-        />
-
-        {/*<KWText type='h1'>{isSignIn ? 'Connexion' : 'Inscription'}</KWText>*/}
-
-        <View style={styles.formContainer}>
-          {isSignIn ? <SignIn /> : <SignUp />}
-        </View>
-
-        <TouchableOpacity
-          onPress={() => setIsSignIn(!isSignIn)}
-          style={styles.switchContainer}
-        >
-          <KWText type="link">
-            {isSignIn
-              ? "Pas de compte ? S'inscrire"
-              : "Déjà un compte ? Se connecter"}
-          </KWText>
-        </TouchableOpacity>
-      </KeyboardAvoidingView>
+        <KWText type="link">
+          {isSignIn
+            ? "Pas de compte ? S'inscrire"
+            : "Déjà un compte ? Se connecter"}
+        </KWText>
+      </TouchableOpacity>
+      {/* </KeyboardAvoidingView> */}
     </View>
   );
 };

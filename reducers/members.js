@@ -2,31 +2,30 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
-// Fetch tous les membres
+// 🔹 Fetch tous les membres
 export const fetchMembersAsync = createAsyncThunk(
   "members/fetchMembersAsync",
   async (_, { getState }) => {
     const token = getState().user.value.token;
-    const response = await fetch(`${BACKEND_URL}/members`, {
+    const res = await fetch(`${BACKEND_URL}/members`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
     });
-    const data = await response.json();
-    if (!data.result)
-      throw console.log( "Create member : ", data.error || "Erreur lors du fetch des membres");
+    const data = await res.json();
+    if (!data.result) throw console.log("Members reducer fetch :", data.error);
     return data.members;
   }
 );
 
-// Créer un membre
+// 🔹 Créer un membre
 export const createMemberAsync = createAsyncThunk(
   "members/createMemberAsync",
   async (memberData, { getState }) => {
     const token = getState().user.value.token;
-    const response = await fetch(`${BACKEND_URL}/members`, {
+    const res = await fetch(`${BACKEND_URL}/members`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -34,20 +33,18 @@ export const createMemberAsync = createAsyncThunk(
       },
       body: JSON.stringify(memberData),
     });
-    const data = await response.json();
-    if (!data.result) {
-      throw console.log( "Create member : ", data.error || "Erreur lors de la création du membre");
-    }
+    const data = await res.json();
+    if (!data.result) throw console.log("Members reducer create :", data.error);
     return data.member;
   }
 );
 
-// Mettre à jour un membre
+// 🔹 Mettre à jour un membre
 export const updateMemberAsync = createAsyncThunk(
   "members/updateMemberAsync",
   async (memberData, { getState }) => {
     const token = getState().user.value.token;
-    const response = await fetch(`${BACKEND_URL}/members/${memberData.id}`, {
+    const res = await fetch(`${BACKEND_URL}/members/${memberData.id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -55,38 +52,31 @@ export const updateMemberAsync = createAsyncThunk(
       },
       body: JSON.stringify(memberData),
     });
-    const data = await response.json();
-    if (!data.result)
-      throw console.log( "Update member : ", data.message || "Erreur lors de la mise à jour du membre");
-    return data.member || [];
+    const data = await res.json();
+    if (!data.result) throw console.log("Members reducer update :", data.error);
+    return data.member;
   }
 );
 
-// Supprimer un membre
+// 🔹 Supprimer un membre
 export const deleteMemberAsync = createAsyncThunk(
   "members/deleteMemberAsync",
   async (memberId, { getState }) => {
     const token = getState().user.value.token;
-    const response = await fetch(`${BACKEND_URL}/members/${memberId}`, {
+    const res = await fetch(`${BACKEND_URL}/members/${memberId}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
     });
-    const data = await response.json();
-    if (!data.result)
-      throw console.log( "Delete member : ", data.error || "Erreur lors de la suppression du membre");
-    return data.member || '';
+    const data = await res.json();
+    if (!data.result) throw console.log("Members reducer delete :", data.error);
+    return memberId; // 🔹 retourne l’ID supprimé
   }
 );
 
-// Slice
-const initialState = {
-  value: [],
-  loading: false,
-  error: null,
-};
+const initialState = { value: [], loading: false, error: null };
 
 export const membersSlice = createSlice({
   name: "members",
@@ -98,7 +88,6 @@ export const membersSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Fetch
       .addCase(fetchMembersAsync.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -111,28 +100,18 @@ export const membersSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
-      // Create
       .addCase(createMemberAsync.fulfilled, (state, action) => {
         state.value.push(action.payload);
       })
-      // Update
       .addCase(updateMemberAsync.fulfilled, (state, action) => {
-        const index = state.value.findIndex(
-          (member) => member._id === action.payload._id
-        );
-        if (index !== -1) {
-          state.value[index] = action.payload;
-        }
+        const idx = state.value.findIndex((m) => m._id === action.payload._id);
+        if (idx !== -1) state.value[idx] = action.payload;
       })
-      // Delete
       .addCase(deleteMemberAsync.fulfilled, (state, action) => {
-        state.value = state.value.filter(
-          (member) => member._id !== action.payload._id
-        );
+        state.value = state.value.filter((m) => m._id !== action.payload);
       });
   },
 });
 
 export const { setMembers } = membersSlice.actions;
-
 export default membersSlice.reducer;
