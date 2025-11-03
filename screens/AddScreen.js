@@ -529,9 +529,15 @@ const AddScreen = ({ navigation, route }) => {
     >
       <ScrollView style={styles.container}>
         <View style={styles.header}>
-          <KWText type="h1" style={styles.headerText}>
-            Nouvelle activité
-          </KWText>
+          {Object.keys(props).length !== 0 ? (
+            <KWText type="h1" style={styles.headerText}>
+              Modifier l'activité
+            </KWText>
+          ) : (
+            <KWText type="h1" style={styles.headerText}>
+              Nouvelle activité
+            </KWText>
+          )}
         </View>
 
         {/* Intitulé de l'activité */}
