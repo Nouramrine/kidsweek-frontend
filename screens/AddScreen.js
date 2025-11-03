@@ -110,7 +110,7 @@ const AddScreen = ({ navigation, route }) => {
   // create activity
   const handleSave = async () => {
     let memberIds;
-    if (addMembers.length === 0) {
+    if (addMembers && addMembers.length === 0) {
       Alert.alert("Erreur", "Veuillez sélectionner au moins un enfant");
       return;
     }
@@ -176,9 +176,6 @@ const AddScreen = ({ navigation, route }) => {
         setTimeBegin(dateBegin);
       }
 
-      if (props.tasks.length > 0) {
-        setChecklistItems(props.tasks);
-      }
       // Décomposition de dateEnd
       if (props.dateEnd) {
         const dateEnd = new Date(props.dateEnd);
@@ -189,7 +186,7 @@ const AddScreen = ({ navigation, route }) => {
       }
 
       // verification des taches non vide
-      if (props.tasks.length !== 0) {
+      if (props.tasks && props.tasks.length !== 0) {
         setChecklistItems(props.tasks);
       }
       // affectation de la note et de la couleur
@@ -380,7 +377,7 @@ const AddScreen = ({ navigation, route }) => {
     } else {
       setError(false);
     }
-    if (addMembers.length === 0) {
+    if (addMembers && addMembers.length === 0) {
       Alert.alert("Erreur", "Veuillez sélectionner au moins un enfant");
       return false;
     }
@@ -416,7 +413,7 @@ const AddScreen = ({ navigation, route }) => {
   const handleUpdate = async () => {
     let memberIds;
 
-    if (addMembers.length > 0) {
+    if (addMembers && addMembers.length > 0) {
       memberIds = addMembers.map((m) => m._id);
     } else {
       Alert.alert("Erreur", "Veuillez sélectionner au moins un enfant");
@@ -528,7 +525,7 @@ const AddScreen = ({ navigation, route }) => {
     >
       <ScrollView style={styles.container}>
         <View style={styles.header}>
-          {Object.keys(props).length !== 0 ? (
+          {props && Object.keys(props).length !== 0 ? (
             <KWText type="h1" style={styles.headerText}>
               Modification de l'activité
             </KWText>
@@ -722,7 +719,7 @@ const AddScreen = ({ navigation, route }) => {
           </KWText>
 
           <View>
-            {addMembers.length > 0 ? (
+            {addMembers && addMembers.length > 0 ? (
               addMembers.map((memberselect) => (
                 <View key={memberselect._id} style={styles.memberItem}>
                   <KWText type="text" style={styles.memberName}>
@@ -1027,5 +1024,12 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "row",
     justifyContent: "space-between",
+    marginTop: 5,
+    marginBottom: 5,
+  },
+  addChecklistContainer: {
+    flex: 1,
+    // flexDirection: "row",
+    //justifyContent: "space-between",
   },
 });
