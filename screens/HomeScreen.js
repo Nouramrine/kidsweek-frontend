@@ -13,6 +13,12 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchActivitiesAsync } from "../reducers/activities";
+import { fetchMembersAsync } from "../reducers/members";
+import {
+  fetchNotificationsAsync,
+  respondToInvitationAsync,
+} from "../reducers/notifications";
+
 import KWModal from "../components/KWModal";
 import {
   KWCard,
@@ -26,22 +32,26 @@ import KWButton from "../components/KWButton";
 import { colors } from "../theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import KWCollapsible from "../components/KWCollapsible";
-import { fetchMembersAsync } from "../reducers/members";
 
-//petite animation
-
-if (
-  Platform.OS === "android" &&
-  UIManager.setLayoutAnimationEnabledExperimental
-) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
+// petite animation - Commenté pour éviter le warning avec la nouvelle architecture
+// if (
+//   Platform.OS === "android" &&
+//   UIManager.setLayoutAnimationEnabledExperimental
+// ) {
+//   UIManager.setLayoutAnimationEnabledExperimental(true);
+// }
 
 const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();
+
   const activities = useSelector((state) => state.activities.value || []);
   const user = useSelector((state) => state.user.value || {});
   const members = useSelector((state) => state.members.value || []);
+
+  // --- Notifications Redux ---
+  const { invitations, reminders, loading } = useSelector(
+    (state) => state.notifications
+  );
 
   const [selectedChild, setSelectedChild] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -55,28 +65,27 @@ const HomeScreen = ({ navigation }) => {
 
   const toggleModal = () => setIsModalVisible(!isModalVisible);
 
-  // mock data pour notification
-
-  const notifications = [
-    {
-      id: 1,
-      type: "reminder",
-      message: "Rappel: Activité 'Piscine' dans 30 min.",
-    },
-    {
-      id: 2,
-      type: "validation",
-      message: "Nouvelle activité 'Peinture' à valider.",
-    },
-  ];
-
+  // 🔥 Fetch data
   useEffect(() => {
     if (user.token) {
       dispatch(fetchActivitiesAsync(user.token));
       dispatch(fetchMembersAsync());
+      dispatch(fetchNotificationsAsync(user.token)); // récupère les notifs
     }
   }, [user.token]);
 
+  // 🔥 Réponse invitation
+  const handleResponse = (activityId, validate) => {
+    dispatch(
+      respondToInvitationAsync({
+        token: user.token,
+        activityId,
+        validate,
+      })
+    );
+  };
+
+  // --- Tri des activités ---
   const filteredActivities = selectedChild
     ? activities.filter((a) =>
         a.members?.some((m) => m._id === selectedChild._id)
@@ -122,6 +131,20 @@ const HomeScreen = ({ navigation }) => {
         })
       : "";
 
+  // 🔥 Notifications fusionnées
+  const allNotifications = [
+    ...reminders.map((r) => ({
+      id: r._id,
+      type: "reminder",
+      message: `Rappel: ${r.name} à ${formatTime(r.dateBegin)}.`,
+    })),
+    ...invitations.map((i) => ({
+      id: i._id,
+      type: "validation",
+      message: `Nouvelle activité "${i.name}" à valider.`,
+    })),
+  ];
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.screen}>
@@ -138,11 +161,13 @@ const HomeScreen = ({ navigation }) => {
               size={28}
               color={colors.purple[2]}
             />
-            {notifications.length > 0 && (
+            {allNotifications.length > 0 && (
               <View
                 style={[styles.badge, { backgroundColor: colors.orange[1] }]}
               >
-                <KWText style={styles.badgeText}>{notifications.length}</KWText>
+                <KWText style={styles.badgeText}>
+                  {allNotifications.length}
+                </KWText>
               </View>
             )}
           </TouchableOpacity>
@@ -150,7 +175,7 @@ const HomeScreen = ({ navigation }) => {
 
         {/* BODY */}
         <ScrollView contentContainerStyle={styles.scroll}>
-          {/* Sélecteur d’enfant */}
+          {/* Sélecteur d'enfant */}
           <KWCard style={styles.childCard}>
             <KWCardBody style={styles.childSelector}>
               {children.length === 0 ? (
@@ -190,16 +215,7 @@ const HomeScreen = ({ navigation }) => {
               <KWCardTitle>
                 <TouchableOpacity
                   onPress={() => {
-                    LayoutAnimation.configureNext({
-                      duration: 250,
-                      update: {
-                        type: LayoutAnimation.Types.easeInEaseOut,
-                      },
-                      create: {
-                        type: LayoutAnimation.Types.easeInEaseOut,
-                        property: LayoutAnimation.Properties.opacity,
-                      },
-                    });
+                    // Animation alternative sans LayoutAnimation
                     setSelectedChild(null);
                   }}
                   style={{
@@ -247,45 +263,53 @@ const HomeScreen = ({ navigation }) => {
                         {day}
                       </KWText>
 
-                      {activitiesOfDay.map((a) => (
-                        <KWCollapsible
-                          key={a._id}
-                          title={a.name}
-                          subtitle={`${formatTime(a.dateBegin)} → ${formatTime(
-                            a.dateEnd
-                          )}`}
-                          palette={palette}
-                          isExpanded={expandedActivityId === a._id}
-                          onToggle={() => toggleActivity(a._id)}
-                        >
-                          <KWText>📍 {a.place || "Lieu non précisé"}</KWText>
-                          {a.note && <KWText>📝 {a.note}</KWText>}
-                          {a.members?.length > 0 && (
-                            <View>
-                              <KWText type="h3" style={{ marginTop: 8 }}>
-                                👥 Membres :
-                              </KWText>
-                              {a.members.map((m, i) => (
-                                <KWText key={i}>• {m.firstName}</KWText>
-                              ))}
+                      {activitiesOfDay.map((a) => {
+                        // ✅ Utilise la couleur de l'activité au lieu de celle du jour
+                        const activityPalette =
+                          colors[a.color] || colors.purple;
+
+                        return (
+                          <KWCollapsible
+                            key={a._id}
+                            title={a.name}
+                            subtitle={`${formatTime(
+                              a.dateBegin
+                            )} → ${formatTime(a.dateEnd)}`}
+                            palette={activityPalette}
+                            isExpanded={expandedActivityId === a._id}
+                            onToggle={() => toggleActivity(a._id)}
+                          >
+                            <KWText>📍 {a.place || "Lieu non précisé"}</KWText>
+                            {a.note && <KWText>📝 {a.note}</KWText>}
+                            {a.members?.length > 0 && (
+                              <View>
+                                <KWText type="h3" style={{ marginTop: 8 }}>
+                                  👥 Membres :
+                                </KWText>
+                                {a.members.map((m) => (
+                                  <KWText key={m._id}>• {m.firstName}</KWText>
+                                ))}
+                              </View>
+                            )}
+                            <View
+                              style={{ alignItems: "center", marginTop: 10 }}
+                            >
+                              <KWButton
+                                title="Modifier"
+                                icon="edit"
+                                bgColor={activityPalette[1]}
+                                color="white"
+                                style={{ minWidth: 150 }}
+                                onPress={() =>
+                                  navigation.navigate("AddScreen", {
+                                    activityToEdit: a,
+                                  })
+                                }
+                              />
                             </View>
-                          )}
-                          <View style={{ alignItems: "center", marginTop: 10 }}>
-                            <KWButton
-                              title="Modifier"
-                              icon="edit"
-                              bgColor={palette[1]}
-                              color="white"
-                              style={{ minWidth: 150 }}
-                              onPress={() =>
-                                navigation.navigate("AddScreen", {
-                                  activityToEdit: a,
-                                })
-                              }
-                            />
-                          </View>
-                        </KWCollapsible>
-                      ))}
+                          </KWCollapsible>
+                        );
+                      })}
                     </View>
                   );
                 })
@@ -302,11 +326,14 @@ const HomeScreen = ({ navigation }) => {
           >
             Notifications
           </KWText>
-          {notifications.length === 0 ? (
+
+          {loading ? (
+            <KWText>Chargement...</KWText>
+          ) : allNotifications.length === 0 ? (
             <KWText>Aucune notification.</KWText>
           ) : (
             <FlatList
-              data={notifications}
+              data={allNotifications}
               keyExtractor={(item) => item.id.toString()}
               renderItem={({ item }) => (
                 <KWCard
@@ -325,13 +352,13 @@ const HomeScreen = ({ navigation }) => {
                       <KWButton
                         title="Accepter"
                         bgColor={colors.green[1]}
-                        onPress={() => console.log("accept")}
+                        onPress={() => handleResponse(item.id, true)}
                         style={{ minWidth: 100 }}
                       />
                       <KWButton
                         title="Refuser"
                         bgColor={colors.red[1]}
-                        onPress={() => console.log("decline")}
+                        onPress={() => handleResponse(item.id, false)}
                         style={{ minWidth: 100 }}
                       />
                     </View>
