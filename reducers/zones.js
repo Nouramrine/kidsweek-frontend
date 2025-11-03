@@ -111,7 +111,6 @@ export const addMemberToZoneAsync = createAsyncThunk(
 export const removeMemberFromZoneAsync = createAsyncThunk(
   "zones/removeMemberFromZoneAsync",
   async ({ zoneId, memberId }, { getState }) => {
-    console.log(typeof zoneId, typeof memberId)
     const token = getState().user.value.token;
     const response = await fetch(
       `${BACKEND_URL}/zones/${zoneId}/remove-member`,
