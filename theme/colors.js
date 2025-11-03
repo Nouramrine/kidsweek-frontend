@@ -1,6 +1,7 @@
 export const colors = {
     background: ['#FFFFFF', '#ffffff85'],
     text: ['#000000'],
+    input: ['#90CEDD'],
     blue: ['#E3F2FD', '#64B5F6', '#1976D2'],
     green: ['#E8F5E9', '#66BB6A', '#2E7D32'],
     purple: ['#F3E5F5', '#9575CD', '#512DA8'],

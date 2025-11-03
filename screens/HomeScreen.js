@@ -265,8 +265,8 @@ const HomeScreen = ({ navigation }) => {
                               <KWText type="h3" style={{ marginTop: 8 }}>
                                 👥 Membres :
                               </KWText>
-                              {a.members.map((m) => (
-                                <KWText key={m.email}>• {m.firstName}</KWText>
+                              {a.members.map((m, i) => (
+                                <KWText key={i}>• {m.firstName}</KWText>
                               ))}
                             </View>
                           )}
