@@ -14,34 +14,29 @@ const MemberForm = ({ data, onReturn }) => {
 
   const [firstName, setFirstName] = useState(data?.member?.firstName || '');
   const [lastName, setLastName] = useState(data?.member?.lastName || '');
-  const [email, setEmail] = useState(data?.member?.email || '');
   const [color, setColor] = useState(data?.member?.color || 'skin');
   const [isChildren, setIsChildren] = useState(data?.member?.isChildren || false);
+  const [formErrors, setFormErrors] = useState({});
+
+  const formValidation = () => {
+    const newErrors = {};
+    if (firstName.length === 0) newErrors.firstName = "Le prénom est requis";
+    if (lastName.length === 0) newErrors.lastName = "Le nom est requis";
+    //if (!email.includes("@") && !email.includes(".")) newErrors.email = "Invalid email address";
+    setFormErrors(newErrors);
+    return Object.keys(newErrors).length > 0 ? false : true;
+  }
   
-  const handleValidation = async () => {
-    if (!data?.member) {
-        const createMember = dispatch(
-          createMemberAsync({ firstName, lastName, color, isChildren })
-        );
-        if (createMember) {
-          setFirstName('');
-          setLastName('');
-          setEmail('');
-          setIsChildren(false);
-          onReturn();
-        }
-    } else {
-      const updateData = { id: data.member._id, firstName, lastName, color, isChildren };
-      const updateMember = dispatch(updateMemberAsync(updateData));
-      if (updateMember) {
+  const handleSubmit = async () => {
+    if(formValidation()) {
+      const savedMember = !data?.member ? dispatch(createMemberAsync({ firstName, lastName, color, isChildren })) : dispatch(updateMemberAsync({ id: data.member._id, firstName, lastName, color, isChildren }));
+      if(savedMember) {
         setFirstName('');
         setLastName('');
-        setEmail('');
         setIsChildren(false);
         onReturn();
       }
     }
-
   }
 
   return (
@@ -51,17 +46,14 @@ const MemberForm = ({ data, onReturn }) => {
         <KWTextInput
           label="Prénom"
           value={firstName}
+          error={formErrors?.firstName || null}
           onChangeText={setFirstName}
         />
         <KWTextInput
           label="Nom"
           value={lastName}
+          error={formErrors?.lastName || null}
           onChangeText={setLastName}
-        />
-        <KWTextInput
-          label="Email"
-          value={email}
-          onChangeText={setEmail}
         />
         <KWColorPicker 
           title="Couleur" 
@@ -76,7 +68,7 @@ const MemberForm = ({ data, onReturn }) => {
       </ScrollView>
       <View style={styles.buttonsFooter}>
         <KWButton title="Annuler" bgColor={colors.red[1]} styles={styles.button} onPress={onReturn} />
-        <KWButton title={ data?.member ? "Modifier" : "Ajouter" } bgColor={colors.green[1]} styles={styles.button} onPress={handleValidation} />
+        <KWButton title={ data?.member ? "Modifier" : "Ajouter" } bgColor={colors.green[1]} styles={styles.button} onPress={handleSubmit} />
       </View>
     </View>
   );
