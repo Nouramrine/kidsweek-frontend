@@ -140,6 +140,7 @@ export default function App() {
                 name="ActivityDetails"
                 component={ActivityDetailsScreen}
               />
+              <Stack.Screen name="FamillyScreen" component={FamillyScreen} />
             </>
           )}
         </Stack.Navigator>
