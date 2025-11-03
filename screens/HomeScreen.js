@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   View,
   StyleSheet,
@@ -6,9 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
-  LayoutAnimation,
-  Platform,
-  UIManager,
+  Animated,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
@@ -18,6 +16,7 @@ import {
   fetchNotificationsAsync,
   respondToInvitationAsync,
 } from "../reducers/notifications";
+import { saveTutorialStepAsync } from "../reducers/user";
 
 import KWModal from "../components/KWModal";
 import {
@@ -33,13 +32,17 @@ import { colors } from "../theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import KWCollapsible from "../components/KWCollapsible";
 
-// petite animation - Commenté pour éviter le warning avec la nouvelle architecture
-// if (
-//   Platform.OS === "android" &&
-//   UIManager.setLayoutAnimationEnabledExperimental
-// ) {
-//   UIManager.setLayoutAnimationEnabledExperimental(true);
-// }
+// Fonction utilitaire pour déterminer la couleur du texte adaptée
+const getContrastColor = (hexColor) => {
+  if (!hexColor) return "white";
+  const c = hexColor.substring(1);
+  const rgb = parseInt(c, 16);
+  const r = (rgb >> 16) & 0xff;
+  const g = (rgb >> 8) & 0xff;
+  const b = rgb & 0xff;
+  const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+  return luminance > 180 ? "black" : "white";
+};
 
 const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -47,8 +50,6 @@ const HomeScreen = ({ navigation }) => {
   const activities = useSelector((state) => state.activities.value || []);
   const user = useSelector((state) => state.user.value || {});
   const members = useSelector((state) => state.members.value || []);
-
-  // --- Notifications Redux ---
   const { invitations, reminders, loading } = useSelector(
     (state) => state.notifications
   );
@@ -57,6 +58,11 @@ const HomeScreen = ({ navigation }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [expandedActivityId, setExpandedActivityId] = useState(null);
 
+  // 🔹 State local pour notifications affichées
+  const [modalNotifications, setModalNotifications] = useState([]);
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+
+  const tutorialStep = user.tutorialStep || 0;
   const children = members.filter((m) => m.isChildren);
 
   const toggleActivity = (id) => {
@@ -65,32 +71,75 @@ const HomeScreen = ({ navigation }) => {
 
   const toggleModal = () => setIsModalVisible(!isModalVisible);
 
-  // 🔥 Fetch data
+  // 🔹 Fetch data
   useEffect(() => {
     if (user.token) {
       dispatch(fetchActivitiesAsync(user.token));
       dispatch(fetchMembersAsync());
-      dispatch(fetchNotificationsAsync(user.token)); // récupère les notifs
+      dispatch(fetchNotificationsAsync(user.token));
     }
   }, [user.token]);
 
-  // 🔥 Réponse invitation
-  const handleResponse = (activityId, validate) => {
-    dispatch(
-      respondToInvitationAsync({
-        token: user.token,
-        activityId,
-        validate,
-      })
-    );
+  // 🔹 Préparer les notifications locales
+  useEffect(() => {
+    const allNotifs = [
+      ...reminders.map((r) => ({
+        id: r._id,
+        type: "reminder",
+        message: `Rappel: ${r.name} à ${formatTime(r.dateBegin)}.`,
+      })),
+      ...invitations.map((i) => ({
+        id: i._id,
+        type: "validation",
+        message: `Nouvelle activité "${i.name}" à valider.`,
+        activityId: i._id,
+      })),
+    ];
+    setModalNotifications(allNotifs);
+  }, [reminders, invitations]);
+
+  // 🔹 Réponse invitation avec fade-out
+  const handleResponse = async (activityId, validate) => {
+    try {
+      await dispatch(
+        respondToInvitationAsync({
+          token: user.token,
+          activityID: activityId,
+          validate,
+        })
+      ).unwrap();
+
+      // Animation fade-out
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => {
+        setModalNotifications((prev) =>
+          prev.filter((n) => n.id !== activityId)
+        );
+        fadeAnim.setValue(1);
+
+        if (modalNotifications.length <= 1) {
+          setIsModalVisible(false);
+        }
+      });
+    } catch (err) {
+      console.error("Erreur réponse invitation:", err);
+    }
   };
 
-  // --- Tri des activités ---
+  // 🔹 Tri des activités
+  const now = new Date();
+  const upcomingActivities = activities.filter(
+    (a) => new Date(a.dateBegin) >= now
+  );
+
   const filteredActivities = selectedChild
-    ? activities.filter((a) =>
+    ? upcomingActivities.filter((a) =>
         a.members?.some((m) => m._id === selectedChild._id)
       )
-    : activities;
+    : upcomingActivities;
 
   const groupedActivities = filteredActivities.reduce((acc, activity) => {
     const date = new Date(activity.dateBegin);
@@ -131,19 +180,14 @@ const HomeScreen = ({ navigation }) => {
         })
       : "";
 
-  // 🔥 Notifications fusionnées
-  const allNotifications = [
-    ...reminders.map((r) => ({
-      id: r._id,
-      type: "reminder",
-      message: `Rappel: ${r.name} à ${formatTime(r.dateBegin)}.`,
-    })),
-    ...invitations.map((i) => ({
-      id: i._id,
-      type: "validation",
-      message: `Nouvelle activité "${i.name}" à valider.`,
-    })),
-  ];
+  // 🔹 Activités passées
+  const pastActivities = activities
+    .filter((a) => new Date(a.dateEnd || a.dateBegin) < now)
+    .filter((a) =>
+      selectedChild ? a.members?.some((m) => m._id === selectedChild._id) : true
+    )
+    .sort((a, b) => new Date(b.dateBegin) - new Date(a.dateBegin))
+    .slice(0, 3);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -161,12 +205,12 @@ const HomeScreen = ({ navigation }) => {
               size={28}
               color={colors.purple[2]}
             />
-            {allNotifications.length > 0 && (
+            {modalNotifications.length > 0 && (
               <View
                 style={[styles.badge, { backgroundColor: colors.orange[1] }]}
               >
                 <KWText style={styles.badgeText}>
-                  {allNotifications.length}
+                  {modalNotifications.length}
                 </KWText>
               </View>
             )}
@@ -202,7 +246,7 @@ const HomeScreen = ({ navigation }) => {
             </KWCardBody>
           </KWCard>
 
-          {/* Planning */}
+          {/* Planning à venir */}
           <KWCard style={styles.planningCard}>
             <KWCardHeader>
               <KWCardIcon>
@@ -214,10 +258,7 @@ const HomeScreen = ({ navigation }) => {
               </KWCardIcon>
               <KWCardTitle>
                 <TouchableOpacity
-                  onPress={() => {
-                    // Animation alternative sans LayoutAnimation
-                    setSelectedChild(null);
-                  }}
+                  onPress={() => setSelectedChild(null)}
                   style={{
                     flexDirection: "row",
                     alignItems: "center",
@@ -264,7 +305,6 @@ const HomeScreen = ({ navigation }) => {
                       </KWText>
 
                       {activitiesOfDay.map((a) => {
-                        // ✅ Utilise la couleur de l'activité au lieu de celle du jour
                         const activityPalette =
                           colors[a.color] || colors.purple;
 
@@ -298,7 +338,7 @@ const HomeScreen = ({ navigation }) => {
                                 title="Modifier"
                                 icon="edit"
                                 bgColor={activityPalette[1]}
-                                color="white"
+                                color={getContrastColor(activityPalette[1])}
                                 style={{ minWidth: 150 }}
                                 onPress={() =>
                                   navigation.navigate("AddScreen", {
@@ -316,6 +356,59 @@ const HomeScreen = ({ navigation }) => {
               )}
             </KWCardBody>
           </KWCard>
+
+          {/* Activités passées */}
+          <KWCard style={styles.planningCard}>
+            <KWCardHeader>
+              <KWCardIcon>
+                <Ionicons
+                  name="time-outline"
+                  size={30}
+                  color={colors.purple[2]}
+                />
+              </KWCardIcon>
+              <KWCardTitle>
+                <KWText type="h2" style={{ color: colors.purple[2] }}>
+                  Activités passées
+                </KWText>
+              </KWCardTitle>
+            </KWCardHeader>
+
+            <KWCardBody>
+              {pastActivities.length === 0 ? (
+                <KWText>Aucune activité récente.</KWText>
+              ) : (
+                pastActivities.map((a) => {
+                  const palette = colors[a.color] || colors.gray;
+                  return (
+                    <View
+                      key={a._id}
+                      style={{
+                        marginBottom: 10,
+                        backgroundColor: palette[0],
+                        borderRadius: 10,
+                        padding: 10,
+                      }}
+                    >
+                      <KWText
+                        type="h3"
+                        style={{ color: palette[2], fontWeight: "bold" }}
+                      >
+                        {a.name}
+                      </KWText>
+                      <KWText>{`📅 ${new Date(a.dateBegin).toLocaleDateString(
+                        "fr-FR"
+                      )}`}</KWText>
+                      <KWText>{`🕒 ${formatTime(a.dateBegin)} → ${formatTime(
+                        a.dateEnd
+                      )}`}</KWText>
+                      {a.place && <KWText>📍 {a.place}</KWText>}
+                    </View>
+                  );
+                })
+              )}
+            </KWCardBody>
+          </KWCard>
         </ScrollView>
 
         {/* MODAL Notifications */}
@@ -326,48 +419,76 @@ const HomeScreen = ({ navigation }) => {
           >
             Notifications
           </KWText>
-
           {loading ? (
             <KWText>Chargement...</KWText>
-          ) : allNotifications.length === 0 ? (
+          ) : modalNotifications.length === 0 ? (
             <KWText>Aucune notification.</KWText>
           ) : (
             <FlatList
-              data={allNotifications}
+              data={modalNotifications}
               keyExtractor={(item) => item.id.toString()}
               renderItem={({ item }) => (
-                <KWCard
-                  style={{
-                    width: "100%",
-                    marginBottom: 10,
-                    backgroundColor:
-                      item.type === "reminder"
-                        ? colors.purple[0]
-                        : colors.pink[0],
-                  }}
-                >
-                  <KWText>{item.message}</KWText>
-                  {item.type === "validation" && (
-                    <View style={styles.actionButtons}>
-                      <KWButton
-                        title="Accepter"
-                        bgColor={colors.green[1]}
-                        onPress={() => handleResponse(item.id, true)}
-                        style={{ minWidth: 100 }}
-                      />
-                      <KWButton
-                        title="Refuser"
-                        bgColor={colors.red[1]}
-                        onPress={() => handleResponse(item.id, false)}
-                        style={{ minWidth: 100 }}
-                      />
-                    </View>
-                  )}
-                </KWCard>
+                <Animated.View style={{ opacity: fadeAnim }}>
+                  <KWCard
+                    style={{
+                      width: "100%",
+                      marginBottom: 10,
+                      backgroundColor:
+                        item.type === "reminder"
+                          ? colors.purple[0]
+                          : colors.pink[0],
+                    }}
+                  >
+                    <KWText>{item.message}</KWText>
+                    {item.type === "validation" && (
+                      <View style={styles.actionButtons}>
+                        <KWButton
+                          title="Accepter"
+                          bgColor={colors.green[1]}
+                          onPress={() => handleResponse(item.activityId, true)}
+                          style={{ minWidth: 100 }}
+                        />
+                        <KWButton
+                          title="Refuser"
+                          bgColor={colors.red[1]}
+                          onPress={() => handleResponse(item.activityId, false)}
+                          style={{ minWidth: 100 }}
+                        />
+                      </View>
+                    )}
+                  </KWCard>
+                </Animated.View>
               )}
             />
           )}
         </KWModal>
+
+        {/* MODAL Tutoriel */}
+        {tutorialStep === 0 && (
+          <KWModal visible={true}>
+            <KWText
+              type="h2"
+              style={{
+                marginBottom: 15,
+                fontWeight: "bold",
+                color: colors.purple[2],
+              }}
+            >
+              Bienvenue sur KidsWeek ! 👋
+            </KWText>
+            <KWText style={{ marginBottom: 20, lineHeight: 22 }}>
+              Pour commencer, nous allons créer votre foyer familial ensemble.
+            </KWText>
+            <KWButton
+              title="Créer mon foyer"
+              bgColor={colors.purple[1]}
+              onPress={() => {
+                dispatch(saveTutorialStepAsync({ email: user.email, step: 1 }));
+                navigation.navigate("Famille");
+              }}
+            />
+          </KWModal>
+        )}
       </View>
     </SafeAreaView>
   );

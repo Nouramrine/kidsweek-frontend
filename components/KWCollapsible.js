@@ -16,6 +16,7 @@ const KWCollapsible = ({
   palette,
   isExpanded,
   onToggle,
+  rightHeader,
 }) => {
   // Animation hauteur et opacité du contenu
   const animatedHeight = useRef(new Animated.Value(0)).current;
@@ -119,6 +120,8 @@ const KWCollapsible = ({
               </KWText>
             )}
           </View>
+          {/*ajout des % tasks*/}
+          {rightHeader && <View style={styles.rightHeader}>{rightHeader}</View>}
           <Animated.View style={{ transform: [{ rotate: rotateInterpolate }] }}>
             <Ionicons name="chevron-down" size={22} color={palette[2]} />
           </Animated.View>
@@ -174,6 +177,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 10,
     marginBottom: 10,
+  },
+  rightHeader: {
+    marginLeft: 10,
   },
 });
 
