@@ -22,6 +22,7 @@ const styles = StyleSheet.create({
   colorContainer: {
     flexDirection: 'row',
     width: '100%',
+    justifyContent: 'center',
     alignItems: 'center',
     height: 35,
     flexWrap: 'wrap'

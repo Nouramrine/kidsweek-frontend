@@ -38,12 +38,12 @@ const MemberAdd = ({ currentMembers, onReturn }) => {
       )}
       {filteredMembers.map((member, j) => {
         return (
-          <KWCard key={j} color={colors.skin[0]} style={styles.memberCard}>
+          <KWCard key={j} color={colors[member.color][0]} style={styles.memberCard}>
             <KWCardHeader>
               <KWCardIcon>
                 <View
                   style={{
-                    backgroundColor: "#d4d4d4ff",
+                    backgroundColor: "#dddddd",
                     padding: 10,
                     borderRadius: 10,
                   }}
@@ -59,6 +59,7 @@ const MemberAdd = ({ currentMembers, onReturn }) => {
                 <KWButton
                   style={styles.addButton}
                   title="Ajouter"
+                  bgColor={colors.green[1]}
                   onPress={() => handleValidation(member)}
                 />
               </KWCardButton>

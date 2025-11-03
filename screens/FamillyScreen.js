@@ -10,7 +10,7 @@ import KWDropDown from "../components/KWDropDown";
 import ZoneForm from "../components/zone/Form";
 import MemberForm from "../components/member/Form";
 import MemberAdd from "../components/member/Add";
-import ProfileScreen from "../screens/ProfileScreen";
+import Invite from "../components/member/Invite";
 
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useSelector, useDispatch } from "react-redux";
@@ -36,6 +36,9 @@ const FamillyScreen = ({ navigation }) => {
 
   // Pour affichage modal d'ajout de membre a la zone
   const [addMemberToZoneModal, setAddMemberToZoneModal] = useState(false);
+
+  // Pour affichage modal d'invitation
+  const [invitationModal, setInvitationModal] = useState(false);
 
   const [openDropdownId, setOpenDropdownId] = useState(null); // id du membre sur lequel le dropdown est ouvert (dropdown unique)
   
@@ -72,24 +75,19 @@ const FamillyScreen = ({ navigation }) => {
             }} />
         </KWModal>
 
+        {/* Modal invitation */}
+        <KWModal visible={invitationModal}>
+          <Invite 
+            data={selectedMember}
+            onReturn={() => {
+              setSelectedMember(null);
+              setInvitationModal(false);
+            }} />
+        </KWModal>
+
         {/* Boutons d'ajout */}
         <View style={styles.container}>
           <View style={styles.topButtonsContainer}>
-            <TouchableOpacity 
-              style={styles.topButton} 
-              onPress={() => { 
-                setSelectedMember(null);
-                setMemberModal(true);
-              }}>
-              <KWCard color={colors.green[0]}>
-                <View style={{ flexDirection: 'row' }}>
-                  <FontAwesome5 name="plus" size={24} color={colors.green[2]} />
-                  <FontAwesome5 name="user" size={40} color={colors.green[2]} />
-                </View>
-                <KWText style={styles.buttonTitle} color={colors.green[2]}>Ajouter</KWText>
-                <KWText style={styles.buttonSubTitle} color={colors.green[2]}>membre</KWText>
-              </KWCard>
-            </TouchableOpacity>
             <TouchableOpacity 
               style={styles.topButton} 
               onPress={() => { 
@@ -103,6 +101,21 @@ const FamillyScreen = ({ navigation }) => {
                 </View>
                 <KWText style={styles.buttonTitle} color={colors.yellow[2]}>Ajouter</KWText>
                 <KWText style={styles.buttonSubTitle} color={colors.yellow[2]}>zone</KWText>
+              </KWCard>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.topButton} 
+              onPress={() => { 
+                setSelectedMember(null);
+                setMemberModal(true);
+              }}>
+              <KWCard color={colors.green[0]}>
+                <View style={{ flexDirection: 'row' }}>
+                  <FontAwesome5 name="plus" size={24} color={colors.green[2]} />
+                  <FontAwesome5 name="user" size={40} color={colors.green[2]} />
+                </View>
+                <KWText style={styles.buttonTitle} color={colors.green[2]}>Ajouter</KWText>
+                <KWText style={styles.buttonSubTitle} color={colors.green[2]}>membre</KWText>
               </KWCard>
             </TouchableOpacity>
           </View>
@@ -165,7 +178,7 @@ const FamillyScreen = ({ navigation }) => {
                           </KWCardTitle>
                           <KWCardButton>
                             <View style={{ backgroundColor: colors.background[1], justifyContent: 'center', alignItems: 'center', paddingVertical: 5, paddingHorizontal: 10, borderRadius: 100 }}>
-                              {member.isChildren ? <KWText color={colors.blue[1]}>Enfant</KWText> : <KWText color={colors.red[1]}>Parent</KWText>}
+                              {member.isChildren ? <KWText color={colors.blue[1]}>Enfant</KWText> : <KWText color={colors.red[1]}>{member.authLevel === 'admin' ? 'Propriétaire' : 'Parent'}</KWText>}
                             </View>
                             {member.isChildren && <TouchableOpacity style={styles.iconBtn} onPress={() => dispatch(removeMemberFromZoneAsync({ zoneId: zone._id, memberId: member._id }))}><FontAwesome5 name="minus" size={13} color="white" /></TouchableOpacity>}
                           </KWCardButton>
@@ -203,6 +216,12 @@ const FamillyScreen = ({ navigation }) => {
             <KWText type='h2'>Tous les membres</KWText>
             {!members.length && <KWText style={styles.emptyText}>Aucun membre</KWText>}
             {members.map((member, j) => {
+                const options = [];
+                if (member.type === 'local') options.push({action: 'invitation', label: 'Inviter', icon: 'paper-plane'});
+                options.push(
+                  {action: 'edit', label: 'Modifier', icon: 'pen'},
+                  {action: 'delete', label: 'Supprimer', color: colors.error[0], icon: 'trash'},
+                );
                 return (
                 /*<TouchableOpacity onPress={() => {
                   setSelectedMember({ member }); 
@@ -223,13 +242,14 @@ const FamillyScreen = ({ navigation }) => {
                         <KWDropDown
                           id={member._id}
                           icon="ellipsis-v"
-                          options={[
-                            {action: 'edit', label: 'Modifier', icon: 'pen'},
-                            {action: 'delete', label: 'Supprimer', color: colors.error[0], icon: 'trash'},
-                          ]}
+                          options={options}
                           openId={openDropdownId}
                           setOpenId={setOpenDropdownId}
                           onSelect={(action) => {
+                            if(action === 'invitation'){
+                              setSelectedMember({ member });
+                              setInvitationModal(true);
+                            }
                             if(action === 'edit'){
                               setSelectedMember({ member });
                               setMemberModal(true);
