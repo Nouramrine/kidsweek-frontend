@@ -6,12 +6,12 @@ import KWText from "./KWText";
 const KWDateTimePicker = ({
   label,
   date,
-  time, // Optionnel maintenant
+  time,
   color,
   onDateChange,
-  onTimeChange, // Optionnel maintenant
+  onTimeChange,
   dateError,
-  showTime = true, // Nouvelle prop pour contrôler l'affichage de l'heure
+  showTime = true,
 }) => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
