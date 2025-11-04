@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "../theme/colors";
+import { KWCard } from "../components/KWCard";
 import KWText from "../components/KWText";
 import KWCollapsible from "../components/KWCollapsible";
 import KWButton from "../components/KWButton";
@@ -29,7 +30,7 @@ export default function CalendarScreen() {
   };
   const dispatch = useDispatch();
 
-  // Code couleur par jour
+  //code couleur par jour
   const dayColors = {
     lundi: colors.blue,
     mardi: colors.green,
@@ -40,37 +41,31 @@ export default function CalendarScreen() {
     dimanche: colors.skin,
   };
 
-  // 🔹 Marquer les dates avec des activités (passées = gris, à venir = violet)
+  // Marquer les dates avec des activités
   useEffect(() => {
     const marks = {};
-    const today = new Date().toISOString().split("T")[0];
-
     activities.forEach((activity) => {
       const date = activity.dateBegin ? activity.dateBegin.split("T")[0] : null;
       if (date) {
-        const isPast = date < today;
-        marks[date] = {
-          marked: true,
-          dotColor: isPast ? "gray" : activity.color,
-        };
+        marks[date] = { marked: true, dotColor: colors.purple[2] };
       }
     });
     setMarkedDates(marks);
   }, [activities, selectedDate]);
 
-  // 🔹 Gérer la sélection d'une date
+  // Gérer la sélection d'une date
   const handleDayPress = (day) => {
     setSelectedDate(day.dateString);
-    setExpandedActivityId(null);
+    setExpandedActivityId(null); // Fermer toutes les activités lors du changement de date
 
-    // Afficher toutes les activités de la date choisie (passées ou à venir)
+    // Filtrer les activités de cette date
     const filtred = activities.filter(
       (a) => a.dateBegin && a.dateBegin.split("T")[0] === day.dateString
     );
     setActivitiesOfDay(filtred);
   };
 
-  // 🔹 Formatage date & heure
+  //mettre la date sous la forme DD/MM/YYYY
   const formatDateFR = (isoDate) => {
     if (!isoDate) return "";
     const [year, month, day] = isoDate.split("-");
@@ -85,7 +80,7 @@ export default function CalendarScreen() {
         })
       : "";
 
-  // 🔹 Couleur dominante du jour sélectionné
+  // Couleur dominante du jour sélectionné
   const getDayPalette = (dateStr) => {
     if (!dateStr) return colors.blue;
     const dayIndex = new Date(dateStr).getDay();
@@ -135,7 +130,6 @@ export default function CalendarScreen() {
     return Math.round((completedTasks / tasks.length) * 100);
   };
   return (
-  <SafeAreaView>
     <View style={styles.container}>
       <Calendar
         markedDates={{
@@ -166,82 +160,137 @@ export default function CalendarScreen() {
               Activités du {formatDateFR(selectedDate)}
             </KWText>
 
-              {activitiesOfDay.length > 0 ? (
-                <FlatList
-                  data={activitiesOfDay.sort(
-                    (a, b) => new Date(a.dateBegin) - new Date(b.dateBegin)
-                  )}
-                  keyExtractor={(item) => item._id}
-                  renderItem={({ item }) => {
-                    const activityPalette = colors[item.color] || colors.purple;
-                    const isPast =
-                      new Date(item.dateEnd) < new Date() ? true : false;
-
-                    return (
-                      <KWCollapsible
-                        title={
-                          isPast ? `🕓 ${item.name} (terminée)` : item.name
-                        }
-                        subtitle={`${formatTime(item.dateBegin)} → ${formatTime(
-                          item.dateEnd
-                        )}`}
-                        palette={activityPalette}
-                        isExpanded={expandedActivityId === item._id}
-                        onToggle={() => toggleActivity(item._id)}
-                      >
-                        <KWText>📍 {item.place || "Lieu non précisé"}</KWText>
-                        {item.note && <KWText>📝 {item.note}</KWText>}
-                        {item.members?.length > 0 && (
-                          <View style={{ marginTop: 8 }}>
-                            <KWText type="h3">👥 Membres :</KWText>
-                            {item.members.map((m) => (
-                              <KWText key={m._id}>• {m.firstName}</KWText>
-                            ))}
+            {activitiesOfDay.length > 0 ? (
+              <FlatList
+                data={activitiesOfDay}
+                keyExtractor={(item) => item._id}
+                extraData={activitiesOfDay}
+                renderItem={({ item }) => {
+                  // ✅ Utilise la couleur de l'activité au lieu de celle du jour
+                  const activityPalette = colors[item.color] || colors.purple;
+                  // Calcul du pourcentage de tâches complétées
+                  const completionPercentage =
+                    calculateTaskCompletionPercentage(item.tasks);
+                  return (
+                    <KWCollapsible
+                      title={item.name}
+                      subtitle={`${formatTime(item.dateBegin)} → ${formatTime(
+                        item.dateEnd
+                      )}`}
+                      palette={activityPalette}
+                      isExpanded={expandedActivityId === item._id}
+                      onToggle={() => toggleActivity(item._id)}
+                      rightHeader={
+                        item.tasks && item.tasks.length > 0 ? (
+                          <View style={styles.percentageContainer}>
+                            <KWText style={styles.percentageText}>
+                              Tache(s): {completionPercentage}%
+                            </KWText>
                           </View>
-                        )}
-                        <View style={{ alignItems: "center", marginTop: 10 }}>
-                          <KWButton
-                            title="Modifier"
-                            icon="edit"
-                            bgColor={activityPalette[1]}
-                            color="white"
-                            style={{ minWidth: 150 }}
-                            onPress={() =>
-                              navigation.navigate("AddScreen", {
-                                activityToEdit: item,
-                              })
-                            }
-                          />
+                        ) : null
+                      }
+                    >
+                      <KWText>📍 {item.place || "Lieu non précisé"}</KWText>
+                      {item.note && <KWText>📝 {item.note}</KWText>}
+                      {item.members?.length > 0 && (
+                        <View style={{ marginTop: 8 }}>
+                          <KWText type="h3">👥 Membres :</KWText>
+                          {item.members.map((m) => (
+                            <KWText key={m._id}>• {m.firstName}</KWText>
+                          ))}
+                          {/* affichages des tasks */}
+                          <View style={styles.checklistContainer}>
+                            <View style={styles.cheklistHeader}>
+                              <FontAwesome5
+                                name="check-square"
+                                size={18}
+                                color={colors.green[2]}
+                              />
+                              <KWText style={styles.checklistTextHeader}>
+                                A faire :
+                              </KWText>
+                            </View>
+                            {item &&
+                              item.tasks.length > 0 &&
+                              item.tasks.map((c, i) => (
+                                <View key={i} style={styles.checklistItem}>
+                                  {/*<KWText
+                                      type="text"
+                                      style={styles.checklistItemText}
+                                    >
+                                      {c.text}
+                                    </KWText>*/}
+                                  <BouncyCheckbox
+                                    size={20}
+                                    fillColor={colors.green[2]}
+                                    unFillColor="#FFFFFF"
+                                    text={c.text}
+                                    iconStyle={{ borderColor: "red" }}
+                                    innerIconStyle={{ borderWidth: 2 }}
+                                    textStyle={{
+                                      fontFamily: "JosefinSans_400Regular",
+                                    }}
+                                    isChecked={c.isOk} // État initial
+                                    onPress={(isChecked) =>
+                                      handleTaskToggle(
+                                        item._id,
+                                        c._id,
+                                        isChecked
+                                      )
+                                    }
+                                  />
+                                  {/* checkbox
+                                    <KWButton
+                                      onPress={() =>
+                                        removeChecklistItem(item._id)
+                                      }
+                                    >
+                                       
+                                    </KWButton>*/}
+                                </View>
+                              ))}
+                          </View>
                         </View>
-                      </KWCollapsible>
-                    );
-                  }}
-                />
-              ) : (
-                <KWText style={styles.noActivity}>
-                  Aucune activité ce jour-là.
-                </KWText>
-              )}
-            </>
-          ) : (
-            <KWText style={styles.noActivity}>
-              Sélectionnez une date pour voir les activités.
-            </KWText>
-          )}
-        </View>
+                      )}
+                      <View style={{ alignItems: "center", marginTop: 10 }}>
+                        <KWButton
+                          title="Modifier"
+                          icon="edit"
+                          bgColor={activityPalette[1]}
+                          color="white"
+                          style={{ minWidth: 150 }}
+                          onPress={() =>
+                            navigation.navigate("AddScreen", {
+                              activityToEdit: item,
+                            })
+                          }
+                        />
+                      </View>
+                    </KWCollapsible>
+                  );
+                }}
+              />
+            ) : (
+              <KWText style={styles.noActivity}>
+                Aucune activité ce jour-là.
+              </KWText>
+            )}
+          </>
+        ) : (
+          <KWText style={styles.noActivity}>
+            Sélectionnez une date pour voir les activités.
+          </KWText>
+        )}
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "white",
-  },
   container: {
     flex: 1,
     backgroundColor: "#fff",
+    marginTop: 20,
   },
   listContainer: {
     flex: 1,
@@ -251,5 +300,23 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#94A3B8",
     marginTop: 20,
+  },
+  checklistContainer: {
+    marginTop: 5,
+    marginBottom: 5,
+  },
+  cheklistHeader: {
+    flex: 1,
+    flexDirection: "row",
+  },
+  checklistTextHeader: {
+    marginLeft: 8,
+  },
+  checklistItem: {
+    borderWidth: 1,
+    borderRadius: 10,
+    borderColor: colors.blue[1],
+    marginBottom: 4,
+    paddingLeft: 5,
   },
 });
