@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Image,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
+import { View, Image, TouchableOpacity, StyleSheet } from "react-native";
+import * as Linking from 'expo-linking';
 import SignIn from "./_partials/SignIn";
 import SignUp from "./_partials/SignUp";
 import KWText from "../components/KWText";
@@ -16,6 +12,35 @@ const AuthScreen = () => {
   const [inviteToken, setInviteToken] = useState(null);
   const [qrModal, setQrModal] = useState(false);
 
+  useEffect(() => {
+    // Vérifier si l'app a été ouverte avec un lien
+    const getInitialURL = async () => {
+      const initialUrl = await Linking.getInitialURL();
+      if (initialUrl) {
+        handleDeepLink({ url: initialUrl });
+      }
+    };
+
+    getInitialURL();
+
+    // Écouter les liens pendant que l'app est ouverte
+    const subscription = Linking.addEventListener('url', handleDeepLink);
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
+  const handleDeepLink = ({ url }) => {
+    const { path, queryParams } = Linking.parse(url);
+    
+    if (path === 'invite' && queryParams?.token) {
+      console.log('Token reçu:', queryParams.token);
+      setInviteToken(queryParams.token);
+      setIsSignIn(false);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Image
@@ -24,7 +49,6 @@ const AuthScreen = () => {
         resizeMode="contain"
       />
 
-      {/*<KWText type='h1'>{isSignIn ? 'Connexion' : 'Inscription'}</KWText>*/}
       <KWModal visible={qrModal}>
         <ScanModal onReturn={(token) => {
           if (token) {
@@ -36,7 +60,7 @@ const AuthScreen = () => {
       </KWModal>
 
       <View style={styles.formContainer}>
-        {isSignIn ? <SignIn /> : <SignUp />}
+        {!isSignIn ? <SignUp inviteToken={inviteToken} /> : <SignIn />}
       </View>
 
       <TouchableOpacity
@@ -58,8 +82,6 @@ const AuthScreen = () => {
         <KWText type="link">Scanner un QR code d'invitation</KWText>
       </TouchableOpacity>
       }
-
-      {/* </KeyboardAvoidingView> */}
     </View>
   );
 };

@@ -6,7 +6,7 @@ import KWTextInput from "../../components/KWTextInput";
 import KWText from "../../components/KWText";
 import { signUpAsync } from "../../reducers/user";
 
-const SignUp = () => {
+const SignUp = ({ inviteToken }) => {
   const dispatch = useDispatch();
   const [signUpFirstName, setSignUpFirstName] = useState('');
   const [signUpLastName, setSignUpLastName] = useState('');
@@ -33,6 +33,7 @@ const SignUp = () => {
         lastName: signUpLastName,
         email: signUpEmail,
         password: signUpPassword,
+        inviteToken
       })
     ).unwrap();
 
@@ -48,10 +49,7 @@ const SignUp = () => {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={{ width: '80%', alignItems: 'center' }}
-    >
+    <View>
       <View style={{ marginBottom: 20 }}>
         <KWButton 
           title="User1" 
@@ -121,7 +119,7 @@ const SignUp = () => {
       <KWText type="inputError">{signUpError}</KWText>
       <KWButton title="S'inscrire" onPress={handleSignUp} />
 
-    </KeyboardAvoidingView>
+    </View>
   );
 };
 

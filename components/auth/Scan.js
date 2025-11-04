@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { View, Text, StyleSheet, Dimensions } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
-import { useSelector } from "react-redux";
+import * as Linking from 'expo-linking';
 import KWButton from "../KWButton";
 import { colors } from "../../theme/colors";
 
@@ -40,15 +40,31 @@ const ScanModal = ({ onReturn }) => {
     setScanned(true);
 
     try {
-        const url = new URL(data);
-        const token = url.searchParams.get("token");
-        if (!token) throw new Error("Token introuvable dans le QR");
-        const response = await fetch(`${BACKEND_URL}/invites/${token}`);
-        const data = await response.json();
-        console.log(data)
-        if (!data.result) throw new Error("Token invalide");
+      let token = null;
 
-        onReturn(token);
+      // Essayer de parser comme URL complète (deep link ou URL web)
+      try {
+        const url = new URL(data);
+        token = url.searchParams.get("token");
+      } catch (urlError) {
+        // Si ce n'est pas une URL valide, essayer de parser avec expo-linking
+        const parsed = Linking.parse(data);
+        token = parsed.queryParams?.token;
+      }
+
+      if (!token) {
+        throw new Error("Token introuvable dans le QR code");
+      }
+
+      // Vérifier le token côté backend
+      const response = await fetch(`${BACKEND_URL}/invites/${token}`);
+      const responseData = await response.json();
+      
+      if (!responseData.result) {
+        throw new Error("Token invalide");
+      }
+
+      onReturn(token);
     } catch (e) {
       console.warn("Erreur QR code :", e.message);
       setScanned(false);
@@ -89,7 +105,7 @@ const styles = StyleSheet.create({
     width: "100%",
     paddingVertical: 40,
     paddingHorizontal: 20,
-    minHeight: 500, // Hauteur minimale pour le modal
+    minHeight: 500,
   },
   title: {
     fontSize: 18,

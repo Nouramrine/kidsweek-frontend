@@ -1,20 +1,21 @@
 import { View, StyleSheet, ScrollView } from "react-native";
-import { useState, useEffect } from 'react';
-import { colors, userColorSelection } from "../../theme/colors";
+import { useState } from 'react';
+import { colors } from "../../theme/colors";
 import * as Sharing from "expo-sharing";
+import * as Linking from 'expo-linking';
 import QRCode from 'react-native-qrcode-svg';
 import KWText from "../KWText";
 import KWTextInput from "../KWTextInput";
 import KWButton from "../KWButton";
 import { useDispatch } from "react-redux";
-import { createInviteAsync } from "../../reducers/invites";
+import { createInviteAsync, sendInviteAsync } from "../../reducers/invites";
 
-const ZoneForm = ({ data, onReturn }) => {
+const InviteForm = ({ data, onReturn }) => {
   const dispatch = useDispatch();
 
   const [emailInput, setEmailInput] = useState('jeremy.guerlin@gmail.com');
   const [formErrors, setFormErrors] = useState({});
-  const [inviteToken, setInviteToken] = useState(null);
+  const [inviteUrl, setInviteUrl] = useState(null);
 
   const formValidation = () => {
     const newErrors = {};
@@ -26,14 +27,21 @@ const ZoneForm = ({ data, onReturn }) => {
 
   const handleSubmit = async () => {
     if(formValidation()) {
-        const emailData = { invitedId: data?.member._id, emailAddress: emailInput };
-        const sendMail = await dispatch(createInviteAsync(emailData)).unwrap()
+      try {
+        const invite = await dispatch(createInviteAsync({ invitedId: data?.member._id, emailAddress: emailInput })).unwrap()
+        const url = Linking.createURL('invite', {
+          queryParams: { token: invite.token }
+        });
+        setInviteUrl(url)
+        const sendMail = await dispatch(sendInviteAsync({ invite, url })).unwrap()
         if(sendMail) {
-          setInviteToken(sendMail.token)
           //onReturn();
         } else {
           setFormErrors({ emailInput: `Echec d'envoi du mail d'invitation` });
-        } 
+        }
+      } catch (err) {
+        console.warn("Invite validation : ", err)
+      }
     }
   }
 
@@ -41,7 +49,7 @@ const ZoneForm = ({ data, onReturn }) => {
     await Sharing.shareAsync(token);
   }
 
-  if(!inviteToken) {
+  if(!inviteUrl) {
     return (
       <View style={styles.container}>
         <KWText type="h1">Inviter un proche</KWText>
@@ -63,12 +71,12 @@ const ZoneForm = ({ data, onReturn }) => {
     return (
       <View style={styles.container}>
         <KWText type="h1">Inivtation envoyée</KWText>
-        <KWText>Une invitation a été envoyée par email à l'adresse {emailInput}.</KWText>
+        <KWText style={{ width: '100%', textAlign: 'center' }}>Une invitation a été envoyée par email à l'adresse {emailInput}.</KWText>
         {/* <KWText>Vous pouvez également partager cette invitation via vos réseaux sociaux <KWButton title="Partager" icon="share" onPress={() => handleSharing()} /></KWText> */}
         <KWText style={{ width: '100%', textAlign: 'center', padding: 20, fontWeight: 'bold' }}>ou</KWText>
-        <KWText>Scannez ce QR code sur la page d'inscription pour lier le compte</KWText>
+        <KWText style={{ width: '100%', textAlign: 'center' }}>Scannez ce QR code sur la page d'inscription pour lier le compte</KWText>
         <View style={styles.qrContainer}>
-          <QRCode value={inviteToken} size={200} />
+          <QRCode value={inviteUrl} size={200} />
         </View>
         <View style={styles.buttonsFooter}>
           <KWButton title="Retour" bgColor={colors.red[1]} styles={styles.button} onPress={onReturn} />
@@ -99,4 +107,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default ZoneForm;
+export default InviteForm;

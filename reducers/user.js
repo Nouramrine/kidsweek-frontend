@@ -70,13 +70,13 @@ export const signInAsync = createAsyncThunk(
 export const signUpAsync = createAsyncThunk(
   "user/signUpAsync",
   async (payload, { dispatch }) => {
-    const { firstName, lastName, email, password } = payload;
+    const { firstName, lastName, email, inviteToken, password } = payload;
 
     try {
       const response = await fetch(`${BACKEND_URL}/members/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firstName, lastName, email, password }),
+        body: JSON.stringify({ firstName, lastName, email, inviteToken, password }),
       });
       const data = await response.json();
       if (data.result) {
