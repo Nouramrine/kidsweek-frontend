@@ -1,39 +1,23 @@
 import React, { useState, useEffect } from "react";
 import {
   View,
-  Text,
   Image,
-  Platform,
   TouchableOpacity,
   StyleSheet,
-  KeyboardAvoidingView,
 } from "react-native";
-import * as Linking from 'expo-linking';
 import SignIn from "./_partials/SignIn";
 import SignUp from "./_partials/SignUp";
 import KWText from "../components/KWText";
+import KWModal from "../components/KWModal";
+import ScanModal from "../components/auth/Scan";
 
 const AuthScreen = () => {
   const [isSignIn, setIsSignIn] = useState(true);
-
-  useEffect(() => {
-    const sub = Linking.addEventListener('url', (event) => {
-      const url = new URL(event.url);
-      const t = url.searchParams.get('token');
-      if (t) {
-        setToken(t);
-        setIsSignIn(false);
-      }
-    });
-    return () => sub.remove();
-  }, []);
+  const [inviteToken, setInviteToken] = useState(null);
+  const [qrModal, setQrModal] = useState(false);
 
   return (
     <View style={styles.container}>
-      {/* <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ width: '80%', alignItems: 'center' }}
-      > */}
       <Image
         source={require("../assets/titre.png")}
         style={styles.logo}
@@ -41,6 +25,15 @@ const AuthScreen = () => {
       />
 
       {/*<KWText type='h1'>{isSignIn ? 'Connexion' : 'Inscription'}</KWText>*/}
+      <KWModal visible={qrModal}>
+        <ScanModal onReturn={(token) => {
+          if (token) {
+            console.log(token);
+            setInviteToken(token);
+          }
+          setQrModal(false);
+        }} />
+      </KWModal>
 
       <View style={styles.formContainer}>
         {isSignIn ? <SignIn /> : <SignUp />}
@@ -51,11 +44,21 @@ const AuthScreen = () => {
         style={styles.switchContainer}
       >
         <KWText type="link">
-          {isSignIn
+          {isSignIn 
             ? "Pas de compte ? S'inscrire"
             : "Déjà un compte ? Se connecter"}
         </KWText>
       </TouchableOpacity>
+
+      {!inviteToken && 
+      <TouchableOpacity
+        onPress={() => setQrModal(true)}
+        style={styles.switchContainer}
+      >
+        <KWText type="link">Scanner un QR code d'invitation</KWText>
+      </TouchableOpacity>
+      }
+
       {/* </KeyboardAvoidingView> */}
     </View>
   );

@@ -2,6 +2,7 @@ import { View, StyleSheet, ScrollView } from "react-native";
 import { useState, useEffect } from 'react';
 import { colors, userColorSelection } from "../../theme/colors";
 import * as Sharing from "expo-sharing";
+import QRCode from 'react-native-qrcode-svg';
 import KWText from "../KWText";
 import KWTextInput from "../KWTextInput";
 import KWButton from "../KWButton";
@@ -13,7 +14,7 @@ const ZoneForm = ({ data, onReturn }) => {
 
   const [emailInput, setEmailInput] = useState('jeremy.guerlin@gmail.com');
   const [formErrors, setFormErrors] = useState({});
-  const [invitationUrl, setInvitationUrl] = useState(null);
+  const [inviteToken, setInviteToken] = useState(null);
 
   const formValidation = () => {
     const newErrors = {};
@@ -27,8 +28,8 @@ const ZoneForm = ({ data, onReturn }) => {
     if(formValidation()) {
         const emailData = { invitedId: data?.member._id, emailAddress: emailInput };
         const sendMail = await dispatch(createInviteAsync(emailData)).unwrap()
-        if(sendMail.result) {
-          console.log(sendMail)
+        if(sendMail) {
+          setInviteToken(sendMail.token)
           //onReturn();
         } else {
           setFormErrors({ emailInput: `Echec d'envoi du mail d'invitation` });
@@ -37,10 +38,10 @@ const ZoneForm = ({ data, onReturn }) => {
   }
 
   const handleSharing = async () => {
-    await Sharing.shareAsync(invitationUrl);
+    await Sharing.shareAsync(token);
   }
 
-  if(!invitationUrl) {
+  if(!inviteToken) {
     return (
       <View style={styles.container}>
         <KWText type="h1">Inviter un proche</KWText>
@@ -63,13 +64,14 @@ const ZoneForm = ({ data, onReturn }) => {
       <View style={styles.container}>
         <KWText type="h1">Inivtation envoyée</KWText>
         <KWText>Une invitation a été envoyée par email à l'adresse {emailInput}.</KWText>
-        <KWText>Vous pouvez également partager cette invitation via vos réseaux sociaux <KWButton title="Partager" icon="share" /></KWText>
-        <ScrollView>
-
-        </ScrollView>
+        {/* <KWText>Vous pouvez également partager cette invitation via vos réseaux sociaux <KWButton title="Partager" icon="share" onPress={() => handleSharing()} /></KWText> */}
+        <KWText style={{ width: '100%', textAlign: 'center', padding: 20, fontWeight: 'bold' }}>ou</KWText>
+        <KWText>Scannez ce QR code sur la page d'inscription pour lier le compte</KWText>
+        <View style={styles.qrContainer}>
+          <QRCode value={inviteToken} size={200} />
+        </View>
         <View style={styles.buttonsFooter}>
-          <KWButton title="Annuler" bgColor={colors.red[1]} styles={styles.button} onPress={onReturn} />
-          <KWButton title="Inviter" bgColor={colors.green[1]} styles={styles.button} onPress={handleSubmit} />
+          <KWButton title="Retour" bgColor={colors.red[1]} styles={styles.button} onPress={onReturn} />
         </View>
       </View>
     ); 
@@ -90,6 +92,11 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: 'grey',
   },
+  qrContainer: {
+    margin: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  }
 });
 
 export default ZoneForm;

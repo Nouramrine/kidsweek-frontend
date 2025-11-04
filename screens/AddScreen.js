@@ -84,7 +84,7 @@ const AddScreen = ({ navigation, route }) => {
   //console.log("Membres : ===> ", members);
   // console.log("Activités : ", activities);
   // console.log("reducer user", user);
-  console.log("Props écran modif activité :", props);
+  // console.log("Props écran modif activité :", props);
   //console.log("reducer activities =====>", activities);
   const [error, setError] = useState(false);
   //display switch

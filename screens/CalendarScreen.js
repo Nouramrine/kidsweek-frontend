@@ -111,7 +111,7 @@ export default function CalendarScreen() {
       ).unwrap();
 
       if (result) {
-        console.log("Tâche mise à jour avec succès");
+        //console.log("Tâche mise à jour avec succès");
         await dispatch(fetchActivitiesAsync(user.token));
         if (selectedDate) {
           const filtred = activities.filter(
