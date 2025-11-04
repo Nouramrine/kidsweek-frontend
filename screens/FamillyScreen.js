@@ -17,7 +17,7 @@ import KWDropDown from "../components/KWDropDown";
 import ZoneForm from "../components/zone/Form";
 import MemberForm from "../components/member/Form";
 import MemberAdd from "../components/member/Add";
-import Invite from "../components/member/Invite";
+import InviteForm from "../components/member/Invite";
 
 import { FontAwesome5 } from "@expo/vector-icons";
 import { useSelector, useDispatch } from "react-redux";
@@ -126,7 +126,7 @@ const FamillyScreen = () => {
 
         {/* Modal invitation */}
         <KWModal visible={invitationModal}>
-          <Invite 
+          <InviteForm 
             data={selectedMember}
             onReturn={() => {
               setSelectedMember(null);
