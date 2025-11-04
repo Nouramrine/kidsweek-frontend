@@ -20,10 +20,7 @@
     "@react-navigation/native-stack": "6",
     "@reduxjs/toolkit": "^2.9.2",
     "expo": "^54.0.22",
-<<<<<<< HEAD
     "expo-camera": "~17.0.9",
-=======
->>>>>>> 5d70ed9c18f12f7aeb09a8ae0c9596d90b119edc
     "expo-checkbox": "~5.0.7",
     "expo-env": "^1.1.1",
     "expo-font": "~14.0.9",
