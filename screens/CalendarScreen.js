@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { View, StyleSheet, FlatList } from "react-native";
-import { Calendar } from "react-native-calendars";
+import { Calendar, LocaleConfig } from "react-native-calendars";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
-import { SafeAreaView } from "react-native-safe-area-context";
+//import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "../theme/colors";
 import { KWCard } from "../components/KWCard";
 import KWText from "../components/KWText";
@@ -44,10 +44,62 @@ export default function CalendarScreen() {
   // Marquer les dates avec des activités
   useEffect(() => {
     const marks = {};
+
     activities.forEach((activity) => {
-      const date = activity.dateBegin ? activity.dateBegin.split("T")[0] : null;
-      if (date) {
-        marks[date] = { marked: true, dotColor: colors.purple[2] };
+      //formatage date de debut
+      const dateBeginStr = activity.dateBegin
+        ? activity.dateBegin.split("T")[0]
+        : null;
+      //formatage date de Fin
+      const dateEndStr = activity.dateEnd
+        ? activity.dateEnd.split("T")[0]
+        : null;
+
+      if (!dateBeginStr) return;
+
+      // Ajouter un point avec la couleur de l'activité
+      const activityColor =
+        colors[activity.color]?.[2] || activity.color || colors.purple[2];
+
+      // Si l'activité dure plusieurs jours
+      if (dateEndStr && dateBeginStr !== dateEndStr) {
+        const startDate = new Date(dateBeginStr);
+        const endDate = new Date(dateEndStr);
+
+        // Parcourir tous les jours entre début et fin
+        let currentDate = new Date(startDate);
+
+        while (currentDate <= endDate) {
+          const dateString = currentDate.toISOString().split("T")[0];
+
+          if (!marks[dateString]) {
+            marks[dateString] = { periods: [] };
+          }
+
+          // Déterminer si c'est le premier jour, le dernier, ou un jour intermédiaire
+          const isFirstDay = dateString === dateBeginStr;
+          const isLastDay = dateString === dateEndStr;
+
+          marks[dateString].periods.push({
+            startingDay: isFirstDay,
+            endingDay: isLastDay,
+            color: activityColor,
+          });
+
+          // Passer au jour suivant
+          currentDate.setDate(currentDate.getDate() + 1);
+        }
+      } else {
+        // Activité d'un seul jour
+        if (!marks[dateBeginStr]) {
+          marks[dateBeginStr] = { periods: [] };
+        }
+
+        marks[dateBeginStr].periods.push({
+          startingDay: true,
+          endingDay: true,
+          color: activityColor,
+        });
       }
     });
     setMarkedDates(marks);
@@ -71,14 +123,6 @@ export default function CalendarScreen() {
     const [year, month, day] = isoDate.split("-");
     return `${day}/${month}/${year}`;
   };
-
-  const formatTime = (dateStr) =>
-    dateStr
-      ? new Date(dateStr).toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        })
-      : "";
 
   // Couleur dominante du jour sélectionné
   const getDayPalette = (dateStr) => {
@@ -111,52 +155,149 @@ export default function CalendarScreen() {
       ).unwrap();
 
       if (result) {
-        //console.log("Tâche mise à jour avec succès");
-        await dispatch(fetchActivitiesAsync(user.token));
-        if (selectedDate) {
-          const filtred = activities.filter(
-            (a) => a.dateBegin && a.dateBegin.split("T")[0] === selectedDate
-          );
-          setActivitiesOfDay(filtred);
-        }
+        // Mise à jour locale immédiate de activitiesOfDay
+        setActivitiesOfDay((prev) =>
+          prev.map((activity) =>
+            activity._id === activityId
+              ? {
+                  ...activity,
+                  tasks: activity.tasks.map((t) =>
+                    t._id === taskId ? { ...t, isOk: isChecked } : t
+                  ),
+                }
+              : activity
+          )
+        );
       }
     } catch (error) {
-      console.error(" Erreur lors de la mise à jour de la tâche:", error);
+      console.error("Erreur lors de la mise à jour de la tâche:", error);
     }
   };
   const calculateTaskCompletionPercentage = (tasks) => {
     if (!tasks || tasks.length === 0) return 0;
+
     const completedTasks = tasks.filter((task) => task.isOk).length;
     return Math.round((completedTasks / tasks.length) * 100);
   };
+  // configuration du calendrier en francais
+  LocaleConfig.locales["fr"] = {
+    monthNames: [
+      "Janvier",
+      "Février",
+      "Mars",
+      "Avril",
+      "Mai",
+      "Juin",
+      "Juillet",
+      "Août",
+      "Septembre",
+      "Octobre",
+      "Novembre",
+      "Décembre",
+    ],
+    monthNamesShort: [
+      "Janv.",
+      "Févr.",
+      "Mars",
+      "Avr.",
+      "Mai",
+      "Juin",
+      "Juil.",
+      "Août",
+      "Sept.",
+      "Oct.",
+      "Nov.",
+      "Déc.",
+    ],
+    dayNames: [
+      "Dimanche",
+      "Lundi",
+      "Mardi",
+      "Mercredi",
+      "Jeudi",
+      "Vendredi",
+      "Samedi",
+    ],
+    dayNamesShort: ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"],
+    today: "Aujourd'hui",
+  };
+
+  LocaleConfig.defaultLocale = "fr";
+
   return (
     <View style={styles.container}>
       <Calendar
+        //debut de la semaine Lundi
+        firstDay={1}
+        // permet le swipe
+        enableSwipeMonths={true}
+        // permet l'affichage plusieurs point sur une journée
+        markingType="multi-period"
         markedDates={{
           ...markedDates,
           ...(selectedDate
             ? {
                 [selectedDate]: {
+                  periods: markedDates[selectedDate]?.periods || [],
                   selected: true,
-                  selectedColor: palette[2],
-                  marked: markedDates[selectedDate]?.marked,
-                  dotColor: "#fff",
+                  selectedColor: palette[1],
                 },
               }
             : {}),
         }}
         onDayPress={handleDayPress}
         theme={{
+          // Style general
+          backgroundColor: "#FAFAFA",
+          calendarBackground: "#FFFFFF",
+          textSectionTitleColor: palette[2],
+          selectedDayBackgroundColor: palette[0], // Couleur pastel
+          selectedDayTextColor: "#FFFFFF",
           todayTextColor: palette[2],
+          dayTextColor: "#2d4150",
+          textDisabledColor: "#d9e1e8",
+          //dotColor: palette[0],
+          selectedDotColor: "#FFFFFF",
           arrowColor: palette[2],
-          textSectionTitleColor: "#94A3B8",
+          monthTextColor: palette[2],
+
+          // Font personnalisées
+          textDayFontFamily: "JosefinSans_400Regular",
+          textMonthFontFamily: "JosefinSans_600SemiBold",
+          textDayHeaderFontFamily: "JosefinSans_400Regular",
+          textDayFontSize: 16,
+          textMonthFontSize: 18,
+          textDayHeaderFontSize: 14,
+
+          //  en-tête des jours
+          "stylesheet.calendar.header": {
+            week: {
+              marginTop: 5,
+              flexDirection: "row",
+              justifyContent: "space-between",
+              backgroundColor: palette[0], // Fond pastel
+              paddingVertical: 8,
+              borderRadius: 10,
+              marginHorizontal: 10,
+            },
+          },
+        }}
+        style={{
+          borderRadius: 15,
+          elevation: 2,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+          margin: 10,
+          backgroundColor: "#FFFFFF",
         }}
       />
 
       <View style={styles.listContainer}>
         {selectedDate ? (
           <>
-            <KWText type="h2" style={{ marginBottom: 10 }}>
+            <KWText type="h2" style={{ marginBottom: 5 }}>
               Activités du {formatDateFR(selectedDate)}
             </KWText>
 
@@ -171,100 +312,162 @@ export default function CalendarScreen() {
                   // Calcul du pourcentage de tâches complétées
                   const completionPercentage =
                     calculateTaskCompletionPercentage(item.tasks);
+                  // Déterminer s’il s’agit d’une activité sur plusieurs jours
+                  const startDate = new Date(item.dateBegin);
+                  const endDate = new Date(item.dateEnd);
+                  const isMultiDay =
+                    startDate.toISOString().split("T")[0] !==
+                    endDate.toISOString().split("T")[0];
+
+                  // Formater les affichages
+                  const formatDate = (dateStr) =>
+                    new Date(dateStr).toLocaleDateString("fr-FR", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    });
+
+                  const formatHour = (dateStr) =>
+                    new Date(dateStr).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    });
+
+                  const subtitle = isMultiDay
+                    ? `du ${formatDate(item.dateBegin)} au ${formatDate(
+                        item.dateEnd
+                      )}`
+                    : `de ${formatHour(item.dateBegin)} → ${formatHour(
+                        item.dateEnd
+                      )}`;
                   return (
                     <KWCollapsible
                       title={item.name}
-                      subtitle={`${formatTime(item.dateBegin)} → ${formatTime(
-                        item.dateEnd
-                      )}`}
+                      subtitle={subtitle}
                       palette={activityPalette}
                       isExpanded={expandedActivityId === item._id}
                       onToggle={() => toggleActivity(item._id)}
                       rightHeader={
-                        item.tasks && item.tasks.length > 0 ? (
-                          <View style={styles.percentageContainer}>
+                        item.tasks?.length > 0 ? (
+                          <View
+                            style={[
+                              styles.percentageContainer,
+                              {
+                                backgroundColor:
+                                  completionPercentage < 50
+                                    ? colors.red[1]
+                                    : colors.green[1],
+                              },
+                            ]}
+                          >
+                            <FontAwesome5
+                              name="check-circle"
+                              size={14}
+                              color={colors.green[0]}
+                              style={{ marginRight: 5 }}
+                            />
                             <KWText style={styles.percentageText}>
-                              Tache(s): {completionPercentage}%
+                              {completionPercentage}%
                             </KWText>
                           </View>
                         ) : null
                       }
                     >
-                      <KWText>📍 {item.place || "Lieu non précisé"}</KWText>
-                      {item.note && <KWText>📝 {item.note}</KWText>}
-                      {item.members?.length > 0 && (
-                        <View style={{ marginTop: 8 }}>
-                          <KWText type="h3">👥 Membres :</KWText>
-                          {item.members.map((m) => (
-                            <KWText key={m._id}>• {m.firstName}</KWText>
-                          ))}
-                          {/* affichages des tasks */}
-                          <View style={styles.checklistContainer}>
-                            <View style={styles.cheklistHeader}>
+                      {/* --- Section DÉROULÉE --- */}
+                      <View style={styles.activityContent}>
+                        <View style={styles.infoRow}>
+                          <FontAwesome5
+                            name="map-marker-alt"
+                            size={14}
+                            color={activityPalette[2]}
+                          />
+                          <KWText style={styles.infoText}>
+                            {item.place || "Lieu non précisé"}
+                          </KWText>
+                        </View>
+
+                        {item.note && (
+                          <View style={styles.infoRow}>
+                            <FontAwesome5
+                              name="sticky-note"
+                              size={14}
+                              color={activityPalette[2]}
+                            />
+                            <KWText style={styles.infoText}>{item.note}</KWText>
+                          </View>
+                        )}
+
+                        {item.members?.length > 0 && (
+                          <View style={styles.infoBlock}>
+                            <View style={styles.infoRow}>
                               <FontAwesome5
-                                name="check-square"
-                                size={18}
-                                color={colors.green[2]}
+                                name="users"
+                                size={14}
+                                color={activityPalette[2]}
                               />
-                              <KWText style={styles.checklistTextHeader}>
-                                A faire :
+                              <KWText
+                                style={[styles.infoText, { fontWeight: "600" }]}
+                              >
+                                Membres :
                               </KWText>
                             </View>
-                            {item &&
-                              item.tasks.length > 0 &&
-                              item.tasks.map((c, i) => (
-                                <View key={i} style={styles.checklistItem}>
-                                  {/*<KWText
-                                      type="text"
-                                      style={styles.checklistItemText}
-                                    >
-                                      {c.text}
-                                    </KWText>*/}
-                                  <BouncyCheckbox
-                                    size={20}
-                                    fillColor={colors.green[2]}
-                                    unFillColor="#FFFFFF"
-                                    text={c.text}
-                                    iconStyle={{ borderColor: "red" }}
-                                    innerIconStyle={{ borderWidth: 2 }}
-                                    textStyle={{
-                                      fontFamily: "JosefinSans_400Regular",
-                                    }}
-                                    isChecked={c.isOk} // État initial
-                                    onPress={(isChecked) =>
-                                      handleTaskToggle(
-                                        item._id,
-                                        c._id,
-                                        isChecked
-                                      )
-                                    }
-                                  />
-                                  {/* checkbox
-                                    <KWButton
-                                      onPress={() =>
-                                        removeChecklistItem(item._id)
-                                      }
-                                    >
-                                       
-                                    </KWButton>*/}
-                                </View>
-                              ))}
+                            <KWText style={styles.memberList}>
+                              {item.members.map((m) => m.firstName).join(", ")}
+                            </KWText>
                           </View>
+                        )}
+
+                        {item.tasks?.length > 0 && (
+                          <View style={styles.checklistContainer}>
+                            <View style={styles.infoRow}>
+                              <FontAwesome5
+                                name="check-square"
+                                size={14}
+                                color={activityPalette[2]}
+                              />
+                              <KWText style={styles.checklistTextHeader}>
+                                Tâches :
+                              </KWText>
+                            </View>
+
+                            {item.tasks.map((task) => (
+                              <View key={task._id} style={styles.checklistItem}>
+                                <BouncyCheckbox
+                                  size={20}
+                                  fillColor={colors.green[2]}
+                                  unFillColor="#FFFFFF"
+                                  text={task.text}
+                                  textStyle={{
+                                    fontFamily: "JosefinSans_400Regular",
+                                  }}
+                                  isChecked={task.isOk}
+                                  onPress={(isChecked) =>
+                                    handleTaskToggle(
+                                      item._id,
+                                      task._id,
+                                      isChecked
+                                    )
+                                  }
+                                />
+                              </View>
+                            ))}
+                          </View>
+                        )}
+
+                        <View style={{ alignItems: "center", marginTop: 10 }}>
+                          <KWButton
+                            title="Modifier"
+                            icon="edit"
+                            bgColor={activityPalette[1]}
+                            color="white"
+                            style={{ minWidth: 150 }}
+                            onPress={() =>
+                              navigation.navigate("AddScreen", {
+                                activityToEdit: item,
+                              })
+                            }
+                          />
                         </View>
-                      )}
-                      <View style={{ alignItems: "center", marginTop: 10 }}>
-                        <KWButton
-                          title="Modifier"
-                          icon="edit"
-                          bgColor={activityPalette[1]}
-                          color="white"
-                          style={{ minWidth: 150 }}
-                          onPress={() =>
-                            navigation.navigate("AddScreen", {
-                              activityToEdit: item,
-                            })
-                          }
-                        />
                       </View>
                     </KWCollapsible>
                   );
@@ -294,16 +497,18 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     flex: 1,
-    padding: 15,
+    //padding: 5,
   },
   noActivity: {
     textAlign: "center",
     color: "#94A3B8",
-    marginTop: 20,
+    marginTop: 5,
+    borderRadius: 10,
   },
   checklistContainer: {
     marginTop: 5,
     marginBottom: 5,
+    borderRadius: 10,
   },
   cheklistHeader: {
     flex: 1,
@@ -313,10 +518,47 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   checklistItem: {
-    borderWidth: 1,
-    borderRadius: 10,
-    borderColor: colors.blue[1],
+    //borderWidth: 1,
+    //borderRadius: 10,
+    // borderColor: "#a098985d",
     marginBottom: 4,
     paddingLeft: 5,
+  },
+  percentageContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#E8F5E9",
+    borderRadius: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    marginRight: 10,
+  },
+  percentageText: {
+    fontSize: 13,
+    color: colors.green[0],
+    fontWeight: "600",
+  },
+  activityContent: {
+    marginTop: 5,
+    padding: 5,
+    gap: 6,
+  },
+  infoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 5,
+  },
+  infoText: {
+    fontSize: 14,
+    color: "#333",
+  },
+  infoBlock: {
+    marginTop: 6,
+  },
+  memberList: {
+    fontSize: 13,
+    color: "#555",
+    marginLeft: 20,
   },
 });
