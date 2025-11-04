@@ -45,6 +45,27 @@ export const createInviteAsync = createAsyncThunk(
   }
 );
 
+// Envoi de l'invitation par mail
+
+export const sendInviteAsync = createAsyncThunk(
+  "Invites/sendInviteAsync",
+  async (InviteData, { getState }) => {
+    const token = getState().user.value.token;
+    const response = await fetch(`${BACKEND_URL}/invites/send`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(InviteData), 
+    });
+    const data = await response.json();
+    console.log(data)
+    if (!data.result)
+      throw console.log("Send Invite reducer : ", data.error || "Erreur lors de l'envoi de l'invitation");
+  }
+);
+
 //Mettre à jour une Invite
 
 export const updateInviteAsync = createAsyncThunk(
