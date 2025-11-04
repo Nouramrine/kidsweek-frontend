@@ -38,6 +38,7 @@ export const createInviteAsync = createAsyncThunk(
       body: JSON.stringify(InviteData), 
     });
     const data = await response.json();
+    //console.log(data)
     if (!data.result)
       throw console.log("Create Invite reducer : ", data.error || "Erreur lors de la création de l'invitation");
     return data.invites || [];

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, TextInput, Button, StyleSheet } from "react-native";
+import { View, TextInput, Button, StyleSheet, Platform, KeyboardAvoidingView } from "react-native";
 import { useDispatch } from "react-redux";
 import KWButton from "../../components/KWButton";
 import KWTextInput from "../../components/KWTextInput";
@@ -48,8 +48,10 @@ const SignUp = () => {
   };
 
   return (
-    <View>
-
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ width: '80%', alignItems: 'center' }}
+    >
       <View style={{ marginBottom: 20 }}>
         <KWButton 
           title="User1" 
@@ -118,7 +120,8 @@ const SignUp = () => {
       />
       <KWText type="inputError">{signUpError}</KWText>
       <KWButton title="S'inscrire" onPress={handleSignUp} />
-    </View>
+
+    </KeyboardAvoidingView>
   );
 };
 

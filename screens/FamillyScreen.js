@@ -73,7 +73,7 @@ const FamillyScreen = () => {
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       <ScrollView>
 
-        {/* --- Modals Tutoriel --- */}
+        {/* --- Modals Tutoriel --- 
         {tutorialStep === 1 && (
           <KWModal visible={zones.length ? false : true}>
             <KWText
@@ -101,6 +101,7 @@ const FamillyScreen = () => {
             />
           </KWModal>
         )}
+        */}
 
         {/* Modal création / édition de Zone */}
         <KWModal visible={zoneModal}>
@@ -357,14 +358,44 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 10,
   },
-  zonesContainer: { width: "100%", padding: 10 },
-  membersContainer: { width: "100%", padding: 10, marginTop: -20 },
-  topButtonsContainer: { width: "100%", flexDirection: "row" },
-  topButton: { width: "50%", padding: 10 },
-  buttonTitle: { fontSize: 16 },
-  buttonSubTitle: { fontSize: 12 },
-  zoneCard: { marginBottom: 20 },
-  memberCard: { marginTop: 10, padding: 10 },
-  emptyText: { padding: 25, width: "100%", textAlign: "center" },
-  iconBtn: { padding: 5, borderRadius: 50, backgroundColor: colors.error[0] },
+  zonesContainer: { 
+    width: "100%", 
+    padding: 10 
+  },
+  membersContainer: { 
+    width: "100%", 
+    padding: 10, 
+    marginTop: -20 
+  },
+  topButtonsContainer: { 
+    width: "100%", 
+    flexDirection: "row" 
+  },
+  topButton: { 
+    width: "50%", 
+    padding: 10 
+  },
+  buttonTitle: { 
+    fontSize: 16 
+  },
+  buttonSubTitle: { 
+    fontSize: 12 
+  },
+  zoneCard: { 
+    marginBottom: 20 
+  },
+  memberCard: { 
+    marginTop: 10, 
+    padding: 10 
+  },
+  emptyText: { 
+    padding: 25, 
+    width: "100%", 
+    textAlign: "center" 
+  },
+  iconBtn: { 
+    padding: 5, 
+    borderRadius: 50, 
+    backgroundColor: colors.error[0] 
+  },
 });
