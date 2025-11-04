@@ -36,6 +36,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { fetchZonesAsync } from "../reducers/zones";
 
 import { fetchMembersAsync } from "../reducers/members";
+import { fetchNotificationsAsync } from "../reducers/notifications";
 
 const AddScreen = ({ navigation, route }) => {
   useFocusEffect(
@@ -84,7 +85,7 @@ const AddScreen = ({ navigation, route }) => {
   //console.log("Membres : ===> ", members);
   // console.log("Activités : ", activities);
   // console.log("reducer user", user);
-  console.log("Props écran modif activité :", props);
+  // console.log("Props écran modif activité :", props);
   //console.log("reducer activities =====>", activities);
   const [error, setError] = useState(false);
   //display switch
@@ -150,23 +151,24 @@ const AddScreen = ({ navigation, route }) => {
       return;
     }
     memberIds = addMembers.map((m, key) => m._id);
-    // combine date and time
+
     const fullDateBegin = combineDateAndTime(dateBegin, timeBegin);
     const fullDateEnd = combineDateAndTime(dateEnd, timeEnd);
 
     if (!validateForm()) {
-      return; // Arrête si la validation échoue
+      return;
     }
 
     const reminderDate = calculateReminderDate(
-      fullDateBegin,
+      new Date(fullDateBegin),
       reminderNumber,
       reminderUnit
-    );
+    ).toISOString();
 
     if (fullDateEnd <= fullDateBegin) {
       setDateEnd(fullDateBegin);
     }
+
     try {
       const result = await dispatch(
         createActivityAsync({
@@ -183,10 +185,12 @@ const AddScreen = ({ navigation, route }) => {
           members: memberIds,
           color: colorAct,
         })
-      ).unwrap(); // unwrap pour obtenir la valeur résolue ou lancer une erreur
-      console.log("Activité créée avec succès:", result);
-      dispatch(fetchActivitiesAsync(user.token));
+      ).unwrap();
 
+      // console.log("Activité créée avec succès:", result);
+
+      await dispatch(fetchActivitiesAsync(user.token));
+      await dispatch(fetchNotificationsAsync(user.token));
       navigation.goBack();
     } catch (error) {
       Alert.alert("Erreur", error.message || "Impossible de créer l'activité");
@@ -350,7 +354,7 @@ const AddScreen = ({ navigation, route }) => {
     combined.setMinutes(time.getMinutes());
     combined.setSeconds(0);
     combined.setMilliseconds(0);
-    return combined;
+    return combined.toISOString();
   };
 
   // Checklist handlers
@@ -439,7 +443,7 @@ const AddScreen = ({ navigation, route }) => {
           token: user.token,
         })
       ).unwrap(); // unwrap pour obtenir la valeur résolue ou lancer une erreur
-      console.log("Activité supprimée avec succès:", result);
+      // console.log("Activité supprimée avec succès:", result);
 
       navigation.navigate("calendrier");
     } catch (error) {
@@ -465,12 +469,11 @@ const AddScreen = ({ navigation, route }) => {
     }
 
     const reminderDate = calculateReminderDate(
-      fullDateBegin,
+      new Date(fullDateBegin),
       reminderNumber,
       reminderUnit
-    );
+    ).toISOString();
 
-    // Préparer les données de récurrence
     let recurrenceData = null;
     let dateEndRec = null;
 
@@ -506,7 +509,11 @@ const AddScreen = ({ navigation, route }) => {
         })
       ).unwrap();
 
-      console.log("Activité mise à jour avec succès:", result);
+      // console.log("Activité mise à jour avec succès:", result);
+
+      await dispatch(fetchActivitiesAsync(user.token));
+      await dispatch(fetchNotificationsAsync(user.token));
+
       navigation.goBack();
     } catch (error) {
       Alert.alert(

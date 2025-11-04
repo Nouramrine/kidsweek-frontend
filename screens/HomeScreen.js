@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -58,9 +58,16 @@ const HomeScreen = ({ navigation }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [expandedActivityId, setExpandedActivityId] = useState(null);
 
+  useEffect(() => {
+    if (!user.token) return;
+    const interval = setInterval(() => {
+      dispatch(fetchNotificationsAsync(user.token));
+    }, 30000); // Toutes les 30 secondes verification notifs
+    return () => clearInterval(interval);
+  }, [user.token, dispatch]);
+
   // 🔹 State local pour notifications affichées
   const [modalNotifications, setModalNotifications] = useState([]);
-  const fadeAnim = useRef(new Animated.Value(1)).current;
 
   const tutorialStep = user.tutorialStep || 0;
   const children = members.filter((m) => m.isChildren);
@@ -80,52 +87,153 @@ const HomeScreen = ({ navigation }) => {
     }
   }, [user.token]);
 
-  // 🔹 Préparer les notifications locales
+  const formatDateTime = (dateStr) => {
+    if (!dateStr) return "";
+    const date = new Date(dateStr);
+    const day = date.toLocaleDateString("fr-FR", {
+      weekday: "long",
+      day: "2-digit",
+      month: "2-digit",
+    });
+    const time = date.toLocaleTimeString("fr-FR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    return `${day} à ${time}`;
+  };
+
+  // 🔹  Met à jour la liste des notifications dès que le fetch est fini
   useEffect(() => {
     const allNotifs = [
       ...reminders.map((r) => ({
         id: r._id,
         type: "reminder",
-        message: `Rappel: ${r.name} à ${formatTime(r.dateBegin)}.`,
+        message:
+          r.message ||
+          `Rappel : ${r.activityId?.name || "Activité"} le ${formatDateTime(
+            r.activityId?.dateBegin
+          )}.`,
+        activityId: r.activityId?._id,
+        activityName: r.activityId?.name,
+        activityDate: r.activityId?.dateBegin,
+        fade: new Animated.Value(1),
       })),
       ...invitations.map((i) => ({
         id: i._id,
         type: "validation",
-        message: `Nouvelle activité "${i.name}" à valider.`,
-        activityId: i._id,
+        message:
+          i.message ||
+          `Nouvelle activité "${i.activityId?.name || "Sans nom"}" à valider.`,
+        activityId: i.activityId?._id,
+        activityName: i.activityId?.name,
+        activityDate: i.activityId?.dateBegin,
+        notificationId: i._id,
+        fade: new Animated.Value(1),
       })),
     ];
+
+    console.log("🔍 NOTIFICATIONS REÇUES :", {
+      invitations: invitations.map((i) => ({ ...i, memberId: i.memberId })),
+      reminders,
+    });
+    console.log("🔍 NOTIFICATIONS TRANSFORMÉES :", allNotifs);
+    console.log(
+      "🔔 NOTIFICATIONS DANS LA MODAL:",
+      modalNotifications.map((n) => ({
+        id: n.id,
+        type: n.type,
+        message: n.message,
+        memberId:
+          n.type === "validation"
+            ? invitations.find((i) => i._id === n.id)?.memberId
+            : undefined,
+      }))
+    );
+
     setModalNotifications(allNotifs);
   }, [reminders, invitations]);
 
-  // 🔹 Réponse invitation avec fade-out
   const handleResponse = async (activityId, validate) => {
     try {
       await dispatch(
         respondToInvitationAsync({
           token: user.token,
-          activityID: activityId,
+          activityId,
           validate,
         })
       ).unwrap();
 
-      // Animation fade-out
-      Animated.timing(fadeAnim, {
+      // On trouve la notif correspondante dans modalNotifications
+      const notifIndex = modalNotifications.findIndex(
+        (n) => n.type === "validation" && n.activityId === activityId
+      );
+
+      if (notifIndex === -1) return;
+
+      const notif = modalNotifications[notifIndex];
+
+      Animated.timing(notif.fade, {
         toValue: 0,
         duration: 300,
         useNativeDriver: true,
       }).start(() => {
         setModalNotifications((prev) =>
-          prev.filter((n) => n.id !== activityId)
+          prev.filter((_, idx) => idx !== notifIndex)
         );
-        fadeAnim.setValue(1);
+
+        // Fermer la modal si plus de notifications
+        if (modalNotifications.length <= 1) {
+          setIsModalVisible(false);
+        }
+      });
+      dispatch(fetchActivitiesAsync(user.token));
+    } catch (err) {
+      console.error("Erreur réponse invitation:", err);
+    }
+  };
+  // Fonction pour marquer un rappel comme lu
+  const handleDismissReminder = async (notificationId) => {
+    try {
+      const response = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/activities/notifications/${notificationId}/read`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${user.token}`,
+          },
+        }
+      );
+
+      if (!response.ok) throw new Error("Erreur lors du marquage");
+
+      // Animation de suppression
+      const notifIndex = modalNotifications.findIndex(
+        (n) => n.id === notificationId
+      );
+      if (notifIndex === -1) return;
+
+      const notif = modalNotifications[notifIndex];
+
+      Animated.timing(notif.fade, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => {
+        setModalNotifications((prev) =>
+          prev.filter((_, idx) => idx !== notifIndex)
+        );
 
         if (modalNotifications.length <= 1) {
           setIsModalVisible(false);
         }
       });
+
+      // Refetch les notifications
+      dispatch(fetchNotificationsAsync(user.token));
     } catch (err) {
-      console.error("Erreur réponse invitation:", err);
+      console.error("Erreur dismiss reminder:", err);
+      alert("Erreur lors du marquage de la notification");
     }
   };
 
@@ -427,8 +535,8 @@ const HomeScreen = ({ navigation }) => {
             <FlatList
               data={modalNotifications}
               keyExtractor={(item) => item.id.toString()}
-              renderItem={({ item }) => (
-                <Animated.View style={{ opacity: fadeAnim }}>
+              renderItem={({ item, index }) => (
+                <Animated.View style={{ opacity: item.fade }}>
                   <KWCard
                     style={{
                       width: "100%",
@@ -459,6 +567,7 @@ const HomeScreen = ({ navigation }) => {
                   </KWCard>
                 </Animated.View>
               )}
+              extraData={modalNotifications} // ⚠️ Force la FlatList à se rerender quand on modifie le tableau
             />
           )}
         </KWModal>
