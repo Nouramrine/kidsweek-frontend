@@ -33,12 +33,12 @@ const InviteForm = ({ data, onReturn }) => {
           queryParams: { token: invite.token }
         });
         setInviteUrl(url)
-        //const sendMail = await dispatch(sendInviteAsync({ invite, url })).unwrap()
+        /*const sendMail = await dispatch(sendInviteAsync({ invite, url })).unwrap()
         if(sendMail) {
-          //onReturn();
+      
         } else {
           setFormErrors({ emailInput: `Echec d'envoi du mail d'invitation` });
-        }
+        }*/
       } catch (err) {
         console.warn("Invite validation : ", err)
       }
