@@ -3,7 +3,7 @@ import { View, StyleSheet, FlatList } from "react-native";
 import { Calendar } from "react-native-calendars";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
-import { SafeAreaView } from "react-native-safe-area-context";
+//import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "../theme/colors";
 import { KWCard } from "../components/KWCard";
 import KWText from "../components/KWText";
@@ -129,9 +129,11 @@ export default function CalendarScreen() {
     const completedTasks = tasks.filter((task) => task.isOk).length;
     return Math.round((completedTasks / tasks.length) * 100);
   };
+  console.log(activities);
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { fontFamily: "JosefinSans_400Regular" }]}>
       <Calendar
+        enableSwipeMonths={true}
         markedDates={{
           ...markedDates,
           ...(selectedDate
@@ -239,14 +241,6 @@ export default function CalendarScreen() {
                                       )
                                     }
                                   />
-                                  {/* checkbox
-                                    <KWButton
-                                      onPress={() =>
-                                        removeChecklistItem(item._id)
-                                      }
-                                    >
-                                       
-                                    </KWButton>*/}
                                 </View>
                               ))}
                           </View>
