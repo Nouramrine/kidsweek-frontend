@@ -48,10 +48,7 @@ const SignUp = () => {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={{ width: '80%', alignItems: 'center' }}
-    >
+    <View>
       <View style={{ marginBottom: 20 }}>
         <KWButton 
           title="User1" 
@@ -121,7 +118,7 @@ const SignUp = () => {
       <KWText type="inputError">{signUpError}</KWText>
       <KWButton title="S'inscrire" onPress={handleSignUp} />
 
-    </KeyboardAvoidingView>
+    </View>
   );
 };
 
