@@ -13,6 +13,8 @@ import { createInviteAsync, sendInviteAsync } from "../../reducers/invites";
 const InviteForm = ({ data, onReturn }) => {
   const dispatch = useDispatch();
 
+  const user = useSelector((state) => state.user.value);
+
   const [emailInput, setEmailInput] = useState('jeremy.guerlin@gmail.com');
   const [formErrors, setFormErrors] = useState({});
   const [inviteUrl, setInviteUrl] = useState(null);
@@ -25,6 +27,24 @@ const InviteForm = ({ data, onReturn }) => {
     return Object.keys(newErrors).length > 0 ? false : true;
   }
 
+  // Envoi de l'invitation par mail
+  const sendInvite = async (InviteData) => {
+    const token = user.token;
+    const response = await fetch(`${BACKEND_URL}/invites/send`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(InviteData), 
+    });
+    const data = await response.json();
+    console.log(data)
+    if (!data.result)
+      throw console.log("Invite SendInvite : ", data.error || "Erreur lors de l'envoi de l'invitation");
+    return data.result;
+  }
+
   const handleSubmit = async () => {
     if(formValidation()) {
       try {
@@ -33,20 +53,13 @@ const InviteForm = ({ data, onReturn }) => {
           queryParams: { token: invite.token }
         });
         setInviteUrl(url)
-        /*const sendMail = await dispatch(sendInviteAsync({ invite, url })).unwrap()
-        if(sendMail) {
-      
-        } else {
+        if(!await sendInvite({ invite, url })) {
           setFormErrors({ emailInput: `Echec d'envoi du mail d'invitation` });
-        }*/
+        }
       } catch (err) {
         console.warn("Invite validation : ", err)
       }
     }
-  }
-
-  const handleSharing = async () => {
-    await Sharing.shareAsync(token);
   }
 
   if(!inviteUrl) {
