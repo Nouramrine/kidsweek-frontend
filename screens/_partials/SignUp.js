@@ -6,7 +6,7 @@ import KWTextInput from "../../components/KWTextInput";
 import KWText from "../../components/KWText";
 import { signUpAsync } from "../../reducers/user";
 
-const SignUp = () => {
+const SignUp = ({ inviteToken }) => {
   const dispatch = useDispatch();
   const [signUpFirstName, setSignUpFirstName] = useState('');
   const [signUpLastName, setSignUpLastName] = useState('');
@@ -33,6 +33,7 @@ const SignUp = () => {
         lastName: signUpLastName,
         email: signUpEmail,
         password: signUpPassword,
+        inviteToken
       })
     ).unwrap();
 
