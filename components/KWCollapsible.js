@@ -111,11 +111,11 @@ const KWCollapsible = ({
           activeOpacity={0.8}
         >
           <View style={{ flex: 1 }}>
-            <KWText type="h3" style={{ color: palette[2] }}>
+            <KWText type="h3" style={{ color: "black" }}>
               {title}
             </KWText>
             {subtitle && (
-              <KWText style={{ color: palette[2], fontSize: 13 }}>
+              <KWText style={{ color: "black", fontSize: 13 }}>
                 {subtitle}
               </KWText>
             )}
@@ -152,6 +152,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 8,
     overflow: "hidden",
+    paddingHorizontal: 10,
   },
   header: {
     flexDirection: "row",
