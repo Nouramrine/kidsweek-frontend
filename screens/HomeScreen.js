@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   View,
   StyleSheet,
@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
-  Animated,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
@@ -31,6 +30,9 @@ import KWButton from "../components/KWButton";
 import { colors } from "../theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import KWCollapsible from "../components/KWCollapsible";
+
+// 🔔 IMPORT DU SERVICE DE NOTIFICATIONS
+import { scheduleLocalNotification } from "../components/notificationService";
 
 // Fonction utilitaire pour déterminer la couleur du texte adaptée
 const getContrastColor = (hexColor) => {
@@ -58,13 +60,16 @@ const HomeScreen = ({ navigation }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [expandedActivityId, setExpandedActivityId] = useState(null);
 
+  // 🔔 NOUVEAU : Référence pour suivre le nombre de notifications précédent
+  const previousNotifCount = useRef(0);
+
   useEffect(() => {
-    if (!user.token) return;
+    if (!user.token || isModalVisible) return;
     const interval = setInterval(() => {
       dispatch(fetchNotificationsAsync(user.token));
-    }, 30000); // Toutes les 30 secondes verification notifs
+    }, 10000);
     return () => clearInterval(interval);
-  }, [user.token, dispatch]);
+  }, [user.token, dispatch, isModalVisible]);
 
   // 🔹 State local pour notifications affichées
   const [modalNotifications, setModalNotifications] = useState([]);
@@ -116,7 +121,6 @@ const HomeScreen = ({ navigation }) => {
         activityId: r.activityId?._id,
         activityName: r.activityId?.name,
         activityDate: r.activityId?.dateBegin,
-        fade: new Animated.Value(1),
       })),
       ...invitations.map((i) => ({
         id: i._id,
@@ -128,7 +132,6 @@ const HomeScreen = ({ navigation }) => {
         activityName: i.activityId?.name,
         activityDate: i.activityId?.dateBegin,
         notificationId: i._id,
-        fade: new Animated.Value(1),
       })),
     ];
 
@@ -137,21 +140,59 @@ const HomeScreen = ({ navigation }) => {
       reminders,
     });
     console.log("🔍 NOTIFICATIONS TRANSFORMÉES :", allNotifs);
-    console.log(
-      "🔔 NOTIFICATIONS DANS LA MODAL:",
-      modalNotifications.map((n) => ({
-        id: n.id,
-        type: n.type,
-        message: n.message,
-        memberId:
-          n.type === "validation"
-            ? invitations.find((i) => i._id === n.id)?.memberId
-            : undefined,
-      }))
-    );
 
-    setModalNotifications(allNotifs);
+    setModalNotifications((prev) => {
+      const prevIds = prev
+        .map((n) => n.id)
+        .sort()
+        .join(",");
+      const newIds = allNotifs
+        .map((n) => n.id)
+        .sort()
+        .join(",");
+      if (prevIds === newIds) return prev;
+      return allNotifs;
+    });
   }, [reminders, invitations]);
+
+  // 🔔 NOUVEAU : Détecter les nouvelles notifications et déclencher une notification locale
+  useEffect(() => {
+    const totalNotifs = invitations.length + reminders.length;
+
+    // Si on a plus de notifications qu'avant, déclencher une notification locale
+    if (totalNotifs > previousNotifCount.current) {
+      console.log("🔔 Nouvelle notification détectée !");
+
+      // Vérifier si c'est une invitation
+      if (invitations.length > 0) {
+        const lastInvitation = invitations[invitations.length - 1];
+        scheduleLocalNotification(
+          "Nouvelle invitation ! 🎉",
+          lastInvitation.message || `Vous avez une nouvelle invitation`,
+          {
+            type: "invitation",
+            activityId: lastInvitation.activityId?._id,
+            notificationId: lastInvitation._id,
+          }
+        );
+      }
+      // Sinon vérifier si c'est un reminder
+      else if (reminders.length > 0) {
+        const lastReminder = reminders[reminders.length - 1];
+        scheduleLocalNotification(
+          "Rappel d'activité ⏰",
+          lastReminder.message || `Vous avez un nouveau rappel`,
+          {
+            type: "reminder",
+            activityId: lastReminder.activityId?._id,
+            notificationId: lastReminder._id,
+          }
+        );
+      }
+    }
+
+    previousNotifCount.current = totalNotifs;
+  }, [invitations, reminders]);
 
   const handleResponse = async (activityId, validate) => {
     try {
@@ -163,34 +204,26 @@ const HomeScreen = ({ navigation }) => {
         })
       ).unwrap();
 
-      // On trouve la notif correspondante dans modalNotifications
-      const notifIndex = modalNotifications.findIndex(
-        (n) => n.type === "validation" && n.activityId === activityId
-      );
-
-      if (notifIndex === -1) return;
-
-      const notif = modalNotifications[notifIndex];
-
-      Animated.timing(notif.fade, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }).start(() => {
-        setModalNotifications((prev) =>
-          prev.filter((_, idx) => idx !== notifIndex)
+      // Supprimer la notification de la liste
+      setModalNotifications((prev) => {
+        const updated = prev.filter(
+          (n) => !(n.type === "validation" && n.activityId === activityId)
         );
 
         // Fermer la modal si plus de notifications
-        if (modalNotifications.length <= 1) {
+        if (updated.length === 0) {
           setIsModalVisible(false);
         }
+
+        return updated;
       });
+
       dispatch(fetchActivitiesAsync(user.token));
     } catch (err) {
       console.error("Erreur réponse invitation:", err);
     }
   };
+
   // Fonction pour marquer un rappel comme lu
   const handleDismissReminder = async (notificationId) => {
     try {
@@ -207,26 +240,16 @@ const HomeScreen = ({ navigation }) => {
 
       if (!response.ok) throw new Error("Erreur lors du marquage");
 
-      // Animation de suppression
-      const notifIndex = modalNotifications.findIndex(
-        (n) => n.id === notificationId
-      );
-      if (notifIndex === -1) return;
+      // Supprimer la notification de la liste
+      setModalNotifications((prev) => {
+        const updated = prev.filter((n) => n.id !== notificationId);
 
-      const notif = modalNotifications[notifIndex];
-
-      Animated.timing(notif.fade, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }).start(() => {
-        setModalNotifications((prev) =>
-          prev.filter((_, idx) => idx !== notifIndex)
-        );
-
-        if (modalNotifications.length <= 1) {
+        // Fermer la modal si plus de notifications
+        if (updated.length === 0) {
           setIsModalVisible(false);
         }
+
+        return updated;
       });
 
       // Refetch les notifications
@@ -535,39 +558,46 @@ const HomeScreen = ({ navigation }) => {
             <FlatList
               data={modalNotifications}
               keyExtractor={(item) => item.id.toString()}
-              renderItem={({ item, index }) => (
-                <Animated.View style={{ opacity: item.fade }}>
-                  <KWCard
-                    style={{
-                      width: "100%",
-                      marginBottom: 10,
-                      backgroundColor:
-                        item.type === "reminder"
-                          ? colors.purple[0]
-                          : colors.pink[0],
-                    }}
-                  >
-                    <KWText>{item.message}</KWText>
-                    {item.type === "validation" && (
-                      <View style={styles.actionButtons}>
-                        <KWButton
-                          title="Accepter"
-                          bgColor={colors.green[1]}
-                          onPress={() => handleResponse(item.activityId, true)}
-                          style={{ minWidth: 100 }}
-                        />
-                        <KWButton
-                          title="Refuser"
-                          bgColor={colors.red[1]}
-                          onPress={() => handleResponse(item.activityId, false)}
-                          style={{ minWidth: 100 }}
-                        />
-                      </View>
-                    )}
-                  </KWCard>
-                </Animated.View>
+              renderItem={({ item }) => (
+                <KWCard
+                  style={{
+                    width: "100%",
+                    marginBottom: 10,
+                    backgroundColor:
+                      item.type === "reminder"
+                        ? colors.purple[0]
+                        : colors.pink[0],
+                  }}
+                >
+                  <KWText>{item.message}</KWText>
+                  {item.type === "validation" && (
+                    <View style={styles.actionButtons}>
+                      <KWButton
+                        title="Accepter"
+                        bgColor={colors.green[1]}
+                        onPress={() => handleResponse(item.activityId, true)}
+                        style={{ minWidth: 100 }}
+                      />
+                      <KWButton
+                        title="Refuser"
+                        bgColor={colors.red[1]}
+                        onPress={() => handleResponse(item.activityId, false)}
+                        style={{ minWidth: 100 }}
+                      />
+                    </View>
+                  )}
+                  {item.type === "reminder" && (
+                    <View style={styles.actionButtons}>
+                      <KWButton
+                        title="OK"
+                        bgColor={colors.purple[1]}
+                        onPress={() => handleDismissReminder(item.id)}
+                        style={{ minWidth: 100 }}
+                      />
+                    </View>
+                  )}
+                </KWCard>
               )}
-              extraData={modalNotifications} // ⚠️ Force la FlatList à se rerender quand on modifie le tableau
             />
           )}
         </KWModal>
