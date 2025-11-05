@@ -7,8 +7,10 @@ import QRCode from 'react-native-qrcode-svg';
 import KWText from "../KWText";
 import KWTextInput from "../KWTextInput";
 import KWButton from "../KWButton";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { createInviteAsync, sendInviteAsync } from "../../reducers/invites";
+
+const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
 const InviteForm = ({ data, onReturn }) => {
   const dispatch = useDispatch();
@@ -39,7 +41,6 @@ const InviteForm = ({ data, onReturn }) => {
       body: JSON.stringify(InviteData), 
     });
     const data = await response.json();
-    console.log(data)
     if (!data.result)
       throw console.log("Invite SendInvite : ", data.error || "Erreur lors de l'envoi de l'invitation");
     return data.result;
@@ -52,12 +53,12 @@ const InviteForm = ({ data, onReturn }) => {
         const url = Linking.createURL('invite', {
           queryParams: { token: invite.token }
         });
-        setInviteUrl(url)
-        if(!await sendInvite({ invite, url })) {
-          setFormErrors({ emailInput: `Echec d'envoi du mail d'invitation` });
+        setInviteUrl(url);
+        if(sendInvite({ invite, url })) {
+          console.log('email envoyé');
         }
       } catch (err) {
-        console.warn("Invite validation : ", err)
+        console.log("Invite validation : ", err)
       }
     }
   }

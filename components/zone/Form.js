@@ -11,8 +11,8 @@ import { useDispatch } from "react-redux";
 const ZoneForm = ({ zone, onReturn }) => {
   const dispatch = useDispatch();
 
-  const [nameInput, setNameInput] = useState(zone.name || '');
-  const [selectedColor, setSelectedColor] = useState(zone.color || userColorSelection[0]);
+  const [nameInput, setNameInput] = useState(zone?.name || '');
+  const [selectedColor, setSelectedColor] = useState(zone?.color || userColorSelection[0]);
   const [formErrors, setFormErrors] = useState({});
 
  
