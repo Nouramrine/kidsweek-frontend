@@ -68,7 +68,6 @@ const InviteForm = ({ data, onReturn }) => {
           queryParams: { token: invite.token },
         });
         setInviteUrl(url);
-<<<<<<< HEAD
         const sendMail = await dispatch(
           sendInviteAsync({ invite, url })
         ).unwrap();
@@ -79,13 +78,6 @@ const InviteForm = ({ data, onReturn }) => {
         }
       } catch (err) {
         console.warn("Invite validation : ", err);
-=======
-        if(sendInvite({ invite, url })) {
-          console.log('email envoyé');
-        }
-      } catch (err) {
-        console.log("Invite validation : ", err)
->>>>>>> 05d2d480e20839358a1abbf43fa802e9ca8af0ac
       }
     }
   };
