@@ -15,7 +15,7 @@ import {
   fetchNotificationsAsync,
   respondToInvitationAsync,
 } from "../reducers/notifications";
-import { saveTutorialStepAsync } from "../reducers/user";
+import { dismissTutorialAsync } from "../reducers/user";
 
 import KWModal from "../components/KWModal";
 import {
@@ -31,8 +31,9 @@ import { colors } from "../theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import KWCollapsible from "../components/KWCollapsible";
 
-// 🔔 IMPORT DU SERVICE DE NOTIFICATIONS
+//  IMPORT DU SERVICE DE NOTIFICATIONS
 import { scheduleLocalNotification } from "../components/notificationService";
+import TutorialBanner from "../components/TutorialBanner";
 
 // Fonction utilitaire pour déterminer la couleur du texte adaptée
 const getContrastColor = (hexColor) => {
@@ -60,7 +61,30 @@ const HomeScreen = ({ navigation }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [expandedActivityId, setExpandedActivityId] = useState(null);
 
-  // 🔔 NOUVEAU : Référence pour suivre le nombre de notifications précédent
+  // logique tuto
+  const [shouldShowHomeTutorial, setShouldShowHomeTutorial] = useState(false);
+
+  useEffect(() => {
+    const dismissedTooltips = user?.tutorialState?.dismissedTooltips || [];
+    setShouldShowHomeTutorial(!dismissedTooltips.includes("goToFamily"));
+  }, [user]);
+
+  const handleDismissTooltip = async (tooltipId) => {
+    setShouldShowHomeTutorial(false);
+
+    try {
+      await dispatch(
+        dismissTutorialAsync({
+          token: user.token,
+          tooltipId,
+        })
+      ).unwrap();
+    } catch (err) {
+      console.error("Erreur dismissTutorialAsync:", err);
+    }
+  };
+
+  //  Référence pour suivre le nombre de notifications précédent
   const previousNotifCount = useRef(0);
 
   useEffect(() => {
@@ -71,10 +95,8 @@ const HomeScreen = ({ navigation }) => {
     return () => clearInterval(interval);
   }, [user.token, dispatch, isModalVisible]);
 
-  // 🔹 State local pour notifications affichées
+  //  State local pour notifications affichées
   const [modalNotifications, setModalNotifications] = useState([]);
-
-  const tutorialStep = user.tutorialStep || 0;
   const children = members.filter((m) => m.isChildren);
 
   const toggleActivity = (id) => {
@@ -83,7 +105,7 @@ const HomeScreen = ({ navigation }) => {
 
   const toggleModal = () => setIsModalVisible(!isModalVisible);
 
-  // 🔹 Fetch data
+  // Fetch data
   useEffect(() => {
     if (user.token) {
       dispatch(fetchActivitiesAsync(user.token));
@@ -107,7 +129,7 @@ const HomeScreen = ({ navigation }) => {
     return `${day} à ${time}`;
   };
 
-  // 🔹  Met à jour la liste des notifications dès que le fetch est fini
+  //  Met à jour la liste des notifications dès que le fetch est fini
   useEffect(() => {
     const allNotifs = [
       ...reminders.map((r) => ({
@@ -135,11 +157,11 @@ const HomeScreen = ({ navigation }) => {
       })),
     ];
 
-    /*console.log("🔍 NOTIFICATIONS REÇUES :", {
-      invitations: invitations.map((i) => ({ ...i, memberId: i.memberId })),
-      reminders,
-    });
-    console.log("🔍 NOTIFICATIONS TRANSFORMÉES :", allNotifs);*/
+    // console.log("🔍 NOTIFICATIONS REÇUES :", {
+    //   invitations: invitations.map((i) => ({ ...i, memberId: i.memberId })),
+    //   reminders,
+    // });
+    // console.log("🔍 NOTIFICATIONS TRANSFORMÉES :", allNotifs);
 
     setModalNotifications((prev) => {
       const prevIds = prev
@@ -161,7 +183,7 @@ const HomeScreen = ({ navigation }) => {
 
     // Si on a plus de notifications qu'avant, déclencher une notification locale
     if (totalNotifs > previousNotifCount.current) {
-      console.log("🔔 Nouvelle notification détectée !");
+      // console.log("🔔 Nouvelle notification détectée !");
 
       // Vérifier si c'est une invitation
       if (invitations.length > 0) {
@@ -260,7 +282,7 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
-  // 🔹 Tri des activités
+  // Tri des activités
   const now = new Date();
   const upcomingActivities = activities.filter(
     (a) => new Date(a.dateBegin) >= now
@@ -311,7 +333,7 @@ const HomeScreen = ({ navigation }) => {
         })
       : "";
 
-  // 🔹 Activités passées
+  // Activités passées
   const pastActivities = activities
     .filter((a) => new Date(a.dateEnd || a.dateBegin) < now)
     .filter((a) =>
@@ -376,6 +398,22 @@ const HomeScreen = ({ navigation }) => {
               )}
             </KWCardBody>
           </KWCard>
+
+          {/* tuto */}
+          {shouldShowHomeTutorial && (
+            <TutorialBanner
+              id="goToFamily"
+              message="Commencez par créer votre première zone familiale pour planifier vos activités."
+              ctaLabel="Aller à ma famille"
+              onCta={() => {
+                navigation.navigate("Famille", { screen: "FamillyScreen" });
+                handleDismissTooltip("goToFamily");
+              }}
+              onDismiss={() => handleDismissTooltip("goToFamily")}
+              visible={shouldShowHomeTutorial}
+              bgColor={colors.yellow[0]}
+            />
+          )}
 
           {/* Planning à venir */}
           <KWCard style={styles.planningCard}>
@@ -601,33 +639,6 @@ const HomeScreen = ({ navigation }) => {
             />
           )}
         </KWModal>
-
-        {/* MODAL Tutoriel */}
-        {tutorialStep === 0 && (
-          <KWModal visible={true}>
-            <KWText
-              type="h2"
-              style={{
-                marginBottom: 15,
-                fontWeight: "bold",
-                color: colors.purple[2],
-              }}
-            >
-              Bienvenue sur KidsWeek ! 👋
-            </KWText>
-            <KWText style={{ marginBottom: 20, lineHeight: 22 }}>
-              Pour commencer, nous allons créer votre foyer familial ensemble.
-            </KWText>
-            <KWButton
-              title="Créer mon foyer"
-              bgColor={colors.purple[1]}
-              onPress={() => {
-                dispatch(saveTutorialStepAsync({ email: user.email, step: 1 }));
-                navigation.navigate("Famille");
-              }}
-            />
-          </KWModal>
-        )}
       </View>
     </SafeAreaView>
   );

@@ -14,7 +14,6 @@ const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
 const InviteForm = ({ data, onReturn }) => {
   const dispatch = useDispatch();
-
   const user = useSelector((state) => state.user.value);
 
   const [emailInput, setEmailInput] = useState("aurelien05@gmail.com");
@@ -49,6 +48,7 @@ const InviteForm = ({ data, onReturn }) => {
         "Invite SendInvite : ",
         data.error || "Erreur lors de l'envoi de l'invitation"
       );
+
     return data.result;
   };
 
@@ -61,16 +61,18 @@ const InviteForm = ({ data, onReturn }) => {
             emailAddress: emailInput,
           })
         ).unwrap();
+
         const url = Linking.createURL("invite", {
           queryParams: { token: invite.token },
         });
+
         setInviteUrl(url);
+
         const sendMail = await dispatch(
           sendInviteAsync({ invite, url })
         ).unwrap();
-        if (sendMail) {
-          //onReturn();
-        } else {
+
+        if (!sendMail) {
           setFormErrors({ emailInput: `Echec d'envoi du mail d'invitation` });
         }
       } catch (err) {
@@ -80,7 +82,7 @@ const InviteForm = ({ data, onReturn }) => {
   };
 
   const handleSharing = async () => {
-    await Sharing.shareAsync(token);
+    await Sharing.shareAsync(inviteUrl);
   };
 
   if (!inviteUrl) {
@@ -114,11 +116,10 @@ const InviteForm = ({ data, onReturn }) => {
   } else {
     return (
       <View style={styles.container}>
-        <KWText type="h1">Inivtation envoyée</KWText>
+        <KWText type="h1">Invitation envoyée</KWText>
         <KWText style={{ width: "100%", textAlign: "center" }}>
           Une invitation a été envoyée par email à l'adresse {emailInput}.
         </KWText>
-        {/* <KWText>Vous pouvez également partager cette invitation via vos réseaux sociaux <KWButton title="Partager" icon="share" onPress={() => handleSharing()} /></KWText> */}
         <KWText
           style={{
             width: "100%",
@@ -151,16 +152,13 @@ const InviteForm = ({ data, onReturn }) => {
 const styles = StyleSheet.create({
   container: {
     width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
   },
   buttonsFooter: {
     width: "100%",
     flexDirection: "row",
     justifyContent: "space-between",
-  },
-  buttonsSpacer: {
-    width: "50%",
-    padding: 10,
-    backgroundColor: "grey",
   },
   qrContainer: {
     margin: 20,
