@@ -43,10 +43,7 @@ const InviteForm = ({ data, onReturn }) => {
       body: JSON.stringify(InviteData),
     });
     const data = await response.json();
-<<<<<<< HEAD
-    console.log(data);
-=======
->>>>>>> 05d2d480e20839358a1abbf43fa802e9ca8af0ac
+
     if (!data.result)
       throw console.log(
         "Invite SendInvite : ",
