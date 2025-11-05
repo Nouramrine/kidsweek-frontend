@@ -45,63 +45,100 @@ export default function CalendarScreen() {
   useEffect(() => {
     const marks = {};
 
+    //  Regrouper les activités par date et par membre
+    const activitiesByDateAndMember = {};
     activities.forEach((activity) => {
-      //formatage date de debut
+      //formatage des dates
       const dateBeginStr = activity.dateBegin
         ? activity.dateBegin.split("T")[0]
         : null;
-      //formatage date de Fin
       const dateEndStr = activity.dateEnd
         ? activity.dateEnd.split("T")[0]
         : null;
-
       if (!dateBeginStr) return;
 
-      // Ajouter un point avec la couleur de l'activité
-      const activityColor =
-        colors[activity.color]?.[2] || activity.color || colors.purple[2];
-
-      // Si l'activité dure plusieurs jours
+      // Gestion des activités sur plusieurs jours
       if (dateEndStr && dateBeginStr !== dateEndStr) {
         const startDate = new Date(dateBeginStr);
         const endDate = new Date(dateEndStr);
-
-        // Parcourir tous les jours entre début et fin
         let currentDate = new Date(startDate);
 
+        // Pour chaque jour de l'activité
         while (currentDate <= endDate) {
           const dateString = currentDate.toISOString().split("T")[0];
 
-          if (!marks[dateString]) {
-            marks[dateString] = { periods: [] };
-          }
+          // Pour chaque membre de l'activité
+          activity.members?.forEach((member) => {
+            //recuperation de l'id
+            const memberId = member._id;
+            //si date inexistante dans l'objet
+            if (!activitiesByDateAndMember[dateString]) {
+              //init de l'objet pour cette date
+              activitiesByDateAndMember[dateString] = {};
+            }
 
-          // Déterminer si c'est le premier jour, le dernier, ou un jour intermédiaire
-          const isFirstDay = dateString === dateBeginStr;
-          const isLastDay = dateString === dateEndStr;
-
-          marks[dateString].periods.push({
-            startingDay: isFirstDay,
-            endingDay: isLastDay,
-            color: activityColor,
+            if (!activitiesByDateAndMember[dateString][memberId]) {
+              // init du tab des act pour le membre s'il n'existe pas
+              activitiesByDateAndMember[dateString][memberId] = [];
+            }
+            // ajout de l'activité
+            activitiesByDateAndMember[dateString][memberId].push(activity);
           });
 
-          // Passer au jour suivant
           currentDate.setDate(currentDate.getDate() + 1);
         }
+        /* resultat de l'objet
+        {
+        "2023-10-01": {  // Date au format "AAAA-MM-JJ"
+          "alice123": [activité1, activité2],  // Activités d'Alice ce jour-là
+          "bob456": [activité1]                // Activités de Bob ce jour-là
+        },
+      "2023-10-02": { ... }
+        } */
       } else {
-        // Activité d'un seul jour
-        if (!marks[dateBeginStr]) {
-          marks[dateBeginStr] = { periods: [] };
-        }
+        // idem pour activité sur un seul jour
 
-        marks[dateBeginStr].periods.push({
-          startingDay: true,
-          endingDay: true,
-          color: activityColor,
+        activity.members?.forEach((member) => {
+          const memberId = member._id;
+          //Initialisation de l'objet pour la date de début (si inexistante)
+          if (!activitiesByDateAndMember[dateBeginStr]) {
+            activitiesByDateAndMember[dateBeginStr] = {};
+          }
+          if (!activitiesByDateAndMember[dateBeginStr][memberId]) {
+            activitiesByDateAndMember[dateBeginStr][memberId] = [];
+          }
+          activitiesByDateAndMember[dateBeginStr][memberId].push(activity);
         });
       }
     });
+
+    // Étape 2 : Créer les marques pour le calendrier
+    Object.keys(activitiesByDateAndMember).forEach((dateStr) => {
+      const members = activitiesByDateAndMember[dateStr];
+      const memberIds = Object.keys(members);
+
+      // Compter le nombre total d'activités pour cette date
+      let totalActivities = 0;
+      memberIds.forEach((memberId) => {
+        totalActivities += members[memberId].length;
+      });
+
+      // Limiter à 3 marqueurs maximum par jour (un par membre)
+      const periods = memberIds.slice(0, 3).map((memberId) => {
+        const memberActivities = members[memberId];
+        const firstActivity = memberActivities[0];
+        const activityColor =
+          colors[firstActivity.color]?.[2] || colors.purple[2];
+        return {
+          startingDay: true,
+          endingDay: true,
+          color: activityColor,
+        };
+      });
+
+      marks[dateStr] = { periods };
+    });
+
     setMarkedDates(marks);
   }, [activities, selectedDate]);
 
@@ -278,7 +315,7 @@ export default function CalendarScreen() {
               backgroundColor: palette[0], // Fond pastel
               paddingVertical: 8,
               borderRadius: 10,
-              marginHorizontal: 10,
+              paddingHorizontal: 15,
             },
           },
         }}

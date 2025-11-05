@@ -39,19 +39,19 @@ export async function registerForPushNotificationsAsync() {
     }
 
     if (finalStatus !== "granted") {
-      console.log("❌ Permission de notification refusée");
+      // console.log("❌ Permission de notification refusée");
       return null;
     }
 
-    console.log("✅ Permission de notification accordée");
+    //console.log("✅ Permission de notification accordée");
 
     // Récupérer le token (utile pour push serveur plus tard)
     // token = (await Notifications.getExpoPushTokenAsync()).data;
     // console.log("📱 Push Token:", token);
   } else {
-    console.log(
+    /* console.log(
       "⚠️ Les notifications ne fonctionnent que sur un appareil physique"
-    );
+    );*/
   }
 
   return token;
