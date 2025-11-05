@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   View,
   StyleSheet,
@@ -25,17 +25,11 @@ import {
   updateActivityAsync,
   fetchActivitiesAsync,
 } from "../reducers/activities";
-
 import ButtonSaveUpdate from "../components/Activities/ButtonSaveUpdate";
-//import { SafeAreaView } from "react-native-safe-area-context";
 import KWModal from "../components/KWModal";
 import KWDropdown from "../components/Activities/KWDropdown";
 import MemberAdd from "../components/member/Add";
 import { useFocusEffect } from "@react-navigation/native";
-
-import { fetchZonesAsync } from "../reducers/zones";
-
-import { fetchMembersAsync } from "../reducers/members";
 
 const AddScreen = ({ navigation, route }) => {
   useFocusEffect(
@@ -80,12 +74,6 @@ const AddScreen = ({ navigation, route }) => {
   const activities = useSelector((state) => state.activities.value);
   const zones = useSelector((state) => state.zones.value);
 
-  // console.log("Zones : ", zones);
-  //console.log("Membres : ===> ", members);
-  // console.log("Activités : ", activities);
-  // console.log("reducer user", user);
-  // console.log("Props écran modif activité :", props);
-  //console.log("reducer activities =====>", activities);
   const [error, setError] = useState(false);
   //display switch
   const [isEnabled, setIsEnabled] = useState(false);
@@ -945,7 +933,7 @@ const styles = StyleSheet.create({
     padding: 7,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: colors.blue[1],
     backgroundColor: "#feffffff",
     // overflow: "hidden",
   },
@@ -1086,7 +1074,6 @@ const styles = StyleSheet.create({
   },
   footer: {
     height: 10,
-    marginBottom: 40,
   },
 
   checklistItemsContainer: {
