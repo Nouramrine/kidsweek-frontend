@@ -39,19 +39,19 @@ export async function registerForPushNotificationsAsync() {
     }
 
     if (finalStatus !== "granted") {
-      console.log("❌ Permission de notification refusée");
+      // console.log("❌ Permission de notification refusée");
       return null;
     }
 
-    console.log("✅ Permission de notification accordée");
+    // console.log("✅ Permission de notification accordée");
 
     // Récupérer le token (utile pour push serveur plus tard)
     // token = (await Notifications.getExpoPushTokenAsync()).data;
     // console.log("📱 Push Token:", token);
   } else {
-    console.log(
-      "⚠️ Les notifications ne fonctionnent que sur un appareil physique"
-    );
+    // console.log(
+    //   "⚠️ Les notifications ne fonctionnent que sur un appareil physique"
+    // );
   }
 
   return token;
@@ -75,7 +75,7 @@ export async function scheduleLocalNotification(title, body, data = {}) {
       },
       trigger: null, // Déclencher immédiatement
     });
-    console.log("🔔 Notification locale envoyée:", title);
+  // console.log("🔔 Notification locale envoyée:", title);
   } catch (error) {
     console.error("❌ Erreur notification locale:", error);
   }
@@ -86,7 +86,7 @@ export async function scheduleLocalNotification(title, body, data = {}) {
  */
 export async function cancelAllScheduledNotifications() {
   await Notifications.cancelAllScheduledNotificationsAsync();
-  console.log("🗑️ Toutes les notifications programmées ont été annulées");
+  // console.log("🗑️ Toutes les notifications programmées ont été annulées");
 }
 
 /**
@@ -96,7 +96,7 @@ export async function cancelAllScheduledNotifications() {
 export function addNotificationResponseListener(callback) {
   return Notifications.addNotificationResponseReceivedListener((response) => {
     const data = response.notification.request.content.data;
-    console.log("👆 Notification cliquée:", data);
+    // console.log("👆 Notification cliquée:", data);
     callback(data);
   });
 }
@@ -108,7 +108,7 @@ export function addNotificationResponseListener(callback) {
 export function addNotificationReceivedListener(callback) {
   return Notifications.addNotificationReceivedListener((notification) => {
     const data = notification.request.content.data;
-    console.log("📬 Notification reçue (app ouverte):", data);
+    // console.log("📬 Notification reçue (app ouverte):", data);
     callback(data);
   });
 }
