@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   View,
   StyleSheet,
@@ -25,18 +25,11 @@ import {
   updateActivityAsync,
   fetchActivitiesAsync,
 } from "../reducers/activities";
-
 import ButtonSaveUpdate from "../components/Activities/ButtonSaveUpdate";
-//import { SafeAreaView } from "react-native-safe-area-context";
 import KWModal from "../components/KWModal";
 import KWDropdown from "../components/Activities/KWDropdown";
 import MemberAdd from "../components/member/Add";
 import { useFocusEffect } from "@react-navigation/native";
-
-import { fetchZonesAsync } from "../reducers/zones";
-
-import { fetchMembersAsync } from "../reducers/members";
-import { fetchNotificationsAsync } from "../reducers/notifications";
 
 const AddScreen = ({ navigation, route }) => {
   useFocusEffect(
@@ -81,12 +74,6 @@ const AddScreen = ({ navigation, route }) => {
   const activities = useSelector((state) => state.activities.value);
   const zones = useSelector((state) => state.zones.value);
 
-  // console.log("Zones : ", zones);
-  //console.log("Membres : ===> ", members);
-  // console.log("Activités : ", activities);
-  // console.log("reducer user", user);
-  // console.log("Props écran modif activité :", props);
-  //console.log("reducer activities =====>", activities);
   const [error, setError] = useState(false);
   //display switch
   const [isEnabled, setIsEnabled] = useState(false);
@@ -151,24 +138,23 @@ const AddScreen = ({ navigation, route }) => {
       return;
     }
     memberIds = addMembers.map((m, key) => m._id);
-
+    // combine date and time
     const fullDateBegin = combineDateAndTime(dateBegin, timeBegin);
     const fullDateEnd = combineDateAndTime(dateEnd, timeEnd);
 
     if (!validateForm()) {
-      return;
+      return; // Arrête si la validation échoue
     }
 
     const reminderDate = calculateReminderDate(
-      new Date(fullDateBegin),
+      fullDateBegin,
       reminderNumber,
       reminderUnit
-    ).toISOString();
+    );
 
     if (fullDateEnd <= fullDateBegin) {
       setDateEnd(fullDateBegin);
     }
-
     try {
       const result = await dispatch(
         createActivityAsync({
@@ -185,12 +171,10 @@ const AddScreen = ({ navigation, route }) => {
           members: memberIds,
           color: colorAct,
         })
-      ).unwrap();
+      ).unwrap(); // unwrap pour obtenir la valeur résolue ou lancer une erreur
+      console.log("Activité créée avec succès:", result);
+      dispatch(fetchActivitiesAsync(user.token));
 
-      // console.log("Activité créée avec succès:", result);
-
-      await dispatch(fetchActivitiesAsync(user.token));
-      await dispatch(fetchNotificationsAsync(user.token));
       navigation.goBack();
     } catch (error) {
       Alert.alert("Erreur", error.message || "Impossible de créer l'activité");
@@ -354,7 +338,7 @@ const AddScreen = ({ navigation, route }) => {
     combined.setMinutes(time.getMinutes());
     combined.setSeconds(0);
     combined.setMilliseconds(0);
-    return combined.toISOString();
+    return combined;
   };
 
   // Checklist handlers
@@ -443,7 +427,7 @@ const AddScreen = ({ navigation, route }) => {
           token: user.token,
         })
       ).unwrap(); // unwrap pour obtenir la valeur résolue ou lancer une erreur
-      // console.log("Activité supprimée avec succès:", result);
+      console.log("Activité supprimée avec succès:", result);
 
       navigation.navigate("calendrier");
     } catch (error) {
@@ -469,11 +453,12 @@ const AddScreen = ({ navigation, route }) => {
     }
 
     const reminderDate = calculateReminderDate(
-      new Date(fullDateBegin),
+      fullDateBegin,
       reminderNumber,
       reminderUnit
-    ).toISOString();
+    );
 
+    // Préparer les données de récurrence
     let recurrenceData = null;
     let dateEndRec = null;
 
@@ -509,11 +494,7 @@ const AddScreen = ({ navigation, route }) => {
         })
       ).unwrap();
 
-      // console.log("Activité mise à jour avec succès:", result);
-
-      await dispatch(fetchActivitiesAsync(user.token));
-      await dispatch(fetchNotificationsAsync(user.token));
-
+      console.log("Activité mise à jour avec succès:", result);
       navigation.goBack();
     } catch (error) {
       Alert.alert(
@@ -764,19 +745,41 @@ const AddScreen = ({ navigation, route }) => {
 
           <View>
             {addMembers && addMembers.length > 0 ? (
-              addMembers.map((memberselect) => (
-                <View key={memberselect._id} style={styles.memberItem}>
-                  <KWText type="text" style={styles.memberName}>
-                    {memberselect.firstName}
-                  </KWText>
-                  <TouchableOpacity
-                    style={styles.removeButton}
-                    onPress={() => handleRemoveMember(memberselect._id)}
+              addMembers.map((memberselect) => {
+                const colorKey = memberselect.color || "skin";
+
+                const memberColor = colors[colorKey] || colors.skin;
+
+                return (
+                  <View
+                    key={memberselect._id}
+                    style={[
+                      styles.memberItem,
+                      {
+                        backgroundColor: memberColor[0],
+                        borderColor: memberColor[1],
+                      },
+                    ]}
                   >
-                    <FontAwesome5 name="times" size={16} color="#EF4444" />
-                  </TouchableOpacity>
-                </View>
-              ))
+                    <KWText
+                      type="text"
+                      style={[styles.memberName, { color: colors.text }]}
+                    >
+                      {memberselect.firstName}
+                    </KWText>
+                    <TouchableOpacity
+                      style={styles.removeButton}
+                      onPress={() => handleRemoveMember(memberselect._id)}
+                    >
+                      <FontAwesome5
+                        name="times"
+                        size={20}
+                        color={colors.red[1]}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                );
+              })
             ) : (
               <KWText type="text" style={styles.noMembersText}>
                 Aucun membre sélectionné
@@ -814,6 +817,7 @@ const AddScreen = ({ navigation, route }) => {
           <View style={styles.checklistHeader}>
             <View style={styles.addChecklistContainer}>
               <KWTextInput
+                minWidth={250}
                 label="Penser à :"
                 style={styles.checklistInput}
                 placeholder="Nouvel élément"
@@ -822,10 +826,15 @@ const AddScreen = ({ navigation, route }) => {
                 onBlur={() => setNewChecklistItem(newChecklistItem.trim())}
               />
               <TouchableOpacity
+                alignContent="center"
                 style={styles.addChecklistButton}
                 onPress={addChecklistItem}
               >
-                <Ionicons name="add-circle-outline" size={30} color="#8E7EED" />
+                <Ionicons
+                  name="add-circle-outline"
+                  size={40}
+                  color={colors.blue[1]}
+                />
               </TouchableOpacity>
             </View>
           </View>
@@ -834,7 +843,11 @@ const AddScreen = ({ navigation, route }) => {
             {checklistItems &&
               checklistItems.length > 0 &&
               checklistItems.map((item) => (
-                <View key={item._id} style={styles.checklistItem}>
+                <View
+                  minHeight={30}
+                  key={item._id}
+                  style={styles.checklistItem}
+                >
                   <KWText type="text" style={styles.checklistItemText}>
                     {item.text}
                   </KWText>
@@ -872,6 +885,7 @@ const AddScreen = ({ navigation, route }) => {
         {/* Boutons */}
         <View style={styles.buttonsContainer}>
           <KWButton
+            icon="backward"
             bgColor={colors.red[1]}
             title="Retour"
             onPress={handleAbort}
@@ -914,11 +928,13 @@ const styles = StyleSheet.create({
   },
   section: {
     marginHorizontal: 20,
-    marginBottom: 15,
-    padding: 15,
+    marginBottom: 7,
+
+    padding: 7,
     borderRadius: 10,
-    //borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderWidth: 1,
+    borderColor: colors.blue[1],
+    backgroundColor: "#feffffff",
     // overflow: "hidden",
   },
   label: {
@@ -1030,7 +1046,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#f9fafb",
+    //backgroundColor: colors.blue[0],
     borderRadius: 10,
     paddingVertical: 10,
     paddingHorizontal: 15,
@@ -1058,7 +1074,6 @@ const styles = StyleSheet.create({
   },
   footer: {
     height: 10,
-    marginBottom: 40,
   },
 
   checklistItemsContainer: {
@@ -1078,7 +1093,9 @@ const styles = StyleSheet.create({
   },
   addChecklistContainer: {
     flex: 1,
-    // flexDirection: "row",
-    //justifyContent: "space-between",
+    flexDirection: "row",
+    alignContent: "center",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
 });
