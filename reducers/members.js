@@ -5,7 +5,6 @@ const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 // Fetch tous les membres
 export const fetchMembersAsync = createAsyncThunk(
   "members/fetchMembersAsync",
-<<<<<<< HEAD
   async (_, { getState, rejectWithValue }) => {
     try {
       const token = getState().user.value.token;
@@ -26,27 +25,12 @@ export const fetchMembersAsync = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.message || "Erreur réseau");
     }
-=======
-  async (_, { getState }) => {
-    const token = getState().user.value.token;
-    const res = await fetch(`${BACKEND_URL}/members`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-  const data = await res.json();
-  if (!data.result) throw new Error(data.error || "Erreur lors du fetch des membres");
-    return data.members;
->>>>>>> test
   }
 );
 
 // Créer un membre
 export const createMemberAsync = createAsyncThunk(
   "members/createMemberAsync",
-<<<<<<< HEAD
   async (memberData, { getState, rejectWithValue }) => {
     try {
       const token = getState().user.value.token;
@@ -68,28 +52,12 @@ export const createMemberAsync = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.message || "Erreur réseau");
     }
-=======
-  async (memberData, { getState }) => {
-    const token = getState().user.value.token;
-    const res = await fetch(`${BACKEND_URL}/members`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(memberData),
-    });
-  const data = await res.json();
-  if (!data.result) throw new Error(data.error || "Erreur lors de la création du membre");
-    return data.member;
->>>>>>> test
   }
 );
 
 // Mettre à jour un membre
 export const updateMemberAsync = createAsyncThunk(
   "members/updateMemberAsync",
-<<<<<<< HEAD
   async (memberData, { getState, rejectWithValue }) => {
     try {
       const token = getState().user.value.token;
@@ -111,28 +79,12 @@ export const updateMemberAsync = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.message || "Erreur réseau");
     }
-=======
-  async (memberData, { getState }) => {
-    const token = getState().user.value.token;
-    const res = await fetch(`${BACKEND_URL}/members/${memberData.id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(memberData),
-    });
-  const data = await res.json();
-  if (!data.result) throw new Error(data.error || "Erreur lors de la mise à jour du membre");
-    return data.member;
->>>>>>> test
   }
 );
 
 // Supprimer un membre
 export const deleteMemberAsync = createAsyncThunk(
   "members/deleteMemberAsync",
-<<<<<<< HEAD
   async (memberId, { getState, rejectWithValue }) => {
     try {
       const token = getState().user.value.token;
@@ -153,20 +105,6 @@ export const deleteMemberAsync = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.message || "Erreur réseau");
     }
-=======
-  async (memberId, { getState }) => {
-    const token = getState().user.value.token;
-    const res = await fetch(`${BACKEND_URL}/members/${memberId}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-  const data = await res.json();
-  if (!data.result) throw new Error(data.error || "Erreur lors de la suppression du membre");
-    return memberId; // 🔹 retourne l’ID supprimé
->>>>>>> test
   }
 );
 
