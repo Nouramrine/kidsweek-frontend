@@ -46,5 +46,10 @@
     "redux-persist": "^6.0.0",
     "redux-thunk": "^3.1.0"
   },
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "@babel/core": "^7.28.5",
+    "babel-jest": "^30.2.0",
+    "metro-react-native-babel-preset": "^0.77.0"
+  }
 }

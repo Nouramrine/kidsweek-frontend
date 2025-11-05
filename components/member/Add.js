@@ -34,7 +34,7 @@ const MemberAdd = ({ currentMembers, onReturn }) => {
     <ScrollView style={styles.membersContainer}>
       <KWText type="h2">Ajouter un membre</KWText>
       {!filteredMembers.length && (
-        <KWText style={styles.emptyText}>Aucun membre</KWText>
+        <KWText style={styles.emptyText}>Aucun membre à ajouter</KWText>
       )}
       {filteredMembers.map((member, j) => {
         return (
