@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
-// 🔹 Fetch tous les membres
+// Fetch tous les membres
 export const fetchMembersAsync = createAsyncThunk(
   "members/fetchMembersAsync",
   async (_, { getState, rejectWithValue }) => {
@@ -28,7 +28,7 @@ export const fetchMembersAsync = createAsyncThunk(
   }
 );
 
-// 🔹 Créer un membre
+// Créer un membre
 export const createMemberAsync = createAsyncThunk(
   "members/createMemberAsync",
   async (memberData, { getState, rejectWithValue }) => {
@@ -55,7 +55,7 @@ export const createMemberAsync = createAsyncThunk(
   }
 );
 
-// 🔹 Mettre à jour un membre
+// Mettre à jour un membre
 export const updateMemberAsync = createAsyncThunk(
   "members/updateMemberAsync",
   async (memberData, { getState, rejectWithValue }) => {
@@ -82,7 +82,7 @@ export const updateMemberAsync = createAsyncThunk(
   }
 );
 
-// 🔹 Supprimer un membre
+// Supprimer un membre
 export const deleteMemberAsync = createAsyncThunk(
   "members/deleteMemberAsync",
   async (memberId, { getState, rejectWithValue }) => {

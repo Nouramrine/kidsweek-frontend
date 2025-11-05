@@ -135,11 +135,6 @@ const HomeScreen = ({ navigation }) => {
       })),
     ];
 
-    console.log("🔍 NOTIFICATIONS REÇUES :", {
-      invitations: invitations.map((i) => ({ ...i, memberId: i.memberId })),
-      reminders,
-    });
-    console.log("🔍 NOTIFICATIONS TRANSFORMÉES :", allNotifs);
 
     setModalNotifications((prev) => {
       const prevIds = prev

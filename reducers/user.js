@@ -3,7 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
-// 🔹 Charger le tutorialStep depuis AsyncStorage
+// Charger le tutorialStep depuis AsyncStorage
 export const loadTutorialStepAsync = createAsyncThunk(
   "user/loadTutorialStepAsync",
   async (email) => {
@@ -17,7 +17,7 @@ export const loadTutorialStepAsync = createAsyncThunk(
   }
 );
 
-// 🔹 Sauvegarder le tutorialStep dans AsyncStorage
+// Sauvegarder le tutorialStep dans AsyncStorage
 export const saveTutorialStepAsync = createAsyncThunk(
   "user/saveTutorialStepAsync",
   async ({ email, step }) => {

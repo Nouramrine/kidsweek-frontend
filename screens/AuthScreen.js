@@ -52,7 +52,6 @@ const AuthScreen = () => {
       <KWModal visible={qrModal}>
         <ScanModal onReturn={(token) => {
           if (token) {
-            console.log(token);
             setInviteToken(token);
           }
           setQrModal(false);
