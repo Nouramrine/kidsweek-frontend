@@ -108,10 +108,10 @@ const notificationSlice = createSlice({
           (inv) => inv.activityId?._id !== activityId
         );
 
-        console.log(
-          "✅ Invitation supprimée du state, reste:",
-          state.invitations.length
-        );
+        // console.log(
+        //   "✅ Invitation supprimée du state, reste:",
+        //   state.invitations.length
+        // );
       })
       .addCase(respondToInvitationAsync.rejected, (state, action) => {
         state.loading = false;

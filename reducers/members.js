@@ -14,8 +14,8 @@ export const fetchMembersAsync = createAsyncThunk(
         Authorization: `Bearer ${token}`,
       },
     });
-    const data = await res.json();
-    if (!data.result) throw console.log("Members reducer fetch :", data.error);
+  const data = await res.json();
+  if (!data.result) throw new Error(data.error || "Erreur lors du fetch des membres");
     return data.members;
   }
 );
@@ -33,8 +33,8 @@ export const createMemberAsync = createAsyncThunk(
       },
       body: JSON.stringify(memberData),
     });
-    const data = await res.json();
-    if (!data.result) throw console.log("Members reducer create :", data.error);
+  const data = await res.json();
+  if (!data.result) throw new Error(data.error || "Erreur lors de la création du membre");
     return data.member;
   }
 );
@@ -52,8 +52,8 @@ export const updateMemberAsync = createAsyncThunk(
       },
       body: JSON.stringify(memberData),
     });
-    const data = await res.json();
-    if (!data.result) throw console.log("Members reducer update :", data.error);
+  const data = await res.json();
+  if (!data.result) throw new Error(data.error || "Erreur lors de la mise à jour du membre");
     return data.member;
   }
 );
@@ -70,8 +70,8 @@ export const deleteMemberAsync = createAsyncThunk(
         Authorization: `Bearer ${token}`,
       },
     });
-    const data = await res.json();
-    if (!data.result) throw console.log("Members reducer delete :", data.error);
+  const data = await res.json();
+  if (!data.result) throw new Error(data.error || "Erreur lors de la suppression du membre");
     return memberId; // 🔹 retourne l’ID supprimé
   }
 );

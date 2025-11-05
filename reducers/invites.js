@@ -18,7 +18,7 @@ export const fetchInvitesAsync = createAsyncThunk(
     const data = await response.json();
     //console.log(data)
     if (!data.result)
-      throw console.log("Invites reducer : ", data.error || "Erreur lors du fetch des invitations");
+      throw new Error(data.error || "Erreur lors du fetch des invitations");
     return data.invites || [];
   }  
 );
@@ -40,7 +40,7 @@ export const createInviteAsync = createAsyncThunk(
     const data = await response.json();
     //console.log(data)
     if (!data.result)
-      throw console.log("Create Invite reducer : ", data.error || "Erreur lors de la création de l'invitation");
+      throw new Error(data.error || "Erreur lors de la création de l'invitation");
     return data.invites || [];
   }
 );
@@ -61,7 +61,7 @@ export const updateInviteAsync = createAsyncThunk(
     });
     const data = await response.json();
     if (!data.result)
-      throw console.log("Invites reducer : ", data.error || "Erreur lors de la mise à jour de l'invitation");
+      throw new Error(data.error || "Erreur lors de la mise à jour de l'invitation");
     return data.invites[0] || [];
   }
 );
@@ -81,7 +81,7 @@ export const deleteInviteAsync = createAsyncThunk(
     });
     const data = await response.json();
     if (!data.result)
-      throw console.log("Invites reducer : ", data.error || "Erreur lors de la suppression de l'invitation");
+      throw new Error(data.error || "Erreur lors de la suppression de l'invitation");
     return data.invites[0] || '';
   }
 );

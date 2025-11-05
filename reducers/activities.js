@@ -181,8 +181,8 @@ export const updateActivityAsync = createAsyncThunk(
         }),
       });
 
-      const data = await response.json();
-      console.log("Update activity response:", data);
+  const data = await response.json();
+  // console.log("Update activity response:", data);
 
       if (!response.ok) {
         throw new Error(data.message || "Erreur lors de la mise à jour");

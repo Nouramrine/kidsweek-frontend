@@ -139,7 +139,7 @@ export default function App() {
 
     // Listener pour quand l'utilisateur clique sur une notification
     responseListener.current = addNotificationResponseListener((data) => {
-      console.log("👆 Notification cliquée, data:", data);
+      // console.log("👆 Notification cliquée, data:", data);
 
       // Navigation vers l'écran approprié selon le type de notification
       if (navigationRef.current) {

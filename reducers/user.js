@@ -1,36 +1,36 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
-// 🔹 Charger le tutorialStep depuis AsyncStorage
-export const loadTutorialStepAsync = createAsyncThunk(
-  "user/loadTutorialStepAsync",
-  async (email) => {
+//  Dismiss un tooltip
+export const dismissTutorialAsync = createAsyncThunk(
+  "user/dismissTutorialAsync",
+  async ({ token, tooltipId }) => {
     try {
-      const storedStep = await AsyncStorage.getItem(`tutorialStep_${email}`);
-      return storedStep ? parseInt(storedStep) : 0;
+      const response = await fetch(`${BACKEND_URL}/members/tutorial/dismiss`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ tooltipId }),
+      });
+      const data = await response.json();
+
+      if (data.result) {
+        return data.tutorialState;
+      } else {
+        console.error("Erreur dismiss tooltip:", data.error);
+        return null;
+      }
     } catch (error) {
-      console.error("Erreur chargement tutorialStep:", error);
-      return 0;
+      console.error("Erreur dismiss tooltip:", error);
+      return null;
     }
   }
 );
 
-// 🔹 Sauvegarder le tutorialStep dans AsyncStorage
-export const saveTutorialStepAsync = createAsyncThunk(
-  "user/saveTutorialStepAsync",
-  async ({ email, step }) => {
-    try {
-      await AsyncStorage.setItem(`tutorialStep_${email}`, step.toString());
-      return step;
-    } catch (error) {
-      console.error("Erreur sauvegarde tutorialStep:", error);
-      return step;
-    }
-  }
-);
-
+//  signInAsync récupère tutorialState
 export const signInAsync = createAsyncThunk(
   "user/signInAsync",
   async (payload, { dispatch }) => {
@@ -42,19 +42,17 @@ export const signInAsync = createAsyncThunk(
         body: JSON.stringify({ email, password }),
       });
       const data = await response.json();
-      if (data.result) {
-        // Charger le tutorialStep depuis AsyncStorage
-        const tutorialStep = await dispatch(
-          loadTutorialStepAsync(email)
-        ).unwrap();
 
+      if (data.result) {
         dispatch(
           login({
             token: data.member.token,
             firstName: data.member.firstName,
             lastName: data.member.lastName,
             email: data.member.email,
-            tutorialStep,
+            tutorialState: data.member.tutorialState || {
+              dismissedTooltips: [],
+            },
           })
         );
         return { result: true };
@@ -63,10 +61,12 @@ export const signInAsync = createAsyncThunk(
       }
     } catch (error) {
       console.error("Erreur réseau :", error);
+      return { result: false, error: "Erreur réseau" };
     }
   }
 );
 
+// signUpAsync récupère tutorialState
 export const signUpAsync = createAsyncThunk(
   "user/signUpAsync",
   async (payload, { dispatch }) => {
@@ -76,18 +76,26 @@ export const signUpAsync = createAsyncThunk(
       const response = await fetch(`${BACKEND_URL}/members/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firstName, lastName, email, inviteToken, password }),
+        body: JSON.stringify({
+          firstName,
+          lastName,
+          email,
+          inviteToken,
+          password,
+        }),
       });
       const data = await response.json();
+
       if (data.result) {
-        // Nouveau compte = tutorialStep à 0
         dispatch(
           login({
             token: data.member.token,
             firstName: data.member.firstName,
             lastName: data.member.lastName,
             email: data.member.email,
-            tutorialStep: 0,
+            tutorialState: data.member.tutorialState || {
+              dismissedTooltips: [],
+            },
           })
         );
         return { result: true };
@@ -96,6 +104,7 @@ export const signUpAsync = createAsyncThunk(
       }
     } catch (error) {
       console.error("Erreur réseau :", error);
+      return { result: false, error: "Erreur réseau" };
     }
   }
 );
@@ -107,7 +116,9 @@ const initialState = {
     lastName: null,
     email: null,
     isLogged: false,
-    tutorialStep: 0,
+    tutorialState: {
+      dismissedTooltips: [],
+    },
   },
 };
 
@@ -122,7 +133,9 @@ export const userSlice = createSlice({
         lastName: action.payload.lastName,
         email: action.payload.email,
         isLogged: true,
-        tutorialStep: action.payload.tutorialStep || 0,
+        tutorialState: action.payload.tutorialState || {
+          dismissedTooltips: [],
+        },
       };
     },
     logout: (state) => {
@@ -132,23 +145,20 @@ export const userSlice = createSlice({
         lastName: null,
         email: null,
         isLogged: false,
-        tutorialStep: 0,
+        tutorialState: {
+          dismissedTooltips: [],
+        },
       };
-    },
-    advanceTutorial: (state) => {
-      state.value.tutorialStep += 1;
     },
   },
   extraReducers: (builder) => {
-    builder
-      .addCase(loadTutorialStepAsync.fulfilled, (state, action) => {
-        state.value.tutorialStep = action.payload;
-      })
-      .addCase(saveTutorialStepAsync.fulfilled, (state, action) => {
-        state.value.tutorialStep = action.payload;
-      });
+    builder.addCase(dismissTutorialAsync.fulfilled, (state, action) => {
+      if (action.payload) {
+        state.value.tutorialState = action.payload;
+      }
+    });
   },
 });
 
-export const { login, logout, advanceTutorial } = userSlice.actions;
+export const { login, logout } = userSlice.actions;
 export default userSlice.reducer;
