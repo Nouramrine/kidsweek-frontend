@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import KWText from "./KWText";
+import { colors } from "../theme/colors";
 
 const KWDateTimePicker = ({
   label,
@@ -96,12 +97,12 @@ const KWDateTimePicker = ({
 const styles = StyleSheet.create({
   section: {
     backgroundColor: "white",
-    marginHorizontal: 20,
-    marginBottom: 15,
-    padding: 15,
+    marginHorizontal: 5,
+    marginBottom: 7,
+    padding: 7,
     borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderWidth: 2,
+    borderColor: colors.input[0],
   },
   label: {
     fontSize: 14,
@@ -115,7 +116,7 @@ const styles = StyleSheet.create({
   },
   dateButton: {
     borderWidth: 1,
-    borderColor: "#D1D5DB",
+    borderColor: "#c5d4ebb7",
     borderRadius: 6,
     padding: 10,
     alignItems: "center",
