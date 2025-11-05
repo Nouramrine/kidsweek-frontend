@@ -16,11 +16,13 @@ export const fetchMembersAsync = createAsyncThunk(
         },
       });
       const data = await res.json();
-      
+
       if (!data.result) {
-        return rejectWithValue(data.error || "Erreur lors de la récupération des membres");
+        return rejectWithValue(
+          data.error || "Erreur lors de la récupération des membres"
+        );
       }
-      
+
       return data.members;
     } catch (error) {
       return rejectWithValue(error.message || "Erreur réseau");
@@ -43,11 +45,13 @@ export const createMemberAsync = createAsyncThunk(
         body: JSON.stringify(memberData),
       });
       const data = await res.json();
-      
+
       if (!data.result) {
-        return rejectWithValue(data.error || "Erreur lors de la création du membre");
+        return rejectWithValue(
+          data.error || "Erreur lors de la création du membre"
+        );
       }
-      
+
       return data.member;
     } catch (error) {
       return rejectWithValue(error.message || "Erreur réseau");
@@ -70,11 +74,13 @@ export const updateMemberAsync = createAsyncThunk(
         body: JSON.stringify(memberData),
       });
       const data = await res.json();
-      
+
       if (!data.result) {
-        return rejectWithValue(data.error || "Erreur lors de la mise à jour du membre");
+        return rejectWithValue(
+          data.error || "Erreur lors de la mise à jour du membre"
+        );
       }
-      
+
       return data.member;
     } catch (error) {
       return rejectWithValue(error.message || "Erreur réseau");
@@ -96,11 +102,13 @@ export const deleteMemberAsync = createAsyncThunk(
         },
       });
       const data = await res.json();
-      
+
       if (!data.result) {
-        return rejectWithValue(data.error || "Erreur lors de la suppression du membre");
+        return rejectWithValue(
+          data.error || "Erreur lors de la suppression du membre"
+        );
       }
-      
+
       return memberId;
     } catch (error) {
       return rejectWithValue(error.message || "Erreur réseau");
