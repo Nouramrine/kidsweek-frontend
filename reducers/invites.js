@@ -2,6 +2,25 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
+export const sendInviteAsync = createAsyncThunk(
+  "Invites/sendInviteAsync",
+  async ({ invite, url }, { getState }) => {
+    const token = getState().user.value.token;
+    const response = await fetch(`${BACKEND_URL}/invites/send`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ invite, url }),
+    });
+    const data = await response.json();
+    if (!data.result)
+      throw new Error(data.error || "Erreur lors de l'envoi de l'invitation");
+    return data.result;
+  }
+);
+
 // Fetch toutes les Invites du membre connecté
 
 export const fetchInvitesAsync = createAsyncThunk(
@@ -18,9 +37,12 @@ export const fetchInvitesAsync = createAsyncThunk(
     const data = await response.json();
     //console.log(data)
     if (!data.result)
-      throw console.log("Invites reducer : ", data.error || "Erreur lors du fetch des invitations");
+      throw console.log(
+        "Invites reducer : ",
+        data.error || "Erreur lors du fetch des invitations"
+      );
     return data.invites || [];
-  }  
+  }
 );
 
 // Créer une nouvelle Invite
@@ -35,12 +57,15 @@ export const createInviteAsync = createAsyncThunk(
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(InviteData), 
+      body: JSON.stringify(InviteData),
     });
     const data = await response.json();
     //console.log(data)
     if (!data.result)
-      throw console.log("Create Invite reducer : ", data.error || "Erreur lors de la création de l'invitation");
+      throw console.log(
+        "Create Invite reducer : ",
+        data.error || "Erreur lors de la création de l'invitation"
+      );
     return data.invites || [];
   }
 );
@@ -61,7 +86,10 @@ export const updateInviteAsync = createAsyncThunk(
     });
     const data = await response.json();
     if (!data.result)
-      throw console.log("Invites reducer : ", data.error || "Erreur lors de la mise à jour de l'invitation");
+      throw console.log(
+        "Invites reducer : ",
+        data.error || "Erreur lors de la mise à jour de l'invitation"
+      );
     return data.invites[0] || [];
   }
 );
@@ -70,7 +98,7 @@ export const updateInviteAsync = createAsyncThunk(
 
 export const deleteInviteAsync = createAsyncThunk(
   "Invites/deleteInviteAsync",
-  async ( InviteId, { getState } ) => {
+  async (InviteId, { getState }) => {
     const token = getState().user.value.token;
     const response = await fetch(`${BACKEND_URL}/invites/${InviteId}`, {
       method: "DELETE",
@@ -81,8 +109,11 @@ export const deleteInviteAsync = createAsyncThunk(
     });
     const data = await response.json();
     if (!data.result)
-      throw console.log("Invites reducer : ", data.error || "Erreur lors de la suppression de l'invitation");
-    return data.invites[0] || '';
+      throw console.log(
+        "Invites reducer : ",
+        data.error || "Erreur lors de la suppression de l'invitation"
+      );
+    return data.invites[0] || "";
   }
 );
 
@@ -132,8 +163,10 @@ export const InvitesSlice = createSlice({
       })
       // Delete
       .addCase(deleteInviteAsync.fulfilled, (state, action) => {
-        state.value = state.value.filter((invite) => invite._id !== action.payload._id);
-      })
+        state.value = state.value.filter(
+          (invite) => invite._id !== action.payload._id
+        );
+      });
   },
 });
 
