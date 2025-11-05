@@ -27,7 +27,7 @@ export const fetchNotificationsAsync = createAsyncThunk(
         reminders: data.reminders || [],
       };
     } catch (err) {
-      console.error("❌ Erreur de fetch notifications:", err);
+      // console.error("❌ Erreur de fetch notifications:", err);
       throw err;
     }
   }
