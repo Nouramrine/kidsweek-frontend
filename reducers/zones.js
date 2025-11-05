@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
-// 🔹 Fetch toutes les zones
+// Fetch toutes les zones
 export const fetchZonesAsync = createAsyncThunk(
   "zones/fetchZonesAsync",
   async (_, { getState, rejectWithValue }) => {
@@ -28,7 +28,7 @@ export const fetchZonesAsync = createAsyncThunk(
   }
 );
 
-// 🔹 Créer une zone
+// Créer une zone
 export const createZoneAsync = createAsyncThunk(
   "zones/createZoneAsync",
   async (zoneData, { getState, rejectWithValue }) => {
@@ -55,7 +55,7 @@ export const createZoneAsync = createAsyncThunk(
   }
 );
 
-// 🔹 Mettre à jour une zone
+// Mettre à jour une zone
 export const updateZoneAsync = createAsyncThunk(
   "zones/updateZoneAsync",
   async (zoneData, { getState, rejectWithValue }) => {
@@ -82,7 +82,7 @@ export const updateZoneAsync = createAsyncThunk(
   }
 );
 
-// 🔹 Supprimer une zone
+// Supprimer une zone
 export const deleteZoneAsync = createAsyncThunk(
   "zones/deleteZoneAsync",
   async (zoneId, { getState, rejectWithValue }) => {
@@ -108,7 +108,7 @@ export const deleteZoneAsync = createAsyncThunk(
   }
 );
 
-// 🔹 Ajouter un membre
+// Ajouter un membre
 export const addMemberToZoneAsync = createAsyncThunk(
   "zones/addMemberToZoneAsync",
   async ({ zoneId, memberId }, { getState, rejectWithValue }) => {
@@ -135,7 +135,7 @@ export const addMemberToZoneAsync = createAsyncThunk(
   }
 );
 
-// 🔹 Retirer un membre
+// Retirer un membre
 export const removeMemberFromZoneAsync = createAsyncThunk(
   "zones/removeMemberFromZoneAsync",
   async ({ zoneId, memberId }, { getState, rejectWithValue }) => {

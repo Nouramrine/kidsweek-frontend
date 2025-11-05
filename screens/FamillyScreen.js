@@ -39,8 +39,6 @@ const FamillyScreen = () => {
   const invites = useSelector((state) => state.invites.value);
   const tutorialStep = user.tutorialStep || 0;
 
-  console.log(user)
-
   // Modals
   const [zoneModal, setZoneModal] = useState(false);
   const [selectedZone, setSelectedZone] = useState(null);
