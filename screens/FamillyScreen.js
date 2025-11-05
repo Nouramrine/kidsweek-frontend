@@ -39,6 +39,8 @@ const FamillyScreen = () => {
   const invites = useSelector((state) => state.invites.value);
   const tutorialStep = user.tutorialStep || 0;
 
+  console.log(user)
+
   // Modals
   const [zoneModal, setZoneModal] = useState(false);
   const [selectedZone, setSelectedZone] = useState(null);
@@ -57,6 +59,11 @@ const FamillyScreen = () => {
     dispatch(fetchZonesAsync());
     dispatch(fetchMembersAsync());
   }, []);
+
+  // Maj des zones à la maj des membres
+  useEffect(() => {
+    dispatch(fetchZonesAsync());
+  }, [members]);
 
   // ✅ Fonctions pour avancer le tuto
   const finishStepZone = () => {
