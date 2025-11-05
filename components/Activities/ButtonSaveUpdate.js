@@ -12,11 +12,23 @@ const ButtonSaveUpdate = ({
 
   if (props && Object.keys(props).length !== 0) {
     return (
-      <KWButton title="Mettre à jour" type="text" onPress={handleUpdate} />
+      <KWButton
+        icon="save"
+        title="Mettre à jour"
+        type="text"
+        onPress={handleUpdate}
+      />
     );
   } else {
     // Sinon, en mode création
-    return <KWButton title="Enregistrer" type="text" onPress={handleSave} />;
+    return (
+      <KWButton
+        icon="save"
+        title="Enregistrer"
+        type="text"
+        onPress={handleSave}
+      />
+    );
   }
 };
 
