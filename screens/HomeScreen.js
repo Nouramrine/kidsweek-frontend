@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
-  Animated,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
@@ -31,6 +30,9 @@ import KWButton from "../components/KWButton";
 import { colors } from "../theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import KWCollapsible from "../components/KWCollapsible";
+
+// 🔔 IMPORT DU SERVICE DE NOTIFICATIONS
+import { scheduleLocalNotification } from "../components/notificationService";
 
 // Fonction utilitaire pour déterminer la couleur du texte adaptée
 const getContrastColor = (hexColor) => {
@@ -58,9 +60,19 @@ const HomeScreen = ({ navigation }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [expandedActivityId, setExpandedActivityId] = useState(null);
 
+  // 🔔 NOUVEAU : Référence pour suivre le nombre de notifications précédent
+  const previousNotifCount = useRef(0);
+
+  useEffect(() => {
+    if (!user.token || isModalVisible) return;
+    const interval = setInterval(() => {
+      dispatch(fetchNotificationsAsync(user.token));
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [user.token, dispatch, isModalVisible]);
+
   // 🔹 State local pour notifications affichées
   const [modalNotifications, setModalNotifications] = useState([]);
-  const fadeAnim = useRef(new Animated.Value(1)).current;
 
   const tutorialStep = user.tutorialStep || 0;
   const children = members.filter((m) => m.isChildren);
@@ -80,52 +92,171 @@ const HomeScreen = ({ navigation }) => {
     }
   }, [user.token]);
 
-  // 🔹 Préparer les notifications locales
+  const formatDateTime = (dateStr) => {
+    if (!dateStr) return "";
+    const date = new Date(dateStr);
+    const day = date.toLocaleDateString("fr-FR", {
+      weekday: "long",
+      day: "2-digit",
+      month: "2-digit",
+    });
+    const time = date.toLocaleTimeString("fr-FR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    return `${day} à ${time}`;
+  };
+
+  // 🔹  Met à jour la liste des notifications dès que le fetch est fini
   useEffect(() => {
     const allNotifs = [
       ...reminders.map((r) => ({
         id: r._id,
         type: "reminder",
-        message: `Rappel: ${r.name} à ${formatTime(r.dateBegin)}.`,
+        message:
+          r.message ||
+          `Rappel : ${r.activityId?.name || "Activité"} le ${formatDateTime(
+            r.activityId?.dateBegin
+          )}.`,
+        activityId: r.activityId?._id,
+        activityName: r.activityId?.name,
+        activityDate: r.activityId?.dateBegin,
       })),
       ...invitations.map((i) => ({
         id: i._id,
         type: "validation",
-        message: `Nouvelle activité "${i.name}" à valider.`,
-        activityId: i._id,
+        message:
+          i.message ||
+          `Nouvelle activité "${i.activityId?.name || "Sans nom"}" à valider.`,
+        activityId: i.activityId?._id,
+        activityName: i.activityId?.name,
+        activityDate: i.activityId?.dateBegin,
+        notificationId: i._id,
       })),
     ];
-    setModalNotifications(allNotifs);
+
+    /*console.log("🔍 NOTIFICATIONS REÇUES :", {
+      invitations: invitations.map((i) => ({ ...i, memberId: i.memberId })),
+      reminders,
+    });
+    console.log("🔍 NOTIFICATIONS TRANSFORMÉES :", allNotifs);*/
+
+    setModalNotifications((prev) => {
+      const prevIds = prev
+        .map((n) => n.id)
+        .sort()
+        .join(",");
+      const newIds = allNotifs
+        .map((n) => n.id)
+        .sort()
+        .join(",");
+      if (prevIds === newIds) return prev;
+      return allNotifs;
+    });
   }, [reminders, invitations]);
 
-  // 🔹 Réponse invitation avec fade-out
+  // 🔔 NOUVEAU : Détecter les nouvelles notifications et déclencher une notification locale
+  useEffect(() => {
+    const totalNotifs = invitations.length + reminders.length;
+
+    // Si on a plus de notifications qu'avant, déclencher une notification locale
+    if (totalNotifs > previousNotifCount.current) {
+      console.log("🔔 Nouvelle notification détectée !");
+
+      // Vérifier si c'est une invitation
+      if (invitations.length > 0) {
+        const lastInvitation = invitations[invitations.length - 1];
+        scheduleLocalNotification(
+          "Nouvelle invitation ! 🎉",
+          lastInvitation.message || `Vous avez une nouvelle invitation`,
+          {
+            type: "invitation",
+            activityId: lastInvitation.activityId?._id,
+            notificationId: lastInvitation._id,
+          }
+        );
+      }
+      // Sinon vérifier si c'est un reminder
+      else if (reminders.length > 0) {
+        const lastReminder = reminders[reminders.length - 1];
+        scheduleLocalNotification(
+          "Rappel d'activité ⏰",
+          lastReminder.message || `Vous avez un nouveau rappel`,
+          {
+            type: "reminder",
+            activityId: lastReminder.activityId?._id,
+            notificationId: lastReminder._id,
+          }
+        );
+      }
+    }
+
+    previousNotifCount.current = totalNotifs;
+  }, [invitations, reminders]);
+
   const handleResponse = async (activityId, validate) => {
     try {
       await dispatch(
         respondToInvitationAsync({
           token: user.token,
-          activityID: activityId,
+          activityId,
           validate,
         })
       ).unwrap();
 
-      // Animation fade-out
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }).start(() => {
-        setModalNotifications((prev) =>
-          prev.filter((n) => n.id !== activityId)
+      // Supprimer la notification de la liste
+      setModalNotifications((prev) => {
+        const updated = prev.filter(
+          (n) => !(n.type === "validation" && n.activityId === activityId)
         );
-        fadeAnim.setValue(1);
 
-        if (modalNotifications.length <= 1) {
+        // Fermer la modal si plus de notifications
+        if (updated.length === 0) {
           setIsModalVisible(false);
         }
+
+        return updated;
       });
+
+      dispatch(fetchActivitiesAsync(user.token));
     } catch (err) {
       console.error("Erreur réponse invitation:", err);
+    }
+  };
+
+  // Fonction pour marquer un rappel comme lu
+  const handleDismissReminder = async (notificationId) => {
+    try {
+      const response = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/activities/notifications/${notificationId}/read`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${user.token}`,
+          },
+        }
+      );
+
+      if (!response.ok) throw new Error("Erreur lors du marquage");
+
+      // Supprimer la notification de la liste
+      setModalNotifications((prev) => {
+        const updated = prev.filter((n) => n.id !== notificationId);
+
+        // Fermer la modal si plus de notifications
+        if (updated.length === 0) {
+          setIsModalVisible(false);
+        }
+
+        return updated;
+      });
+
+      // Refetch les notifications
+      dispatch(fetchNotificationsAsync(user.token));
+    } catch (err) {
+      console.error("Erreur dismiss reminder:", err);
+      alert("Erreur lors du marquage de la notification");
     }
   };
 
@@ -428,36 +559,44 @@ const HomeScreen = ({ navigation }) => {
               data={modalNotifications}
               keyExtractor={(item) => item.id.toString()}
               renderItem={({ item }) => (
-                <Animated.View style={{ opacity: fadeAnim }}>
-                  <KWCard
-                    style={{
-                      width: "100%",
-                      marginBottom: 10,
-                      backgroundColor:
-                        item.type === "reminder"
-                          ? colors.purple[0]
-                          : colors.pink[0],
-                    }}
-                  >
-                    <KWText>{item.message}</KWText>
-                    {item.type === "validation" && (
-                      <View style={styles.actionButtons}>
-                        <KWButton
-                          title="Accepter"
-                          bgColor={colors.green[1]}
-                          onPress={() => handleResponse(item.activityId, true)}
-                          style={{ minWidth: 100 }}
-                        />
-                        <KWButton
-                          title="Refuser"
-                          bgColor={colors.red[1]}
-                          onPress={() => handleResponse(item.activityId, false)}
-                          style={{ minWidth: 100 }}
-                        />
-                      </View>
-                    )}
-                  </KWCard>
-                </Animated.View>
+                <KWCard
+                  style={{
+                    width: "100%",
+                    marginBottom: 10,
+                    backgroundColor:
+                      item.type === "reminder"
+                        ? colors.purple[0]
+                        : colors.pink[0],
+                  }}
+                >
+                  <KWText>{item.message}</KWText>
+                  {item.type === "validation" && (
+                    <View style={styles.actionButtons}>
+                      <KWButton
+                        title="Accepter"
+                        bgColor={colors.green[1]}
+                        onPress={() => handleResponse(item.activityId, true)}
+                        style={{ minWidth: 100 }}
+                      />
+                      <KWButton
+                        title="Refuser"
+                        bgColor={colors.red[1]}
+                        onPress={() => handleResponse(item.activityId, false)}
+                        style={{ minWidth: 100 }}
+                      />
+                    </View>
+                  )}
+                  {item.type === "reminder" && (
+                    <View style={styles.actionButtons}>
+                      <KWButton
+                        title="OK"
+                        bgColor={colors.purple[1]}
+                        onPress={() => handleDismissReminder(item.id)}
+                        style={{ minWidth: 100 }}
+                      />
+                    </View>
+                  )}
+                </KWCard>
               )}
             />
           )}

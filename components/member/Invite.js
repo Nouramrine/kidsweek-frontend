@@ -15,7 +15,7 @@ const InviteForm = ({ data, onReturn }) => {
 
   const user = useSelector((state) => state.user.value);
 
-  const [emailInput, setEmailInput] = useState("jeremy.guerlin@gmail.com");
+  const [emailInput, setEmailInput] = useState("aurelien05@gmail.com");
   const [formErrors, setFormErrors] = useState({});
   const [inviteUrl, setInviteUrl] = useState(null);
 

@@ -2,8 +2,6 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
-// fetch des notifications
-
 export const fetchNotificationsAsync = createAsyncThunk(
   "notifications/fetchNotificationsAsync",
   async (token) => {
@@ -16,6 +14,12 @@ export const fetchNotificationsAsync = createAsyncThunk(
         },
       });
       const data = await response.json();
+
+      // console.log("📬 Notifications reçues:", {
+      //   invitations: data.invitations?.length || 0,
+      //   reminders: data.reminders?.length || 0,
+      // });
+
       if (!response.ok) throw new Error(data.message || "Erreur serveur");
 
       return {
@@ -23,18 +27,18 @@ export const fetchNotificationsAsync = createAsyncThunk(
         reminders: data.reminders || [],
       };
     } catch (err) {
-      console.error("Erreur de fetch notifications", err);
+      // console.error("❌ Erreur de fetch notifications:", err);
       throw err;
     }
   }
 );
 
-// Accepter ou refuser invitation
-
 export const respondToInvitationAsync = createAsyncThunk(
   "notifications/respondToInvitationAsync",
   async ({ token, activityId, validate }) => {
     try {
+      // console.log("📤 Réponse à l'invitation:", { activityId, validate });
+
       const response = await fetch(
         `${BACKEND_URL}/activities/${activityId}/validate`,
         {
@@ -46,11 +50,18 @@ export const respondToInvitationAsync = createAsyncThunk(
           body: JSON.stringify({ validate }),
         }
       );
+
       const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "Erreur serveur");
+
+      if (!response.ok) {
+        throw new Error(data.message || "Erreur serveur");
+      }
+
+      // console.log("✅ Réponse enregistrée:", data);
+
       return { activityId, validate };
     } catch (err) {
-      console.error("Erreur réponse invitation:", err);
+      console.error("❌ Erreur réponse invitation:", err);
       throw err;
     }
   }
@@ -85,11 +96,26 @@ const notificationSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
+      .addCase(respondToInvitationAsync.pending, (state) => {
+        state.loading = true;
+      })
       .addCase(respondToInvitationAsync.fulfilled, (state, action) => {
-        const { activityID } = action.payload;
+        state.loading = false;
+        const { activityId } = action.payload;
+
+        // ✅ Filtrer par activityId._id dans les invitations
         state.invitations = state.invitations.filter(
-          (inv) => inv._id !== activityID
+          (inv) => inv.activityId?._id !== activityId
         );
+
+        console.log(
+          "✅ Invitation supprimée du state, reste:",
+          state.invitations.length
+        );
+      })
+      .addCase(respondToInvitationAsync.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
       });
   },
 });
