@@ -34,7 +34,7 @@ const FamillyScreen = () => {
   const user = useSelector((state) => state.user.value);
   const invites = useSelector((state) => state.invites.value);
 
-  //console.log(zones)
+  //console.log("Zones : ", zones)
   //console.log(members)
 
   // Modals
@@ -50,16 +50,6 @@ const FamillyScreen = () => {
   const [invitationModal, setInvitationModal] = useState(false);
 
   const [openDropdownId, setOpenDropdownId] = useState(null); // id du membre sur lequel le dropdown est ouvert (dropdown unique)
-
-  /*useEffect(() => {
-    dispatch(fetchZonesAsync());
-    dispatch(fetchMembersAsync());
-  }, []);*/
-
-  // Maj des zones à la maj des membres
-  useEffect(() => {
-    dispatch(fetchZonesAsync());
-  }, [members]);
 
   // Logique du tuto
   const dismissedTooltips = user.tutorialState?.dismissedTooltips || [];
@@ -264,7 +254,8 @@ const FamillyScreen = () => {
 
                 <KWCardBody>
                   {/* Membres de la zone */}
-                  {zone.members.map((member, j) => {
+                  {zone.members.map((zoneMember, j) => {
+                    const member = members.filter((m) => zoneMember._id === m._id)[0] // n'affiche pas l'utilisateur courant
                     return (
                       <KWCard
                         key={j}
@@ -305,13 +296,13 @@ const FamillyScreen = () => {
                                 <KWText color={colors.blue[1]}>Enfant</KWText>
                               ) : (
                                 <KWText color={colors.red[1]}>
-                                  {member.authLevel === "admin"
+                                  {zoneMember.authLevel === "admin"
                                     ? "Propriétaire"
                                     : "Parent"}
                                 </KWText>
                               )}
                             </View>
-                            {zone.authLevel !== 'read' && (
+                            {member.authLevel !== 'read' && !member.isCurrent && (
                               <TouchableOpacity
                                 style={styles.iconBtn}
                                 onPress={() =>
