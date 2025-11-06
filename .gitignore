@@ -64,3 +64,6 @@ typings/
 __tests__/
 *.test.js
 *.spec.js
+
+#ignore expo
+.expo

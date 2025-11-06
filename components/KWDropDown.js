@@ -13,7 +13,7 @@ const KWDropDown = ({ id, icon, options, openId, setOpenId, onSelect }) => {
       setOpenId(null);
     } else if (buttonRef.current) {
       buttonRef.current.measureInWindow((x, y, width, height) => {
-        setDropdownPos({ bottom: -height, right: width + 5 });
+        setDropdownPos({ bottom: -height * 1.6, right: width + 5 });
         setOpenId(id);
       });
     }

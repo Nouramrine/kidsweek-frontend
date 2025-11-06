@@ -89,14 +89,12 @@ const InviteForm = ({ data, onReturn }) => {
     return (
       <View style={styles.container}>
         <KWText type="h1">Inviter un proche</KWText>
-        <ScrollView>
           <KWTextInput
             label="Email"
             value={emailInput}
             error={formErrors?.emailInput || null}
             onChangeText={setEmailInput}
           />
-        </ScrollView>
         <View style={styles.buttonsFooter}>
           <KWButton
             title="Annuler"
@@ -165,6 +163,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  inputEmail: {
+    width: '100%',
+  }
 });
 
 export default InviteForm;
