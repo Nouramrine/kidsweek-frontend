@@ -130,7 +130,7 @@ export default function App() {
     const userData = useSelector((state) => state.user.value);
     //console.log(userData?.isLogged);
     return (
-      <NavigationContainer ref={navigationRef}>
+      <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           {!userData?.isLogged ? (
             <Stack.Screen name="auth" component={AuthScreen} />
