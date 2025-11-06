@@ -17,7 +17,8 @@ import { FontAwesome5 } from "@expo/vector-icons";
 const MemberAdd = ({ currentMembers, onReturn }) => {
   const dispatch = useDispatch();
 
-  const members = useSelector((state) => state.members.value);
+  const members = useSelector((state) => state.members.value || []);
+  console.log(currentMembers)
 
   useEffect(() => {
     dispatch(fetchMembersAsync());
@@ -27,46 +28,47 @@ const MemberAdd = ({ currentMembers, onReturn }) => {
     onReturn(member);
   };
 
-  const currentIds = new Set(currentMembers.map((item) => item._id));
-  const filteredMembers = members.filter((m) => !currentIds.has(m._id));
+  const currentIds = new Set((currentMembers || []).map((item) => item._id));
+  const filteredMembers = (members || []).filter((m) => !currentIds.has(m._id));
 
   return (
     <ScrollView style={styles.membersContainer}>
       <KWText type="h2">Ajouter un membre</KWText>
-      {!filteredMembers.length && (
+      {filteredMembers && filteredMembers.length > 0 ? (
+        filteredMembers.map((member, j) => {
+          return (
+            <KWCard key={j} color={colors[member.color][0]} style={styles.memberCard}>
+              <KWCardHeader>
+                <KWCardIcon>
+                  <View
+                    style={{
+                      backgroundColor: "#dddddd",
+                      padding: 10,
+                      borderRadius: 10,
+                    }}
+                  >
+                    <FontAwesome5 name="user" size={24} color="white" />
+                  </View>
+                </KWCardIcon>
+                <KWCardTitle>
+                  <KWText>{member.firstName}</KWText>
+                  {/* <KWText>1000 ans</KWText> */}
+                </KWCardTitle>
+                <KWCardButton>
+                  <KWButton
+                    style={styles.addButton}
+                    title="Ajouter"
+                    bgColor={colors.green[1]}
+                    onPress={() => handleValidation(member)}
+                  />
+                </KWCardButton>
+              </KWCardHeader>
+            </KWCard>
+          );
+        })
+      ) : (
         <KWText style={styles.emptyText}>Aucun membre à ajouter</KWText>
       )}
-      {filteredMembers.map((member, j) => {
-        return (
-          <KWCard key={j} color={colors[member.color][0]} style={styles.memberCard}>
-            <KWCardHeader>
-              <KWCardIcon>
-                <View
-                  style={{
-                    backgroundColor: "#dddddd",
-                    padding: 10,
-                    borderRadius: 10,
-                  }}
-                >
-                  <FontAwesome5 name="user" size={24} color="white" />
-                </View>
-              </KWCardIcon>
-              <KWCardTitle>
-                <KWText>{member.firstName}</KWText>
-                {/* <KWText>1000 ans</KWText> */}
-              </KWCardTitle>
-              <KWCardButton>
-                <KWButton
-                  style={styles.addButton}
-                  title="Ajouter"
-                  bgColor={colors.green[1]}
-                  onPress={() => handleValidation(member)}
-                />
-              </KWCardButton>
-            </KWCardHeader>
-          </KWCard>
-        );
-      })}
       <View style={styles.buttonsFooter}>
         <KWButton
           title="Retour"

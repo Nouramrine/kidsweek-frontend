@@ -34,8 +34,8 @@ const FamillyScreen = () => {
   const user = useSelector((state) => state.user.value);
   const invites = useSelector((state) => state.invites.value);
 
-  console.log(zones)
-  console.log(members)
+  //console.log(zones)
+  //console.log(members)
 
   // Modals
   const [zoneModal, setZoneModal] = useState(false);
@@ -51,10 +51,10 @@ const FamillyScreen = () => {
 
   const [openDropdownId, setOpenDropdownId] = useState(null); // id du membre sur lequel le dropdown est ouvert (dropdown unique)
 
-  useEffect(() => {
+  /*useEffect(() => {
     dispatch(fetchZonesAsync());
     dispatch(fetchMembersAsync());
-  }, []);
+  }, []);*/
 
   // Maj des zones à la maj des membres
   useEffect(() => {
@@ -369,6 +369,7 @@ const FamillyScreen = () => {
               <KWText style={styles.emptyText}>Aucun membre</KWText>
             )}
             {members.map((member, j) => {
+              if(member.isCurrent) return;
               const options = [
                 { action: "edit", label: "Modifier", icon: "pen" },
                 {
