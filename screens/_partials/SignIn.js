@@ -31,7 +31,7 @@ const SignIn = () => {
   return (
     <View>
 
-      <View style={{ marginBottom: 20 }}>
+      {/* <View style={{ marginBottom: 20 }}>
         <KWButton 
           title="User1" 
           onPress={() => { 
@@ -53,7 +53,7 @@ const SignIn = () => {
             setSignInPassword('Pass12345!');
           }}
         />
-      </View>
+      </View>*/}
 
       <KWTextInput
         label="Email"

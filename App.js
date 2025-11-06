@@ -36,7 +36,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
-// 🔔 IMPORT DES NOTIFICATIONS
 import { useEffect, useRef } from "react";
 import {
   registerForPushNotificationsAsync,
