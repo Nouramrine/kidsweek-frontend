@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, Image, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 import * as Linking from "expo-linking";
 import SignIn from "./_partials/SignIn";
 import SignUp from "./_partials/SignUp";
@@ -42,7 +49,11 @@ const AuthScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+    >
       <Image
         source={require("../assets/titre.png")}
         style={styles.logo}
@@ -84,7 +95,7 @@ const AuthScreen = () => {
           <KWText type="link">Scanner un QR code d'invitation</KWText>
         </TouchableOpacity>
       )}
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
