@@ -57,9 +57,7 @@ const AddScreen = ({ navigation, route }) => {
         /* setDateEndRecurrence(new Date());*/
         setReminderNumber("10");
         setReminderUnit("minutes");
-
         setAddMembers([]);
-
         setChecklistItems([]);
         setNewChecklistItem("");
         setNote("");
@@ -129,6 +127,7 @@ const AddScreen = ({ navigation, route }) => {
   // members
   const [addMemberToActivityModal, setAddMemberToActivityModal] =
     useState(false);
+
   const [addMembers, setAddMembers] = useState([]); //{ _id: 1, firstName: "Enfant" }
 
   // Checklist
@@ -146,13 +145,12 @@ const AddScreen = ({ navigation, route }) => {
 
     if (addMembers && addMembers.length > 0) {
       memberIds = addMembers.map((m) => m._id);
-      console.log("memberIds", memberIds);
     } else {
       Alert.alert("Erreur", "Veuillez sélectionner au moins un enfant");
       return;
     }
     memberIds = addMembers.map((m, key) => m._id);
-    console.log("memberIds", memberIds);
+
     // combine date and time
     const fullDateBegin = combineDateAndTime(dateBegin, timeBegin);
     const fullDateEnd = combineDateAndTime(dateEnd, timeEnd);
@@ -569,6 +567,7 @@ const AddScreen = ({ navigation, route }) => {
       return value;
     }
   };
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
