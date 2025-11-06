@@ -3,7 +3,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export const updateTaskAsync = createAsyncThunk(
-  "activities/deleteActivityAsync",
+  "activities/updateTaskAsync",
   async (payload, { dispatch }) => {
     const { activityId, taskId, isOk, token } = payload;
 
@@ -181,8 +181,8 @@ export const updateActivityAsync = createAsyncThunk(
         }),
       });
 
-  const data = await response.json();
-  // console.log("Update activity response:", data);
+      const data = await response.json();
+      // console.log("Update activity response:", data);
 
       if (!response.ok) {
         throw new Error(data.message || "Erreur lors de la mise à jour");
