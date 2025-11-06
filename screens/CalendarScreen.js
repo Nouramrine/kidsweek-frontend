@@ -25,10 +25,11 @@ export default function CalendarScreen() {
   const [activitiesOfDay, setActivitiesOfDay] = useState([]);
   const [expandedActivityId, setExpandedActivityId] = useState(null);
 
+  const dispatch = useDispatch();
+
   const toggleActivity = (id) => {
     setExpandedActivityId(expandedActivityId === id ? null : id);
   };
-  const dispatch = useDispatch();
 
   //code couleur par jour
   const dayColors = {
@@ -44,11 +45,16 @@ export default function CalendarScreen() {
   // Marquer les dates avec des activités
   useEffect(() => {
     const marks = {};
-
     //  Regrouper les activités par date et par membre
     const activitiesByDateAndMember = {};
     activities.forEach((activity) => {
-      //formatage des dates
+      // Vérification que activity.members existe et n'est pas vide
+      if (!activity.members || activity.members.length === 0) {
+        console.warn("Activité sans membres :", activity._id);
+        return;
+      }
+
+      // Formatage des dates
       const dateBeginStr = activity.dateBegin
         ? activity.dateBegin.split("T")[0]
         : null;
@@ -69,38 +75,26 @@ export default function CalendarScreen() {
 
           // Pour chaque membre de l'activité
           activity.members?.forEach((member) => {
-            //recuperation de l'id
             const memberId = member._id;
-            //si date inexistante dans l'objet
+            // Si date inexistante dans l'objet
             if (!activitiesByDateAndMember[dateString]) {
-              //init de l'objet pour cette date
+              // Init de l'objet pour cette date
               activitiesByDateAndMember[dateString] = {};
             }
-
             if (!activitiesByDateAndMember[dateString][memberId]) {
-              // init du tab des act pour le membre s'il n'existe pas
+              // Init du tableau des activités pour le membre s'il n'existe pas
               activitiesByDateAndMember[dateString][memberId] = [];
             }
-            // ajout de l'activité
+            // Ajout de l'activité
             activitiesByDateAndMember[dateString][memberId].push(activity);
           });
-
           currentDate.setDate(currentDate.getDate() + 1);
         }
-        /* resultat de l'objet
-        {
-        "2023-10-01": {  // Date au format "AAAA-MM-JJ"
-          "alice123": [activité1, activité2],  // Activités d'Alice ce jour-là
-          "bob456": [activité1]                // Activités de Bob ce jour-là
-        },
-      "2023-10-02": { ... }
-        } */
       } else {
-        // idem pour activité sur un seul jour
-
+        // Idem pour activité sur un seul jour
         activity.members?.forEach((member) => {
           const memberId = member._id;
-          //Initialisation de l'objet pour la date de début (si inexistante)
+          // Initialisation de l'objet pour la date de début (si inexistante)
           if (!activitiesByDateAndMember[dateBeginStr]) {
             activitiesByDateAndMember[dateBeginStr] = {};
           }
@@ -116,7 +110,6 @@ export default function CalendarScreen() {
     Object.keys(activitiesByDateAndMember).forEach((dateStr) => {
       const members = activitiesByDateAndMember[dateStr];
       const memberIds = Object.keys(members);
-
       // Compter le nombre total d'activités pour cette date
       let totalActivities = 0;
       memberIds.forEach((memberId) => {
@@ -135,6 +128,15 @@ export default function CalendarScreen() {
           color: activityColor,
         };
       });
+
+      // Garantir au moins un marqueur si totalActivities > 0
+      if (periods.length === 0 && totalActivities > 0) {
+        periods.push({
+          startingDay: true,
+          endingDay: true,
+          color: colors.purple[2],
+        });
+      }
 
       marks[dateStr] = { periods };
     });

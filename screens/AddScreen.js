@@ -25,6 +25,7 @@ import {
   updateActivityAsync,
   fetchActivitiesAsync,
 } from "../reducers/activities";
+import { fetchMembersAsync } from "../reducers/members";
 import ButtonSaveUpdate from "../components/Activities/ButtonSaveUpdate";
 import KWModal from "../components/KWModal";
 import KWDropdown from "../components/Activities/KWDropdown";
@@ -34,15 +35,16 @@ import { useFocusEffect } from "@react-navigation/native";
 const AddScreen = ({ navigation, route }) => {
   useFocusEffect(
     useCallback(() => {
-      if (!props || Object.keys(props).length === 0) {
-        // Remet tout à zéro
+      const { activityToEdit } = route.params || {};
+      if (!activityToEdit || Object.keys(activityToEdit).length === 0) {
+        // Réinitialisation sécurisée
         setActivityName("");
         setActivityPlace("");
         setDateBegin(new Date());
         setTimeBegin(new Date());
         setDateEnd(new Date());
         setTimeEnd(new Date());
-        setRecurrence({
+        /* setRecurrence({
           lun: false,
           mar: false,
           mer: false,
@@ -50,18 +52,20 @@ const AddScreen = ({ navigation, route }) => {
           ven: false,
           sam: false,
           dim: false,
-        });
+        });*/
         setIsEnabled(false);
-        setDateEndRecurrence(new Date());
+        /* setDateEndRecurrence(new Date());*/
         setReminderNumber("10");
         setReminderUnit("minutes");
+
         setAddMembers([]);
+
         setChecklistItems([]);
         setNewChecklistItem("");
         setNote("");
         setColorAct("skin");
       }
-    }, [props])
+    }, [route.params])
   );
   // retrieve params if edit mode
   const { activityToEdit } = route.params || {};
@@ -73,6 +77,12 @@ const AddScreen = ({ navigation, route }) => {
   const user = useSelector((state) => state.user.value);
   const activities = useSelector((state) => state.activities.value);
   const zones = useSelector((state) => state.zones.value);
+
+  useEffect(() => {
+    if (user.token) {
+      dispatch(fetchMembersAsync(user.token));
+    }
+  }, [user.token]);
 
   const [error, setError] = useState(false);
   //display switch
@@ -95,7 +105,7 @@ const AddScreen = ({ navigation, route }) => {
 
   // recurrence
 
-  const [recurrence, setRecurrence] = useState({
+  /*const [recurrence, setRecurrence] = useState({
     lun: false,
     mar: false,
     mer: false,
@@ -109,7 +119,7 @@ const AddScreen = ({ navigation, route }) => {
     setRecurrence({ ...recurrence, [day]: !recurrence[day] });
   };
 
-  const [dateEndRecurrence, setDateEndRecurrence] = useState(new Date());
+  const [dateEndRecurrence, setDateEndRecurrence] = useState(new Date());*/
   const [hasManuallySetDateEnd, setHasManuallySetDateEnd] = useState(false);
   const [hasManuallySetTimeEnd, setHasManuallySetTimeEnd] = useState(false);
   // reminder
@@ -119,7 +129,7 @@ const AddScreen = ({ navigation, route }) => {
   // members
   const [addMemberToActivityModal, setAddMemberToActivityModal] =
     useState(false);
-  const [addMembers, setAddMembers] = useState([]); //{ id: 1, firstName: "Enfant" }
+  const [addMembers, setAddMembers] = useState([]); //{ _id: 1, firstName: "Enfant" }
 
   // Checklist
   const [checklistItems, setChecklistItems] = useState([]); //{ id: 1, text: "Bouteille d'eau", checked: false }
@@ -133,11 +143,16 @@ const AddScreen = ({ navigation, route }) => {
   // create activity
   const handleSave = async () => {
     let memberIds;
-    if (addMembers && addMembers.length === 0) {
-      Alert.alert("Oups !", "Veuillez sélectionner au moins un enfant");
+
+    if (addMembers && addMembers.length > 0) {
+      memberIds = addMembers.map((m) => m._id);
+      console.log("memberIds", memberIds);
+    } else {
+      Alert.alert("Erreur", "Veuillez sélectionner au moins un enfant");
       return;
     }
     memberIds = addMembers.map((m, key) => m._id);
+    console.log("memberIds", memberIds);
     // combine date and time
     const fullDateBegin = combineDateAndTime(dateBegin, timeBegin);
     const fullDateEnd = combineDateAndTime(dateEnd, timeEnd);
@@ -162,11 +177,11 @@ const AddScreen = ({ navigation, route }) => {
           place: activityPlace,
           dateBegin: fullDateBegin,
           dateEnd: fullDateEnd,
-          dateEndRecurrence: dateEndRecurrence,
+          //dateEndRecurrence: dateEndRecurrence,
           reminder: reminderDate,
           tasks: checklistItems,
           note: note,
-          recurrence: recurrence,
+          // recurrence: recurrence,
           token: user.token,
           members: memberIds,
           color: colorAct,
@@ -183,11 +198,21 @@ const AddScreen = ({ navigation, route }) => {
   };
   // assign fields if props exist (edit mode)
   useEffect(() => {
+    if (user.token) {
+      dispatch(fetchMembersAsync(user.token));
+    }
     // verfication props non vide
-    if (Object.keys(props).length !== 0) {
-      //affectation de name et place
-      setActivityName(props.name);
-      setActivityPlace(props.place);
+    const { activityToEdit } = route.params || {};
+    if (activityToEdit && Object.keys(activityToEdit).length !== 0) {
+      setActivityName(activityToEdit.name);
+      setActivityPlace(activityToEdit.place);
+
+      // Charger les membres de l'activité
+      if (activityToEdit.members && Array.isArray(activityToEdit.members)) {
+        setAddMembers(activityToEdit.members);
+      } else {
+        setAddMembers([]);
+      }
 
       // Décomposition de dateBegin
       if (props.dateBegin) {
@@ -217,7 +242,7 @@ const AddScreen = ({ navigation, route }) => {
       setNote(props.note);
       setColorAct(props.color);
 
-      if (props.recurrence && Object.keys(props.recurrence).length !== 0) {
+      /*if (props.recurrence && Object.keys(props.recurrence).length !== 0) {
         setIsEnabled(true);
 
         // Décomposition de dateEndRecurrence
@@ -240,7 +265,7 @@ const AddScreen = ({ navigation, route }) => {
             dim: props.recurrence.days.dim === true,
           });
         }
-      }
+      }*/
       if (props.reminder && props.dateBegin) {
         const date1 = new Date(props.dateBegin);
         const date2 = new Date(props.reminder);
@@ -270,7 +295,7 @@ const AddScreen = ({ navigation, route }) => {
         setReminderUnit(unit);
       }
       if (props.members && props.members.length > 0) {
-        setAddMembers(props.members);
+        setAddMembers(Array.isArray(props.members) ? props.members : []);
       }
       setChecklistItems(props.tasks);
     }
@@ -315,13 +340,13 @@ const AddScreen = ({ navigation, route }) => {
     }
   };
 
-  const onChangeDateEndRecurrence = (event, selectedDate) => {
+  /* const onChangeDateEndRecurrence = (event, selectedDate) => {
     if (event.type === "set" && selectedDate) {
       const dateOnly = new Date(selectedDate);
       dateOnly.setHours(0, 0, 0, 0);
       setDateEndRecurrence(dateOnly);
     }
-  };
+  };*/
   // Handlers DateTimePicker timeEnd
   const onChangeTimeEnd = (event, selectedTime) => {
     setShowTimeEnd(false);
@@ -384,10 +409,10 @@ const AddScreen = ({ navigation, route }) => {
     return reminderDate;
   };
   // toggle switch display recurrence
-  const toggleSwitch = () => {
+  /*const toggleSwitch = () => {
     setDateEndRecurrence(dateEnd);
     setIsEnabled(!isEnabled);
-  };
+  };*/
   // Form validation
   const validateForm = () => {
     const fullDateBegin = combineDateAndTime(dateBegin, timeBegin);
@@ -459,7 +484,7 @@ const AddScreen = ({ navigation, route }) => {
     );
 
     // Préparer les données de récurrence
-    let recurrenceData = null;
+    /* let recurrenceData = null;
     let dateEndRec = null;
 
     if (isEnabled === true) {
@@ -473,7 +498,7 @@ const AddScreen = ({ navigation, route }) => {
         dim: recurrence.dim || false,
       };
       dateEndRec = dateEndRecurrence;
-    }
+    }*/
 
     try {
       const result = await dispatch(
@@ -483,11 +508,11 @@ const AddScreen = ({ navigation, route }) => {
           place: activityPlace,
           dateBegin: fullDateBegin,
           dateEnd: fullDateEnd,
-          dateEndRecurrence: dateEndRec,
+          //dateEndRecurrence: dateEndRec,
           reminder: reminderDate,
           tasks: checklistItems,
           note: note,
-          recurrence: recurrenceData,
+          //recurrence: recurrenceData,
           token: user.token,
           members: memberIds,
           color: colorAct || "skin",
@@ -513,7 +538,7 @@ const AddScreen = ({ navigation, route }) => {
     setNote("");
 
     setIsEnabled(false);
-    setRecurrence(null);
+    //setRecurrence(null);
 
     setReminderNumber(10);
     setReminderUnit("minutes");
@@ -630,7 +655,7 @@ const AddScreen = ({ navigation, route }) => {
           />
         </View>
 
-        {/* Récurrence */}
+        {/* Récurrence 
         <View style={styles.section}>
           <KWText type="text" style={styles.label}>
             Récurrence
@@ -650,7 +675,7 @@ const AddScreen = ({ navigation, route }) => {
           />
           {isEnabled && (
             <View>
-              {/* Sélection des jours de récurrence */}
+              {/* Sélection des jours de récurrence 
               <View style={{ marginTop: 10 }}>
                 <KWText
                   type="text"
@@ -689,7 +714,7 @@ const AddScreen = ({ navigation, route }) => {
                   ))}
                 </View>
               </View>
-              {/* Date de fin de récurrence */}
+              {/* Date de fin de récurrence 
               <View style={{ marginTop: 15 }}>
                 <KWDateTimePicker
                   label="Date de fin de récurrence"
@@ -705,7 +730,7 @@ const AddScreen = ({ navigation, route }) => {
               </View>
             </View>
           )}
-        </View>
+        </View>*/}
         {/* Rappel */}
         <View style={styles.section}>
           <View style={styles.reminderContainer}>
@@ -767,6 +792,7 @@ const AddScreen = ({ navigation, route }) => {
                       style={[styles.memberName, { color: colors.text }]}
                     >
                       {memberselect.firstName}
+                      {console.log("memberselect", memberselect)}
                     </KWText>
                     <TouchableOpacity
                       style={styles.removeButton}
@@ -805,6 +831,12 @@ const AddScreen = ({ navigation, route }) => {
             currentMembers={addMembers}
             onReturn={(member) => {
               if (member) {
+                member = {
+                  _id: member._id,
+                  firstName: member.firstName,
+                  color: member.color,
+                };
+                console.log("member to add", member);
                 setAddMembers([...addMembers, member]);
               }
               setAddMemberToActivityModal(false);
