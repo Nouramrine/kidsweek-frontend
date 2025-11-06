@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchActivitiesAsync } from "../reducers/activities";
+import { fetchActivitiesAsync, updateTaskAsync } from "../reducers/activities";
 import { fetchMembersAsync } from "../reducers/members";
 import {
   fetchNotificationsAsync,
@@ -45,24 +45,6 @@ const getContrastColor = (hexColor) => {
   return luminance > 180 ? "black" : "white";
 };
 
-const handleTaskToggle = async (activityId, taskId, isChecked) => {
-  try {
-    const result = await dispatch(
-      updateTaskAsync({
-        activityId,
-        taskId,
-        isOk: isChecked,
-        token: user.token,
-      })
-    ).unwrap();
-    if (result) {
-      dispatch(fetchActivitiesAsync(user.token));
-    }
-  } catch (error) {
-    console.error("Erreur lors de la mise à jour de la tâche:", error);
-  }
-};
-
 const calculateTaskCompletionPercentage = (tasks) => {
   if (!tasks || tasks.length === 0) return 0;
   const completedTasks = tasks.filter((task) => task.isOk).length;
@@ -87,6 +69,23 @@ const HomeScreen = ({ navigation }) => {
 
   const previousNotifCount = useRef(0);
   const children = members.filter((m) => m.isChildren);
+  const handleTaskToggle = async (activityId, taskId, isChecked) => {
+    try {
+      const result = await dispatch(
+        updateTaskAsync({
+          activityId,
+          taskId,
+          isOk: isChecked,
+          token: user.token,
+        })
+      ).unwrap();
+      if (result) {
+        dispatch(fetchActivitiesAsync(user.token));
+      }
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour de la tâche:", error);
+    }
+  };
 
   useEffect(() => {
     const dismissedTooltips = user?.tutorialState?.dismissedTooltips || [];
@@ -556,7 +555,7 @@ const HomeScreen = ({ navigation }) => {
                                         isChecked={task.isOk}
                                         onPress={(isChecked) => {
                                           handleTaskToggle(
-                                            item._id,
+                                            a._id,
                                             task._id,
                                             isChecked
                                           );
