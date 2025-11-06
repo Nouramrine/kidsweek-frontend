@@ -51,6 +51,16 @@ const FamillyScreen = () => {
 
   const [openDropdownId, setOpenDropdownId] = useState(null); // id du membre sur lequel le dropdown est ouvert (dropdown unique)
 
+  useEffect(() => {
+    dispatch(fetchZonesAsync());
+    dispatch(fetchMembersAsync());
+  }, []);
+
+  // Maj des zones à la maj des membres
+  /*useEffect(() => {
+    dispatch(fetchZonesAsync());
+  }, [members]);*/
+
   // Logique du tuto
   const dismissedTooltips = user.tutorialState?.dismissedTooltips || [];
 
