@@ -30,12 +30,8 @@ import KWButton from "../components/KWButton";
 import { colors } from "../theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import KWCollapsible from "../components/KWCollapsible";
-
-//  IMPORT DU SERVICE DE NOTIFICATIONS
-import { scheduleLocalNotification } from "../components/notificationService";
 import TutorialBanner from "../components/TutorialBanner";
 
-// Fonction utilitaire pour déterminer la couleur du texte adaptée
 const getContrastColor = (hexColor) => {
   if (!hexColor) return "white";
   const c = hexColor.substring(1);
@@ -60,9 +56,11 @@ const HomeScreen = ({ navigation }) => {
   const [selectedChild, setSelectedChild] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [expandedActivityId, setExpandedActivityId] = useState(null);
-
-  // logique tuto
   const [shouldShowHomeTutorial, setShouldShowHomeTutorial] = useState(false);
+  const [modalNotifications, setModalNotifications] = useState([]);
+
+  const previousNotifCount = useRef(0);
+  const children = members.filter((m) => m.isChildren);
 
   useEffect(() => {
     const dismissedTooltips = user?.tutorialState?.dismissedTooltips || [];
@@ -71,7 +69,6 @@ const HomeScreen = ({ navigation }) => {
 
   const handleDismissTooltip = async (tooltipId) => {
     setShouldShowHomeTutorial(false);
-
     try {
       await dispatch(
         dismissTutorialAsync({
@@ -84,9 +81,7 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
-  //  Référence pour suivre le nombre de notifications précédent
-  const previousNotifCount = useRef(0);
-
+  // Polling des notifications toutes les 10 secondes
   useEffect(() => {
     if (!user.token || isModalVisible) return;
     const interval = setInterval(() => {
@@ -95,17 +90,13 @@ const HomeScreen = ({ navigation }) => {
     return () => clearInterval(interval);
   }, [user.token, dispatch, isModalVisible]);
 
-  //  State local pour notifications affichées
-  const [modalNotifications, setModalNotifications] = useState([]);
-  const children = members.filter((m) => m.isChildren);
-
   const toggleActivity = (id) => {
     setExpandedActivityId(expandedActivityId === id ? null : id);
   };
 
   const toggleModal = () => setIsModalVisible(!isModalVisible);
 
-  // Fetch data
+  // Fetch initial
   useEffect(() => {
     if (user.token) {
       dispatch(fetchActivitiesAsync(user.token));
@@ -129,7 +120,7 @@ const HomeScreen = ({ navigation }) => {
     return `${day} à ${time}`;
   };
 
-  //  Met à jour la liste des notifications dès que le fetch est fini
+  // Mise à jour des notifications dans la modal
   useEffect(() => {
     const allNotifs = [
       ...reminders.map((r) => ({
@@ -157,12 +148,6 @@ const HomeScreen = ({ navigation }) => {
       })),
     ];
 
-    // console.log("🔍 NOTIFICATIONS REÇUES :", {
-    //   invitations: invitations.map((i) => ({ ...i, memberId: i.memberId })),
-    //   reminders,
-    // });
-    // console.log("🔍 NOTIFICATIONS TRANSFORMÉES :", allNotifs);
-
     setModalNotifications((prev) => {
       const prevIds = prev
         .map((n) => n.id)
@@ -177,42 +162,9 @@ const HomeScreen = ({ navigation }) => {
     });
   }, [reminders, invitations]);
 
-  // 🔔 NOUVEAU : Détecter les nouvelles notifications et déclencher une notification locale
+  // Suivi du nombre de notifications
   useEffect(() => {
     const totalNotifs = invitations.length + reminders.length;
-
-    // Si on a plus de notifications qu'avant, déclencher une notification locale
-    if (totalNotifs > previousNotifCount.current) {
-      // console.log("🔔 Nouvelle notification détectée !");
-
-      // Vérifier si c'est une invitation
-      if (invitations.length > 0) {
-        const lastInvitation = invitations[invitations.length - 1];
-        scheduleLocalNotification(
-          "Nouvelle invitation ! 🎉",
-          lastInvitation.message || `Vous avez une nouvelle invitation`,
-          {
-            type: "invitation",
-            activityId: lastInvitation.activityId?._id,
-            notificationId: lastInvitation._id,
-          }
-        );
-      }
-      // Sinon vérifier si c'est un reminder
-      else if (reminders.length > 0) {
-        const lastReminder = reminders[reminders.length - 1];
-        scheduleLocalNotification(
-          "Rappel d'activité ⏰",
-          lastReminder.message || `Vous avez un nouveau rappel`,
-          {
-            type: "reminder",
-            activityId: lastReminder.activityId?._id,
-            notificationId: lastReminder._id,
-          }
-        );
-      }
-    }
-
     previousNotifCount.current = totalNotifs;
   }, [invitations, reminders]);
 
@@ -226,13 +178,11 @@ const HomeScreen = ({ navigation }) => {
         })
       ).unwrap();
 
-      // Supprimer la notification de la liste
       setModalNotifications((prev) => {
         const updated = prev.filter(
           (n) => !(n.type === "validation" && n.activityId === activityId)
         );
 
-        // Fermer la modal si plus de notifications
         if (updated.length === 0) {
           setIsModalVisible(false);
         }
@@ -246,7 +196,6 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
-  // Fonction pour marquer un rappel comme lu
   const handleDismissReminder = async (notificationId) => {
     try {
       const response = await fetch(
@@ -262,11 +211,9 @@ const HomeScreen = ({ navigation }) => {
 
       if (!response.ok) throw new Error("Erreur lors du marquage");
 
-      // Supprimer la notification de la liste
       setModalNotifications((prev) => {
         const updated = prev.filter((n) => n.id !== notificationId);
 
-        // Fermer la modal si plus de notifications
         if (updated.length === 0) {
           setIsModalVisible(false);
         }
@@ -274,7 +221,6 @@ const HomeScreen = ({ navigation }) => {
         return updated;
       });
 
-      // Refetch les notifications
       dispatch(fetchNotificationsAsync(user.token));
     } catch (err) {
       console.error("Erreur dismiss reminder:", err);
@@ -282,7 +228,6 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
-  // Tri des activités
   const now = new Date();
   const upcomingActivities = activities.filter(
     (a) => new Date(a.dateBegin) >= now
@@ -333,7 +278,6 @@ const HomeScreen = ({ navigation }) => {
         })
       : "";
 
-  // Activités passées
   const pastActivities = activities
     .filter((a) => new Date(a.dateEnd || a.dateBegin) < now)
     .filter((a) =>
@@ -345,7 +289,6 @@ const HomeScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.screen}>
-        {/* HEADER */}
         <View style={styles.header}>
           <Image
             source={require("../assets/titre.png")}
@@ -370,9 +313,7 @@ const HomeScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        {/* BODY */}
         <ScrollView contentContainerStyle={styles.scroll}>
-          {/* Sélecteur d'enfant */}
           <KWCard style={styles.childCard}>
             <KWCardBody style={styles.childSelector}>
               {children.length === 0 ? (
@@ -399,7 +340,6 @@ const HomeScreen = ({ navigation }) => {
             </KWCardBody>
           </KWCard>
 
-          {/* tuto */}
           {shouldShowHomeTutorial && (
             <TutorialBanner
               id="goToFamily"
@@ -415,7 +355,6 @@ const HomeScreen = ({ navigation }) => {
             />
           )}
 
-          {/* Planning à venir */}
           <KWCard style={styles.planningCard}>
             <KWCardHeader>
               <KWCardIcon>
@@ -526,7 +465,6 @@ const HomeScreen = ({ navigation }) => {
             </KWCardBody>
           </KWCard>
 
-          {/* Activités passées */}
           <KWCard style={styles.planningCard}>
             <KWCardHeader>
               <KWCardIcon>
@@ -580,7 +518,6 @@ const HomeScreen = ({ navigation }) => {
           </KWCard>
         </ScrollView>
 
-        {/* MODAL Notifications */}
         <KWModal visible={isModalVisible} onRequestClose={toggleModal}>
           <KWText
             type="h2"
