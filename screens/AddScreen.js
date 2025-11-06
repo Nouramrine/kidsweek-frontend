@@ -495,6 +495,7 @@ const AddScreen = ({ navigation, route }) => {
       ).unwrap();
 
       console.log("Activité mise à jour avec succès:", result);
+      dispatch(fetchActivitiesAsync(user.token));
       navigation.goBack();
     } catch (error) {
       Alert.alert(
