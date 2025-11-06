@@ -36,12 +36,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
-import { useEffect, useRef } from "react";
-import {
-  registerForPushNotificationsAsync,
-  addNotificationResponseListener,
-} from "./components/notificationService";
-
 const userPersistConfig = {
   key: "user",
   storage: AsyncStorage,
@@ -126,41 +120,6 @@ export default function App() {
     JosefinSans_400Regular,
     JosefinSans_300Light,
   });
-
-  // 🔔 GESTION DES NOTIFICATIONS
-  const navigationRef = useRef();
-  const notificationListener = useRef();
-  const responseListener = useRef();
-
-  useEffect(() => {
-    // Demander la permission au démarrage de l'app
-    registerForPushNotificationsAsync();
-
-    // Listener pour quand l'utilisateur clique sur une notification
-    responseListener.current = addNotificationResponseListener((data) => {
-      // console.log("👆 Notification cliquée, data:", data);
-
-      // Navigation vers l'écran approprié selon le type de notification
-      if (navigationRef.current) {
-        if (data.type === "invitation" || data.type === "reminder") {
-          // Rediriger vers l'écran d'accueil où se trouve la modal de notifications
-          navigationRef.current.navigate("TabNavigator", {
-            screen: "Acceuil",
-          });
-        }
-      }
-    });
-
-    // Cleanup au démontage du composant
-    return () => {
-      if (notificationListener.current) {
-        notificationListener.current.remove();
-      }
-      if (responseListener.current) {
-        responseListener.current.remove();
-      }
-    };
-  }, []);
 
   if (!fontsLoaded) {
     return null;
