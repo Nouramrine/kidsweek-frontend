@@ -31,6 +31,8 @@ import { colors } from "../theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import KWCollapsible from "../components/KWCollapsible";
 import TutorialBanner from "../components/TutorialBanner";
+import { FontAwesome5 } from "@expo/vector-icons";
+import BouncyCheckbox from "react-native-bouncy-checkbox";
 
 const getContrastColor = (hexColor) => {
   if (!hexColor) return "white";
@@ -41,6 +43,30 @@ const getContrastColor = (hexColor) => {
   const b = rgb & 0xff;
   const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
   return luminance > 180 ? "black" : "white";
+};
+
+const handleTaskToggle = async (activityId, taskId, isChecked) => {
+  try {
+    const result = await dispatch(
+      updateTaskAsync({
+        activityId,
+        taskId,
+        isOk: isChecked,
+        token: user.token,
+      })
+    ).unwrap();
+    if (result) {
+      dispatch(fetchActivitiesAsync(user.token));
+    }
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour de la tâche:", error);
+  }
+};
+
+const calculateTaskCompletionPercentage = (tasks) => {
+  if (!tasks || tasks.length === 0) return 0;
+  const completedTasks = tasks.filter((task) => task.isOk).length;
+  return Math.round((completedTasks / tasks.length) * 100);
 };
 
 const HomeScreen = ({ navigation }) => {
@@ -426,34 +452,136 @@ const HomeScreen = ({ navigation }) => {
                             palette={activityPalette}
                             isExpanded={expandedActivityId === a._id}
                             onToggle={() => toggleActivity(a._id)}
+                            rightHeader={
+                              a.tasks?.length > 0 ? (
+                                <View
+                                  style={[
+                                    styles.percentageContainer,
+                                    {
+                                      backgroundColor:
+                                        calculateTaskCompletionPercentage(
+                                          a.tasks
+                                        ) < 50
+                                          ? colors.red[1]
+                                          : colors.green[1],
+                                    },
+                                  ]}
+                                >
+                                  <FontAwesome5
+                                    name="check-circle"
+                                    size={14}
+                                    color={colors.green[0]}
+                                    style={{ marginRight: 5 }}
+                                  />
+                                  <KWText style={styles.percentageText}>
+                                    {calculateTaskCompletionPercentage(a.tasks)}
+                                    %
+                                  </KWText>
+                                </View>
+                              ) : null
+                            }
                           >
-                            <KWText>📍 {a.place || "Lieu non précisé"}</KWText>
-                            {a.note && <KWText>📝 {a.note}</KWText>}
-                            {a.members?.length > 0 && (
-                              <View>
-                                <KWText type="h3" style={{ marginTop: 8 }}>
-                                  👥 Membres :
+                            <View style={styles.activityContent}>
+                              <View style={styles.infoRow}>
+                                <FontAwesome5
+                                  name="map-marker-alt"
+                                  size={14}
+                                  color={activityPalette[2]}
+                                />
+                                <KWText style={styles.infoText}>
+                                  {a.place || "Lieu non précisé"}
                                 </KWText>
-                                {a.members.map((m) => (
-                                  <KWText key={m._id}>• {m.firstName}</KWText>
-                                ))}
                               </View>
-                            )}
-                            <View
-                              style={{ alignItems: "center", marginTop: 10 }}
-                            >
-                              <KWButton
-                                title="Modifier"
-                                icon="edit"
-                                bgColor={activityPalette[1]}
-                                color={getContrastColor(activityPalette[1])}
-                                style={{ minWidth: 150 }}
-                                onPress={() =>
-                                  navigation.navigate("AddScreen", {
-                                    activityToEdit: a,
-                                  })
-                                }
-                              />
+                              {a.note && (
+                                <View style={styles.infoRow}>
+                                  <FontAwesome5
+                                    name="sticky-note"
+                                    size={14}
+                                    color={activityPalette[2]}
+                                  />
+                                  <KWText style={styles.infoText}>
+                                    {a.note}
+                                  </KWText>
+                                </View>
+                              )}
+                              {a.members?.length > 0 && (
+                                <View style={styles.infoBlock}>
+                                  <View style={styles.infoRow}>
+                                    <FontAwesome5
+                                      name="users"
+                                      size={14}
+                                      color={activityPalette[2]}
+                                    />
+                                    <KWText
+                                      style={[
+                                        styles.infoText,
+                                        { fontWeight: "600" },
+                                      ]}
+                                    >
+                                      Membres :
+                                    </KWText>
+                                  </View>
+                                  <KWText style={styles.memberList}>
+                                    {a.members
+                                      .map((m) => m.firstName)
+                                      .join(", ")}
+                                  </KWText>
+                                </View>
+                              )}
+                              {a.tasks?.length > 0 && (
+                                <View style={styles.checklistContainer}>
+                                  <View style={styles.infoRow}>
+                                    <FontAwesome5
+                                      name="check-square"
+                                      size={14}
+                                      color={activityPalette[2]}
+                                    />
+                                    <KWText style={styles.checklistTextHeader}>
+                                      Tâches :
+                                    </KWText>
+                                  </View>
+                                  {a.tasks.map((task) => (
+                                    <View
+                                      key={task._id}
+                                      style={styles.checklistItem}
+                                    >
+                                      <BouncyCheckbox
+                                        size={20}
+                                        fillColor={colors.green[2]}
+                                        unFillColor="#FFFFFF"
+                                        text={task.text}
+                                        textStyle={{
+                                          fontFamily: "JosefinSans_400Regular",
+                                        }}
+                                        isChecked={task.isOk}
+                                        onPress={(isChecked) => {
+                                          handleTaskToggle(
+                                            item._id,
+                                            task._id,
+                                            isChecked
+                                          );
+                                        }}
+                                      />
+                                    </View>
+                                  ))}
+                                </View>
+                              )}
+                              <View
+                                style={{ alignItems: "center", marginTop: 10 }}
+                              >
+                                <KWButton
+                                  title="Modifier"
+                                  icon="edit"
+                                  bgColor={activityPalette[1]}
+                                  color={getContrastColor(activityPalette[1])}
+                                  style={{ minWidth: 150 }}
+                                  onPress={() =>
+                                    navigation.navigate("AddScreen", {
+                                      activityToEdit: a,
+                                    })
+                                  }
+                                />
+                              </View>
                             </View>
                           </KWCollapsible>
                         );
@@ -617,6 +745,55 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     gap: 10,
     marginTop: 10,
+  },
+  activityContent: {
+    marginTop: 5,
+    padding: 5,
+    gap: 6,
+  },
+  infoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 5,
+  },
+  infoText: {
+    fontSize: 14,
+    color: "#333",
+  },
+  infoBlock: {
+    marginTop: 6,
+  },
+  memberList: {
+    fontSize: 13,
+    color: "#555",
+    marginLeft: 20,
+  },
+  checklistContainer: {
+    marginTop: 5,
+    marginBottom: 5,
+    borderRadius: 10,
+  },
+  checklistItem: {
+    marginBottom: 4,
+    paddingLeft: 5,
+  },
+  percentageContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    marginRight: 10,
+  },
+  percentageText: {
+    fontSize: 13,
+    color: colors.green[0],
+    fontWeight: "600",
+  },
+  checklistTextHeader: {
+    marginLeft: 8,
+    fontWeight: "600",
   },
 });
 
