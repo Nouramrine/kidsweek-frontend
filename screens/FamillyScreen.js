@@ -22,12 +22,7 @@ import TutorialBanner from "../components/TutorialBanner";
 
 import { FontAwesome5 } from "@expo/vector-icons";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  fetchZonesAsync,
-  deleteZoneAsync,
-  removeMemberFromZoneAsync,
-  addMemberToZoneAsync,
-} from "../reducers/zones";
+import { fetchZonesAsync, deleteZoneAsync, removeMemberFromZoneAsync, addMemberToZoneAsync } from "../reducers/zones";
 import { fetchMembersAsync, deleteMemberAsync } from "../reducers/members";
 import { dismissTutorialAsync } from "../reducers/user";
 
@@ -159,6 +154,7 @@ const FamillyScreen = () => {
                 setSelectedZone(null);
                 setZoneModal(true);
               }}
+              testID="zone-btn"
             >
               <KWCard color={colors.yellow[0]}>
                 <View style={{ flexDirection: "row" }}>
@@ -187,6 +183,7 @@ const FamillyScreen = () => {
                 setSelectedMember(null);
                 setMemberModal(true);
               }}
+              testID="member-btn"
             >
               <KWCard color={colors.green[0]}>
                 <View style={{ flexDirection: "row" }}>
@@ -344,6 +341,7 @@ const FamillyScreen = () => {
                       setSelectedZone(zone);
                       setAddMemberToZoneModal(true);
                     }}
+                    testID="add-member-btn"
                   />
                 </KWCardBody>
               </KWCard>
