@@ -24,6 +24,7 @@ export default function CalendarScreen() {
   const [markedDates, setMarkedDates] = useState({});
   const [activitiesOfDay, setActivitiesOfDay] = useState([]);
   const [expandedActivityId, setExpandedActivityId] = useState(null);
+  const membersList = useSelector((state) => state.members.value);
 
   const toggleActivity = (id) => {
     setExpandedActivityId(expandedActivityId === id ? null : id);
@@ -125,14 +126,12 @@ export default function CalendarScreen() {
 
       // Limiter à 3 marqueurs maximum par jour (un par membre)
       const periods = memberIds.slice(0, 3).map((memberId) => {
-        const memberActivities = members[memberId];
-        const firstActivity = memberActivities[0];
-        const activityColor =
-          colors[firstActivity.color]?.[2] || colors.purple[2];
+        const memberObj = membersList.find((m) => m._id === memberId);
+        const memberColor = colors[memberObj?.color]?.[2] || colors.purple[2];
         return {
           startingDay: true,
           endingDay: true,
-          color: activityColor,
+          color: memberColor,
         };
       });
 
