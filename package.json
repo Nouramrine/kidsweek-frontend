@@ -38,12 +38,9 @@
     "react-native-bouncy-checkbox": "^4.1.2",
     "react-native-calendars": "^1.1313.0",
     "react-native-collapsible": "^1.6.2",
-<<<<<<< HEAD
-=======
     "react-native-gesture-handler": "~2.28.0",
     "react-native-modal": "^14.0.0-rc.1",
     "react-native-paper": "^5.14.5",
->>>>>>> f963ca5dc9e27048a6144649e34cdc8d3bb32c18
     "react-native-qrcode-svg": "^6.3.20",
     "react-native-safe-area-context": "^5.6.2",
     "react-native-screens": "~4.16.0",
@@ -55,10 +52,6 @@
   },
   "private": true,
   "devDependencies": {
-<<<<<<< HEAD
-    "@babel/plugin-transform-class-properties": "^7.27.1",
-    "metro-react-native-babel-preset": "^0.77.0"
-=======
     "@babel/core": "^7.22.0",
     "@babel/preset-env": "^7.28.5",
     "@babel/preset-react": "^7.28.5",
@@ -73,6 +66,5 @@
     "transformIgnorePatterns": [
       "node_modules/(?!((jest-)?react-native|@react-native(-community)?|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|react-redux|@reduxjs/toolkit|))"
     ]
->>>>>>> f963ca5dc9e27048a6144649e34cdc8d3bb32c18
   }
 }
