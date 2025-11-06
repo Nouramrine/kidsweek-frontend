@@ -16,9 +16,8 @@ import { FontAwesome5 } from "@expo/vector-icons";
 
 const MemberAdd = ({ currentMembers, onReturn }) => {
   const dispatch = useDispatch();
-
-  const members = useSelector((state) => state.members.value || []);
-  console.log(currentMembers)
+  const members = useSelector((state) => state.members.value) || [];
+  console.log("Current members:", currentMembers);
 
   useEffect(() => {
     dispatch(fetchMembersAsync());
@@ -28,16 +27,29 @@ const MemberAdd = ({ currentMembers, onReturn }) => {
     onReturn(member);
   };
 
-  const currentIds = new Set((currentMembers || []).map((item) => item._id));
-  const filteredMembers = (members || []).filter((m) => !currentIds.has(m._id));
+  const currentIds = new Set(
+    (Array.isArray(currentMembers) ? currentMembers : []).map(
+      (item) => item._id
+    )
+  );
+
+  const filteredMembers = Array.isArray(members)
+    ? members.filter((m) => !currentIds.has(m._id))
+    : [];
 
   return (
     <ScrollView style={styles.membersContainer}>
       <KWText type="h2">Ajouter un membre</KWText>
-      {filteredMembers && filteredMembers.length > 0 ? (
+      {Array.isArray(filteredMembers) && filteredMembers.length > 0 ? (
         filteredMembers.map((member, j) => {
           return (
-            <KWCard key={j} color={colors[member.color][0]} style={styles.memberCard}>
+            <KWCard
+              key={member._id || j}
+              color={
+                colors[member.color] ? colors[member.color][0] : colors.skin[0]
+              }
+              style={styles.memberCard}
+            >
               <KWCardHeader>
                 <KWCardIcon>
                   <View
@@ -52,7 +64,6 @@ const MemberAdd = ({ currentMembers, onReturn }) => {
                 </KWCardIcon>
                 <KWCardTitle>
                   <KWText>{member.firstName}</KWText>
-                  {/* <KWText>1000 ans</KWText> */}
                 </KWCardTitle>
                 <KWCardButton>
                   <KWButton
@@ -73,7 +84,7 @@ const MemberAdd = ({ currentMembers, onReturn }) => {
         <KWButton
           title="Retour"
           bgColor={colors.red[1]}
-          styles={styles.button}
+          style={styles.button}
           onPress={() => onReturn()}
         />
       </View>
@@ -97,9 +108,8 @@ const styles = StyleSheet.create({
   addButton: {
     marginTop: -1,
   },
-  returnButton: {
-    width: "100%",
-    alignItems: "flex-end",
+  button: {
+    marginTop: 10,
   },
 });
 
