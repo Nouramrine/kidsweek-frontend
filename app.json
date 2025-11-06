@@ -41,17 +41,7 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": [
-      "expo-font",
-      [
-        "expo-notifications",
-        {
-          "icon": "./assets/icon.png",
-          "color": "#ffffff",
-          "sounds": ["./assets/notification.wav"]
-        }
-      ]
-    ],
+    "plugins": ["expo-font"],
     "notification": {
       "icon": "./assets/icon.png",
       "color": "#ffffff",
