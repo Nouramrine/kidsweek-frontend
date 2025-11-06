@@ -31,34 +31,31 @@ import invites from "./reducers/invites";
 import { Provider, useSelector } from "react-redux";
 import { persistStore, persistReducer } from "redux-persist";
 import { PersistGate } from "redux-persist/integration/react";
-//async storage pour react-native car local storage ne fonctione pas
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-
-import { useEffect, useRef } from "react";
-import {
-  registerForPushNotificationsAsync,
-  addNotificationResponseListener,
-} from "./components/notificationService";
+import { useRef } from "react";
 
 const userPersistConfig = {
   key: "user",
   storage: AsyncStorage,
 };
+
 const rootReducer = combineReducers({
-  user: persistReducer(userPersistConfig, user), // seul user est persistant
+  user: persistReducer(userPersistConfig, user),
   members,
   activities,
   zones,
   notifications,
   invites,
 });
+
 const store = configureStore({
   reducer: rootReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({ serializableCheck: false }),
 });
+
 const persistor = persistStore(store);
 
 const Stack = createNativeStackNavigator();
@@ -80,7 +77,6 @@ const TabNavigator = () => {
           } else if (route.name === "Profil") {
             iconName = "person-outline";
           } else if (route.name === "add") {
-            //Style personnalisé pour le bouton Add
             return (
               <View
                 style={{
@@ -110,7 +106,7 @@ const TabNavigator = () => {
         name="add"
         component={AddScreen}
         options={{
-          tabBarLabel: "", // Pas de label pour le bouton add
+          tabBarLabel: "",
         }}
       />
       <Tab.Screen name="Famille" component={FamillyScreen} />
@@ -127,49 +123,15 @@ export default function App() {
     JosefinSans_300Light,
   });
 
-  // 🔔 GESTION DES NOTIFICATIONS
   const navigationRef = useRef();
-  const notificationListener = useRef();
-  const responseListener = useRef();
-
-  useEffect(() => {
-    // Demander la permission au démarrage de l'app
-    registerForPushNotificationsAsync();
-
-    // Listener pour quand l'utilisateur clique sur une notification
-    responseListener.current = addNotificationResponseListener((data) => {
-      // console.log("👆 Notification cliquée, data:", data);
-
-      // Navigation vers l'écran approprié selon le type de notification
-      if (navigationRef.current) {
-        if (data.type === "invitation" || data.type === "reminder") {
-          // Rediriger vers l'écran d'accueil où se trouve la modal de notifications
-          navigationRef.current.navigate("TabNavigator", {
-            screen: "Acceuil",
-          });
-        }
-      }
-    });
-
-    // Cleanup au démontage du composant
-    return () => {
-      if (notificationListener.current) {
-        notificationListener.current.remove();
-      }
-      if (responseListener.current) {
-        responseListener.current.remove();
-      }
-    };
-  }, []);
 
   if (!fontsLoaded) {
     return null;
   }
 
-  // affichage de AuthScreen si non connecté sinon arrivé sur HomeScreen
   const DisplayIsLogged = () => {
     const userData = useSelector((state) => state.user.value);
-    //console.log(userData?.isLogged);
+
     return (
       <NavigationContainer ref={navigationRef}>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
