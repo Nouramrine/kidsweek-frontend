@@ -34,6 +34,9 @@ const FamillyScreen = () => {
   const user = useSelector((state) => state.user.value);
   const invites = useSelector((state) => state.invites.value);
 
+  console.log(zones)
+  console.log(members)
+
   // Modals
   const [zoneModal, setZoneModal] = useState(false);
   const [selectedZone, setSelectedZone] = useState(null);
@@ -308,7 +311,7 @@ const FamillyScreen = () => {
                                 </KWText>
                               )}
                             </View>
-                            {member.isChildren && (
+                            {zone.authLevel !== 'read' && (
                               <TouchableOpacity
                                 style={styles.iconBtn}
                                 onPress={() =>

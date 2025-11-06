@@ -16,6 +16,7 @@ const KWTextInput = ({ label, ...props }) => {
 
 const styles = StyleSheet.create({
     container: {
+        minWidth: 150,
         marginVertical: 10,
         position: 'relative',
     },
