@@ -32,7 +32,7 @@ import { Ionicons } from "@expo/vector-icons";
 import KWCollapsible from "../components/KWCollapsible";
 
 //  IMPORT DU SERVICE DE NOTIFICATIONS
-import { scheduleLocalNotification } from "../components/notificationService";
+//import { scheduleLocalNotification } from "../components/notificationService";
 import TutorialBanner from "../components/TutorialBanner";
 
 // Fonction utilitaire pour déterminer la couleur du texte adaptée
