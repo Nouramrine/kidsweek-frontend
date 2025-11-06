@@ -31,28 +31,31 @@ import invites from "./reducers/invites";
 import { Provider, useSelector } from "react-redux";
 import { persistStore, persistReducer } from "redux-persist";
 import { PersistGate } from "redux-persist/integration/react";
-//async storage pour react-native car local storage ne fonctione pas
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { useRef } from "react";
 
 const userPersistConfig = {
   key: "user",
   storage: AsyncStorage,
 };
+
 const rootReducer = combineReducers({
-  user: persistReducer(userPersistConfig, user), // seul user est persistant
+  user: persistReducer(userPersistConfig, user),
   members,
   activities,
   zones,
   notifications,
   invites,
 });
+
 const store = configureStore({
   reducer: rootReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({ serializableCheck: false }),
 });
+
 const persistor = persistStore(store);
 
 const Stack = createNativeStackNavigator();
@@ -74,7 +77,6 @@ const TabNavigator = () => {
           } else if (route.name === "Profil") {
             iconName = "person-outline";
           } else if (route.name === "add") {
-            //Style personnalisé pour le bouton Add
             return (
               <View
                 style={{
@@ -104,7 +106,7 @@ const TabNavigator = () => {
         name="add"
         component={AddScreen}
         options={{
-          tabBarLabel: "", // Pas de label pour le bouton add
+          tabBarLabel: "",
         }}
       />
       <Tab.Screen name="Famille" component={FamillyScreen} />
@@ -121,14 +123,15 @@ export default function App() {
     JosefinSans_300Light,
   });
 
+  const navigationRef = useRef();
+
   if (!fontsLoaded) {
     return null;
   }
 
-  // affichage de AuthScreen si non connecté sinon arrivé sur HomeScreen
   const DisplayIsLogged = () => {
     const userData = useSelector((state) => state.user.value);
-    //console.log(userData?.isLogged);
+
     return (
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
