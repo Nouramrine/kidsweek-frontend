@@ -406,11 +406,13 @@ const AddScreen = ({ navigation, route }) => {
 
     return reminderDate;
   };
+
   // toggle switch display recurrence
   /*const toggleSwitch = () => {
     setDateEndRecurrence(dateEnd);
     setIsEnabled(!isEnabled);
   };*/
+
   // Form validation
   const validateForm = () => {
     const fullDateBegin = combineDateAndTime(dateBegin, timeBegin);
@@ -943,6 +945,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background[1],
+    padding: 15,
   },
   header: {
     flex: 1,
@@ -959,16 +962,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
   },
   section: {
-    marginHorizontal: 20,
     marginBottom: 7,
-
-    padding: 7,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "grey",
-    shadowOffset: { width: 0, height: 2 },
-    backgroundColor: "#feffffff",
-    // overflow: "hidden",
   },
   label: {
     fontSize: 14,
