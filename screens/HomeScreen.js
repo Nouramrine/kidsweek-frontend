@@ -311,9 +311,57 @@ const HomeScreen = ({ navigation }) => {
     .sort((a, b) => new Date(b.dateBegin) - new Date(a.dateBegin))
     .slice(0, 3);
 
+  const renderChildButtons = () => {
+    if (children.length === 0) {
+      return <KWText>Aucun enfant enregistré.</KWText>;
+    }
+
+    return (
+      <>
+        <KWButton
+          key="all"
+          title="Moi"
+          bgColor={!selectedChild ? colors.purple[1] : colors.background[1]}
+          color={!selectedChild ? "white" : colors.purple[2]}
+          onPress={() => setSelectedChild(null)}
+          style={{
+            borderWidth: selectedChild ? 1 : 0,
+            borderColor: colors.purple[2],
+            padding: 5,
+            paddingHorizontal: 15,
+            marginRight: 5,
+          }}
+        />
+
+        {children.map((child) => {
+          const palette = colors[child.color] || colors.purple;
+          const isSelected = selectedChild?._id === child._id;
+
+          return (
+            <KWButton
+              key={child._id}
+              title={child.firstName}
+              bgColor={isSelected ? palette[1] : colors.background[1]}
+              color={isSelected ? "white" : palette[2]}
+              onPress={() =>
+                setSelectedChild(isSelected ? null : child)
+              }
+              style={{
+                borderWidth: isSelected ? 0 : 1,
+                borderColor: palette[2],
+                padding: 5,
+                paddingHorizontal: 15,
+                marginRight: 5,
+              }}
+            />
+          );
+        })}
+      </>
+    );
+  };
+
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.screen}>
+    <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <Image
             source={require("../assets/titre.png")}
@@ -321,15 +369,14 @@ const HomeScreen = ({ navigation }) => {
             resizeMode="contain"
           />
           <TouchableOpacity onPress={toggleModal} style={styles.bellContainer}>
-            <Ionicons
-              name="notifications-outline"
+            <FontAwesome5
+              name="bell"
               size={28}
-              color={colors.purple[2]}
+              color={colors.purple[1]}
+              solid
             />
-            {modalNotifications.length > 0 && (
-              <View
-                style={[styles.badge, { backgroundColor: colors.orange[1] }]}
-              >
+            {modalNotifications.length > 0 && ( 
+              <View style={styles.badge}>
                 <KWText style={styles.badgeText}>
                   {modalNotifications.length}
                 </KWText>
@@ -339,32 +386,10 @@ const HomeScreen = ({ navigation }) => {
         </View>
 
         <ScrollView contentContainerStyle={styles.scroll}>
-          <KWCard style={styles.childCard}>
-            <KWCardBody style={styles.childSelector}>
-              {children.length === 0 ? (
-                <KWText>Aucun enfant enregistré.</KWText>
-              ) : (
-                children.map((child) => {
-                  const palette = colors[child.color] || colors.purple;
-                  const isSelected = selectedChild?._id === child._id;
-                  return (
-                    <KWButton
-                      key={child._id}
-                      title={child.firstName}
-                      bgColor={isSelected ? palette[1] : colors.background[1]}
-                      color={isSelected ? "white" : palette[2]}
-                      onPress={() => setSelectedChild(child)}
-                      style={{
-                        borderWidth: isSelected ? 0 : 1,
-                        borderColor: palette[2],
-                      }}
-                    />
-                  );
-                })
-              )}
-            </KWCardBody>
-          </KWCard>
-
+          <View style={styles.childSelector}>
+            {renderChildButtons()}
+          </View>
+        
           {shouldShowHomeTutorial && (
             <TutorialBanner
               id="goToFamily"
@@ -390,28 +415,11 @@ const HomeScreen = ({ navigation }) => {
                 />
               </KWCardIcon>
               <KWCardTitle>
-                <TouchableOpacity
-                  onPress={() => setSelectedChild(null)}
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    marginBottom: 10,
-                  }}
-                >
-                  {selectedChild && (
-                    <Ionicons
-                      name="arrow-back"
-                      size={22}
-                      color={colors.purple[2]}
-                      style={{ marginRight: 6 }}
-                    />
-                  )}
-                  <KWText type="h2" style={{ color: colors.purple[2] }}>
-                    {selectedChild
-                      ? `Planning de ${selectedChild.firstName}`
-                      : "Mon planning"}
-                  </KWText>
-                </TouchableOpacity>
+                <KWText type="h2" style={{ color: colors.purple[2] }}>
+                  {selectedChild
+                    ? `Planning de ${selectedChild.firstName}`
+                    : "Mon planning"}
+                </KWText>
               </KWCardTitle>
             </KWCardHeader>
 
@@ -425,13 +433,14 @@ const HomeScreen = ({ navigation }) => {
                   const activitiesOfDay = groupedActivities[day];
 
                   return (
-                    <View key={day} style={{ marginBottom: 15 }}>
+                    <View key={day} style={{ marginBottom: 5 }}>
                       <KWText
                         type="h3"
                         style={{
                           fontWeight: "bold",
                           marginBottom: 8,
                           color: palette[2],
+                          paddingHorizontal: 15,
                         }}
                       >
                         {day}
@@ -470,7 +479,7 @@ const HomeScreen = ({ navigation }) => {
                                     name="check-circle"
                                     size={14}
                                     color={colors.green[0]}
-                                    style={{ marginRight: 5 }}
+                                    style={{ marginRight: 5, padding: 3 }}
                                   />
                                   <KWText style={styles.percentageText}>
                                     {calculateTaskCompletionPercentage(a.tasks)}
@@ -481,27 +490,20 @@ const HomeScreen = ({ navigation }) => {
                             }
                           >
                             <View style={styles.activityContent}>
-                              <View style={styles.infoRow}>
-                                <FontAwesome5
-                                  name="map-marker-alt"
-                                  size={14}
-                                  color={activityPalette[2]}
-                                />
-                                <KWText style={styles.infoText}>
-                                  {a.place || "Lieu non précisé"}
-                                </KWText>
-                              </View>
                               {a.note && (
+                                <>
                                 <View style={styles.infoRow}>
                                   <FontAwesome5
-                                    name="sticky-note"
+                                    name="map-marker-alt"
                                     size={14}
                                     color={activityPalette[2]}
                                   />
                                   <KWText style={styles.infoText}>
-                                    {a.note}
+                                    Lieu :
                                   </KWText>
                                 </View>
+                                <KWText style={styles.activityInfo}>{a.place}</KWText>
+                                </>
                               )}
                               {a.members?.length > 0 && (
                                 <View style={styles.infoBlock}>
@@ -520,16 +522,16 @@ const HomeScreen = ({ navigation }) => {
                                       Membres :
                                     </KWText>
                                   </View>
-                                  <KWText style={styles.memberList}>
+                                  <View style={styles.memberList}>
                                     {a.members
-                                      .map((m) => m.firstName)
-                                      .join(", ")}
-                                  </KWText>
+                                      .map((m) => (<KWText style={styles.activityInfo}>{m.firstName}</KWText>))
+                                    }
+                                  </View>
                                 </View>
                               )}
                               {a.tasks?.length > 0 && (
                                 <View style={styles.checklistContainer}>
-                                  <View style={styles.infoRow}>
+                                  <View style={[styles.infoRow, { marginBottom: 5 }]}>
                                     <FontAwesome5
                                       name="check-square"
                                       size={14}
@@ -565,8 +567,24 @@ const HomeScreen = ({ navigation }) => {
                                   ))}
                                 </View>
                               )}
+                              {a.note && (
+                                <>
+                                  <View style={styles.infoRow}>
+                                    <FontAwesome5
+                                      name="sticky-note"
+                                      size={14}
+                                      color={activityPalette[2]}
+                                    />
+                                    <KWText style={styles.infoText}>
+                                      Note :
+                                    </KWText>
+                                  </View>
+                                  <KWText style={styles.activityInfo}>{a.note}</KWText>
+                                </>
+                              )}
+
                               <View
-                                style={{ alignItems: "center", marginTop: 10 }}
+                                style={{ alignItems: "center", marginTop: 0 }}
                               >
                                 <KWButton
                                   title="Modifier"
@@ -703,41 +721,49 @@ const HomeScreen = ({ navigation }) => {
             />
           )}
         </KWModal>
-      </View>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "white" },
-  screen: { flex: 1, backgroundColor: "white" },
+  container: { 
+    flex: 1, 
+    justifyContent: "flex-start", 
+    backgroundColor: colors.background[0], 
+    paddingHorizontal: 10,
+  },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 20,
-    marginBottom: 10,
+    paddingHorizontal: 10,
+    //backgroundColor: '#ccc', 
   },
-  logo: { width: "80%", aspectRatio: 3, marginBottom: 10 },
+  logo: { width: "60%", aspectRatio: 3 },
   bellContainer: {
-    position: "absolute",
-    top: 5,
-    right: 5,
-    padding: 5,
-    zIndex: 10,
+    position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 5,
   },
   badge: {
     position: "absolute",
-    top: 0,
-    right: 0,
-    borderRadius: 10,
-    paddingHorizontal: 5,
-    paddingVertical: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    top: -6,
+    right: -6,
+    height: 22,
+    width: 22,
+    borderRadius: 11,
+    backgroundColor: colors.orange[0],
   },
-  badgeText: { color: "white", fontSize: 12 },
-  scroll: { padding: 15, paddingBottom: 100 },
-  childCard: { backgroundColor: colors.background[0], marginBottom: 15 },
-  childSelector: { flexDirection: "row", justifyContent: "space-evenly" },
+  badgeText: { color: colors.text[0], fontSize: 12, fontWeight: 'bold' },
+  scroll: {  },
+  childSelector: { 
+    flexDirection: "row", 
+    justifyContent: "flex-start", 
+    padding: 10,
+  },
   planningCard: { backgroundColor: colors.background[0], marginBottom: 15 },
   actionButtons: {
     flexDirection: "row",
@@ -746,15 +772,13 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   activityContent: {
-    marginTop: 5,
-    padding: 5,
-    gap: 6,
+    padding: 15,
+    gap: 15,
   },
   infoRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    marginBottom: 5,
   },
   infoText: {
     fontSize: 14,
@@ -764,9 +788,19 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   memberList: {
+    flexDirection: 'row',
     fontSize: 13,
     color: "#555",
-    marginLeft: 20,
+    marginTop: 10,
+  },
+  activityInfo: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 5,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+    backgroundColor: colors.background[1],
+    marginRight: 5,
   },
   checklistContainer: {
     marginTop: 5,
@@ -774,8 +808,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   checklistItem: {
-    marginBottom: 4,
-    paddingLeft: 5,
+    marginTop: 5,
+    padding: 10,
+    paddingHorizontal: 15,
+    backgroundColor: colors.background[1],
+    borderRadius: 10,
   },
   percentageContainer: {
     flexDirection: "row",

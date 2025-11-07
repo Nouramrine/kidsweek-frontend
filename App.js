@@ -58,6 +58,11 @@ const store = configureStore({
 
 const persistor = persistStore(store);
 
+/*persistor.pause();
+persistor.flush().then(() => {
+  return persistor.purge();
+});*/
+
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 

@@ -9,11 +9,7 @@
     "splash": {
       "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#232323",
-      "dark": {
-        "image": "./assets/images/splash-icon-dark.png",
-        "backgroundColor": "#000000"
-      }
+      "backgroundColor": "#ffffff"
     },
     "scheme": "kidsweek",
     "ios": {
@@ -41,9 +37,8 @@
     },
     "extra": {
       "eas": {
-        "projectId": "14ca1f72-89e6-4f3b-be74-5514fe953a5c"
+        "projectId": "079f6038-61f8-44d5-995d-e4b813fec6cc"
       }
-    },
-    "owner": "aquick"
+    }
   }
 }
