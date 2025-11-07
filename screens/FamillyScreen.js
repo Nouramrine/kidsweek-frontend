@@ -56,11 +56,6 @@ const FamillyScreen = () => {
     dispatch(fetchMembersAsync());
   }, []);
 
-  // Maj des zones à la maj des membres
-  /*useEffect(() => {
-    dispatch(fetchZonesAsync());
-  }, [members]);*/
-
   // Logique du tuto
   const dismissedTooltips = user.tutorialState?.dismissedTooltips || [];
 
