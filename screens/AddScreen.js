@@ -406,7 +406,7 @@ const AddScreen = ({ navigation, route }) => {
 
     return reminderDate;
   };
-  
+
   // toggle switch display recurrence
   /*const toggleSwitch = () => {
     setDateEndRecurrence(dateEnd);
