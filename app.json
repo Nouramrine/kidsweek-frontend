@@ -5,53 +5,34 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
-    "newArchEnabled": true,
+    "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#232323",
+      "dark": {
+        "image": "./assets/images/splash-icon-dark.png",
+        "backgroundColor": "#000000"
+      }
     },
     "scheme": "kidsweek",
     "ios": {
       "supportsTablet": true,
-      "associatedDomains": [
-        "applinks:kidsweek.app"
-      ]
+      "associatedDomains": ["applinks:kidsweek.app"]
     },
     "android": {
+      "package": "com.jerguer.kidsweek",
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true,
-      "intentFilters": [
-        {
-          "action": "VIEW",
-          "data": [
-            {
-              "scheme": "https",
-              "host": "kidsweek.app",
-              "pathPrefix": "/invite"
-            }
-          ],
-          "category": [
-            "BROWSABLE",
-            "DEFAULT"
-          ]
-        }
-      ],
-      "permissions": [
-        "android.permission.POST_NOTIFICATIONS"
-      ],
-      "package": "com.jerguer.kidsweek"
+      "permissions": ["android.permission.POST_NOTIFICATIONS"]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": [
-      "expo-font"
-    ],
+    "plugins": ["expo-font"],
     "notification": {
       "icon": "./assets/icon.png",
       "color": "#ffffff",
@@ -60,8 +41,9 @@
     },
     "extra": {
       "eas": {
-        "projectId": "079f6038-61f8-44d5-995d-e4b813fec6cc"
+        "projectId": "14ca1f72-89e6-4f3b-be74-5514fe953a5c"
       }
-    }
+    },
+    "owner": "aquick"
   }
 }
