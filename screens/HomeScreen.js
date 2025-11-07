@@ -333,13 +333,13 @@ const HomeScreen = ({ navigation }) => {
           }}
         />
 
-        {children.map((child) => {
+        {children.map((child, c) => {
           const palette = colors[child.color] || colors.purple;
           const isSelected = selectedChild?._id === child._id;
 
           return (
             <KWButton
-              key={child._id}
+              key={c}
               title={child.firstName}
               bgColor={isSelected ? palette[1] : colors.background[1]}
               color={isSelected ? "white" : palette[2]}
@@ -425,7 +425,7 @@ const HomeScreen = ({ navigation }) => {
 
             <KWCardBody>
               {sortedDays.length === 0 ? (
-                <KWText>Aucune activité prévue.</KWText>
+                <KWText style={{ width: '100%', textAlign: 'center' }}>Aucune activité prévue.</KWText>
               ) : (
                 sortedDays.map((day) => {
                   const dayName = day.split(" ")[0].toLowerCase();
@@ -524,7 +524,7 @@ const HomeScreen = ({ navigation }) => {
                                   </View>
                                   <View style={styles.memberList}>
                                     {a.members
-                                      .map((m) => (<KWText style={styles.activityInfo}>{m.firstName}</KWText>))
+                                      .map((m, i) => (<KWText key={i} style={styles.activityInfo}>{m.firstName}</KWText>))
                                     }
                                   </View>
                                 </View>
@@ -628,7 +628,7 @@ const HomeScreen = ({ navigation }) => {
 
             <KWCardBody>
               {pastActivities.length === 0 ? (
-                <KWText>Aucune activité récente.</KWText>
+                <KWText style={{ width: '100%', textAlign: 'center' }}>Aucune activité récente.</KWText>
               ) : (
                 pastActivities.map((a) => {
                   const palette = colors[a.color] || colors.gray;

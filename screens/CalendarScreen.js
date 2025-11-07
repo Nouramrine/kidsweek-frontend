@@ -262,6 +262,17 @@ export default function CalendarScreen() {
 
   LocaleConfig.defaultLocale = "fr";
 
+  const getContrastColor = (hexColor) => {
+    if (!hexColor) return "white";
+    const c = hexColor.substring(1);
+    const rgb = parseInt(c, 16);
+    const r = (rgb >> 16) & 0xff;
+    const g = (rgb >> 8) & 0xff;
+    const b = rgb & 0xff;
+    const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+    return luminance > 180 ? "black" : "white";
+  };
+
   return (
     <View style={styles.container}>
       <Calendar
@@ -380,6 +391,7 @@ export default function CalendarScreen() {
                       )}`;
                   return (
                     <KWCollapsible
+                      key={item._id}
                       title={item.name}
                       subtitle={subtitle}
                       palette={activityPalette}
@@ -392,7 +404,9 @@ export default function CalendarScreen() {
                               styles.percentageContainer,
                               {
                                 backgroundColor:
-                                  completionPercentage < 50
+                                  calculateTaskCompletionPercentage(
+                                    item.tasks
+                                  ) < 50
                                     ? colors.red[1]
                                     : colors.green[1],
                               },
@@ -402,39 +416,32 @@ export default function CalendarScreen() {
                               name="check-circle"
                               size={14}
                               color={colors.green[0]}
-                              style={{ marginRight: 5 }}
+                              style={{ marginRight: 5, padding: 3 }}
                             />
                             <KWText style={styles.percentageText}>
-                              {completionPercentage}%
+                              {calculateTaskCompletionPercentage(item.tasks)}
+                              %
                             </KWText>
                           </View>
                         ) : null
                       }
                     >
-                      {/* --- Section DÉROULÉE --- */}
                       <View style={styles.activityContent}>
-                        <View style={styles.infoRow}>
-                          <FontAwesome5
-                            name="map-marker-alt"
-                            size={14}
-                            color={activityPalette[2]}
-                          />
-                          <KWText style={styles.infoText}>
-                            {item.place || "Lieu non précisé"}
-                          </KWText>
-                        </View>
-
                         {item.note && (
+                          <>
                           <View style={styles.infoRow}>
                             <FontAwesome5
-                              name="sticky-note"
+                              name="map-marker-alt"
                               size={14}
                               color={activityPalette[2]}
                             />
-                            <KWText style={styles.infoText}>{item.note}</KWText>
+                            <KWText style={styles.infoText}>
+                              Lieu :
+                            </KWText>
                           </View>
+                          <KWText style={styles.activityInfo}>{item.place}</KWText>
+                          </>
                         )}
-
                         {item.members?.length > 0 && (
                           <View style={styles.infoBlock}>
                             <View style={styles.infoRow}>
@@ -444,20 +451,24 @@ export default function CalendarScreen() {
                                 color={activityPalette[2]}
                               />
                               <KWText
-                                style={[styles.infoText, { fontWeight: "600" }]}
+                                style={[
+                                  styles.infoText,
+                                  { fontWeight: "600" },
+                                ]}
                               >
                                 Membres :
                               </KWText>
                             </View>
-                            <KWText style={styles.memberList}>
-                              {item.members.map((m) => m.firstName).join(", ")}
-                            </KWText>
+                            <View style={styles.memberList}>
+                              {item.members
+                                .map((m, i) => (<KWText key={i} style={styles.activityInfo}>{m.firstName}</KWText>))
+                              }
+                            </View>
                           </View>
                         )}
-
                         {item.tasks?.length > 0 && (
                           <View style={styles.checklistContainer}>
-                            <View style={styles.infoRow}>
+                            <View style={[styles.infoRow, { marginBottom: 5 }]}>
                               <FontAwesome5
                                 name="check-square"
                                 size={14}
@@ -467,9 +478,11 @@ export default function CalendarScreen() {
                                 Tâches :
                               </KWText>
                             </View>
-
                             {item.tasks.map((task) => (
-                              <View key={task._id} style={styles.checklistItem}>
+                              <View
+                                key={task._id}
+                                style={styles.checklistItem}
+                              >
                                 <BouncyCheckbox
                                   size={20}
                                   fillColor={colors.green[2]}
@@ -479,29 +492,46 @@ export default function CalendarScreen() {
                                     fontFamily: "JosefinSans_400Regular",
                                   }}
                                   isChecked={task.isOk}
-                                  onPress={(isChecked) =>
+                                  onPress={(isChecked) => {
                                     handleTaskToggle(
                                       item._id,
                                       task._id,
                                       isChecked
-                                    )
-                                  }
+                                    );
+                                  }}
                                 />
                               </View>
                             ))}
                           </View>
                         )}
+                        {item.note && (
+                          <>
+                            <View style={styles.infoRow}>
+                              <FontAwesome5
+                                name="sticky-note"
+                                size={14}
+                                color={activityPalette[2]}
+                              />
+                              <KWText style={styles.infoText}>
+                                Note :
+                              </KWText>
+                            </View>
+                            <KWText style={styles.activityInfo}>{item.note}</KWText>
+                          </>
+                        )}
 
-                        <View style={{ alignItems: "center", marginTop: 10 }}>
+                        <View
+                          style={{ alignItems: "center", marginTop: 0 }}
+                        >
                           <KWButton
                             title="Modifier"
                             icon="edit"
                             bgColor={activityPalette[1]}
-                            color="white"
+                            color={getContrastColor(activityPalette[1])}
                             style={{ minWidth: 150 }}
                             onPress={() =>
                               navigation.navigate("AddScreen", {
-                                activityToEdit: item,
+                                activityToEdit: a,
                               })
                             }
                           />
@@ -535,7 +565,7 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     flex: 1,
-    //padding: 5,
+    paddingHorizontal: 20,
   },
   noActivity: {
     textAlign: "center",
@@ -543,29 +573,59 @@ const styles = StyleSheet.create({
     marginTop: 5,
     borderRadius: 10,
   },
+  planningCard: { backgroundColor: colors.background[0], marginBottom: 15 },
+  actionButtons: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 10,
+    marginTop: 10,
+  },
+  activityContent: {
+    padding: 15,
+    gap: 15,
+  },
+  infoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  infoText: {
+    fontSize: 14,
+    color: "#333",
+  },
+  infoBlock: {
+    marginTop: 6,
+  },
+  memberList: {
+    flexDirection: 'row',
+    fontSize: 13,
+    color: "#555",
+    marginTop: 10,
+  },
+  activityInfo: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 5,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+    backgroundColor: colors.background[1],
+    marginRight: 5,
+  },
   checklistContainer: {
     marginTop: 5,
     marginBottom: 5,
     borderRadius: 10,
   },
-  cheklistHeader: {
-    flex: 1,
-    flexDirection: "row",
-  },
-  checklistTextHeader: {
-    marginLeft: 8,
-  },
   checklistItem: {
-    //borderWidth: 1,
-    //borderRadius: 10,
-    // borderColor: "#a098985d",
-    marginBottom: 4,
-    paddingLeft: 5,
+    marginTop: 5,
+    padding: 10,
+    paddingHorizontal: 15,
+    backgroundColor: colors.background[1],
+    borderRadius: 10,
   },
   percentageContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#E8F5E9",
     borderRadius: 10,
     paddingHorizontal: 8,
     paddingVertical: 2,
@@ -576,27 +636,8 @@ const styles = StyleSheet.create({
     color: colors.green[0],
     fontWeight: "600",
   },
-  activityContent: {
-    marginTop: 5,
-    padding: 5,
-    gap: 6,
-  },
-  infoRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    marginBottom: 5,
-  },
-  infoText: {
-    fontSize: 14,
-    color: "#333",
-  },
-  infoBlock: {
-    marginTop: 6,
-  },
-  memberList: {
-    fontSize: 13,
-    color: "#555",
-    marginLeft: 20,
+  checklistTextHeader: {
+    marginLeft: 8,
+    fontWeight: "600",
   },
 });
