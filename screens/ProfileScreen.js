@@ -44,7 +44,7 @@ const ProfilScreen = ({ navigation }) => {
       <View style={styles.avatar}><FontAwesome5 name="user" size={100} color="white" /></View>
       <KWText style={styles.memberTitle}>{member.firstName} {member.lastName}</KWText>
       <KWText style={styles.editLink} onPress={() => setEditProfile(true)}>Modifier <FontAwesome5 name="edit" size={12} /></KWText>
-      <KWButton title="Deconnexion" icon="unlink" bgColor={colors.red[1]} style={styles.logoutBtn} onPress={handledisconnect} />
+      <KWButton title="Deconnexion" icon="unlink" bgColor={colors.red[1]} style={styles.logoutBtn} onPress={() => handledisconnect()} />
       {invites?.length > 0 && 
         <View style={styles.invitationsContainer}>
           <KWText type="h2">Invitations</KWText>
