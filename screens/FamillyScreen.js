@@ -34,9 +34,6 @@ const FamillyScreen = () => {
   const user = useSelector((state) => state.user.value);
   const invites = useSelector((state) => state.invites.value);
 
-  //console.log("Zones : ", zones)
-  //console.log(members)
-
   // Modals
   const [zoneModal, setZoneModal] = useState(false);
   const [selectedZone, setSelectedZone] = useState(null);
@@ -55,6 +52,13 @@ const FamillyScreen = () => {
     dispatch(fetchZonesAsync());
     dispatch(fetchMembersAsync());
   }, []);
+
+  useEffect(() => {
+    dispatch(fetchZonesAsync());
+  }, [members]);
+
+  //console.log("Zone Members : ", zones[0])
+  //console.log("Members : ", members)
 
   // Logique du tuto
   const dismissedTooltips = user.tutorialState?.dismissedTooltips || [];
@@ -259,8 +263,8 @@ const FamillyScreen = () => {
 
                 <KWCardBody>
                   {/* Membres de la zone */}
-                  {zone.members.map((zoneMember, j) => {
-                    const member = members.filter((m) => zoneMember._id === m._id)[0] // n'affiche pas l'utilisateur courant
+                  {zone.members.map((member, j) => {
+                    //const member = members.filter((m) => zoneMember._id === m._id)[0] // n'affiche pas l'utilisateur courant
                     return (
                       <KWCard
                         key={j}
@@ -301,13 +305,13 @@ const FamillyScreen = () => {
                                 <KWText color={colors.blue[1]}>Enfant</KWText>
                               ) : (
                                 <KWText color={colors.red[1]}>
-                                  {zoneMember.authLevel === "admin"
+                                  {member.authLevel === "admin"
                                     ? "Propriétaire"
                                     : "Parent"}
                                 </KWText>
                               )}
                             </View>
-                            {member.authLevel !== 'read' && !member.isCurrent && (
+                            {member.authLevel === 'read' && !member.isCurrent && (
                               <TouchableOpacity
                                 style={styles.iconBtn}
                                 onPress={() =>
