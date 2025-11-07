@@ -89,7 +89,7 @@ const KWCollapsible = ({
   // Interpolation hauteur max (0 → 500px arbitraire, ajustable)
   const maxHeightInterpolate = animatedHeight.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, 500],
+    outputRange: [0, 1500],
   });
 
   return (
@@ -151,14 +151,14 @@ const styles = StyleSheet.create({
   wrapper: {
     borderRadius: 12,
     marginBottom: 8,
-    overflow: "hidden",
-    paddingHorizontal: 10,
+    //overflow: "hidden",
+    paddingHorizontal: 0,
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 10,
+    padding: 20,
     borderTopLeftRadius: 12,
     borderTopRightRadius: 12,
   },
@@ -169,15 +169,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   expandableSection: {
-    overflow: "hidden",
+    //overflow: "hidden",
     borderBottomLeftRadius: 12,
     borderBottomRightRadius: 12,
-    paddingHorizontal: 10,
+    paddingHorizontal: 20,
   },
   body: {
     borderRadius: 8,
     padding: 10,
-    marginBottom: 10,
+    marginBottom: 20,
   },
   rightHeader: {
     marginLeft: 10,
