@@ -10,6 +10,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "-": "^0.0.1",
     "@expo-google-fonts/gluten": "^0.4.2",
     "@expo-google-fonts/josefin-sans": "^0.4.2",
     "@expo/vector-icons": "^15.0.3",
@@ -20,6 +21,7 @@
     "@react-navigation/native": "6",
     "@react-navigation/native-stack": "6",
     "@reduxjs/toolkit": "^2.9.2",
+    "cli": "^1.0.1",
     "expo": "^54.0.22",
     "expo-camera": "~17.0.9",
     "expo-checkbox": "~5.0.7",
