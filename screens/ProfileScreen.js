@@ -61,7 +61,7 @@ const ProfilScreen = ({ navigation }) => {
         icon="unlink"
         bgColor={colors.red[1]}
         style={styles.logoutBtn}
-        onPress={handledisconnect}
+        onPress={() => handledisconnect()}
       />
       {invites?.length > 0 && (
         <View style={styles.invitationsContainer}>
