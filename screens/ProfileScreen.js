@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, Button, ScrollView, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Button,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { colors } from "../theme/colors";
 import { logout } from "../reducers/user";
@@ -23,7 +30,7 @@ const ProfilScreen = ({ navigation }) => {
   const members = useSelector((state) => state.members.value);
   const invites = useSelector((state) => state.invites.value);
 
-  const member = members.filter((m) => m.token === user.token )[0];
+  const member = members.filter((m) => m.token === user.token)[0];
 
   const [editProfile, setEditProfile] = useState(false);
 
@@ -31,9 +38,8 @@ const ProfilScreen = ({ navigation }) => {
   //console.log(invites)
 
   useEffect(() => {
-    dispatch(fetchInvitesAsync())
-  }, [])
-
+    dispatch(fetchInvitesAsync());
+  }, []);
 
   const handledisconnect = () => {
     dispatch(logout());
@@ -41,11 +47,23 @@ const ProfilScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.avatar}><FontAwesome5 name="user" size={100} color="white" /></View>
-      <KWText style={styles.memberTitle}>{member.firstName} {member.lastName}</KWText>
-      <KWText style={styles.editLink} onPress={() => setEditProfile(true)}>Modifier <FontAwesome5 name="edit" size={12} /></KWText>
-      <KWButton title="Deconnexion" icon="unlink" bgColor={colors.red[1]} style={styles.logoutBtn} onPress={handledisconnect} />
-      {invites?.length > 0 && 
+      <View style={styles.avatar}>
+        <FontAwesome5 name="user" size={100} color="white" />
+      </View>
+      <KWText style={styles.memberTitle}>
+        {member.firstName} {member.lastName}
+      </KWText>
+      <KWText style={styles.editLink} onPress={() => setEditProfile(true)}>
+        Modifier <FontAwesome5 name="edit" size={12} />
+      </KWText>
+      <KWButton
+        title="Deconnexion"
+        icon="unlink"
+        bgColor={colors.red[1]}
+        style={styles.logoutBtn}
+        onPress={handledisconnect}
+      />
+      {invites?.length > 0 && (
         <View style={styles.invitationsContainer}>
           <KWText type="h2">Invitations</KWText>
           <ScrollView>
@@ -63,18 +81,23 @@ const ProfilScreen = ({ navigation }) => {
                   default:
                     return "N.C.";
                 }
-              }
+              };
               return (
-                <KWCard key={i} style={styles.inviteCard} color={colors.background[0]}>
+                <KWCard
+                  key={i}
+                  style={styles.inviteCard}
+                  color={colors.background[0]}
+                >
                   <KWCardHeader>
                     <KWCardTitle>
-                      <KWText>{invite.inviter.firstName} &gt; {invite.invited.firstName} </KWText>
+                      <KWText>
+                        {invite?.inviter?.firstName} &gt;{" "}
+                        {invite?.invited?.firstName}{" "}
+                      </KWText>
                     </KWCardTitle>
                     <KWCardButton>
                       <View style={styles.infoBull}>
-                        <KWText color={colors.red[1]}>
-                          {inviteStatus()}
-                        </KWText>
+                        <KWText color={colors.red[1]}>{inviteStatus()}</KWText>
                       </View>
                       {/* <TouchableOpacity
                         style={styles.iconBtn}
@@ -88,11 +111,11 @@ const ProfilScreen = ({ navigation }) => {
                     </KWCardButton>
                   </KWCardHeader>
                 </KWCard>
-              )
+              );
             })}
           </ScrollView>
         </View>
-      }
+      )}
     </View>
   );
 };
@@ -107,25 +130,25 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   logoutBtn: {
-    width: '100%',
+    width: "100%",
     marginTop: 50,
     marginBottom: 30,
   },
   memberTitle: {
     fontSize: 36,
     margin: 10,
-  }, 
-  avatar: { 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    width: 200, 
-    aspectRatio: 1, 
-    backgroundColor: "#aaaaaaff", 
-    borderRadius: 100, 
-    margin: 10 
+  },
+  avatar: {
+    justifyContent: "center",
+    alignItems: "center",
+    width: 200,
+    aspectRatio: 1,
+    backgroundColor: "#aaaaaaff",
+    borderRadius: 100,
+    margin: 10,
   },
   invitationsContainer: {
-    width: '100%',
+    width: "100%",
   },
   iconBtn: {
     padding: 5,
@@ -138,6 +161,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 5,
     paddingHorizontal: 10,
-    borderRadius: 100,                         
+    borderRadius: 100,
   },
 });
