@@ -1,11 +1,23 @@
 # KidsWeek – Frontend (Mobile App)
 
-KidsWeek est une application mobile destinée aux parents d’enfants de 3 à 12 ans.
+KidsWeek est une application mobile destinée aux parents.
 Elle permet d’organiser la semaine familiale (routines, activités, responsabilités)
 de manière simple, ludique et collaborative.
 
 Ce repository contient le frontend mobile de l’application, développé avec React Native
 et Expo.
+
+🎯 Projet personnel full-stack, conçu, développé et maintenu dans une logique
+proche d’un produit réel (architecture, environnement, séparation front/back).
+
+---
+
+## 🚀 Objectif du projet
+
+- Simplifier l’organisation familiale au quotidien
+- Rendre les routines plus engageantes pour les enfants
+- Centraliser les informations entre parents et encadrants
+- Mettre en pratique des compétences full-stack modernes
 
 ---
 
@@ -32,6 +44,15 @@ et Expo.
 - Compatible Android / iOS / Web
 
 ---
+
+## 🧱 Architecture & bonnes pratiques
+
+- Séparation claire frontend / backend
+- État global centralisé avec Redux Toolkit
+- Persistance contrôlée des données utilisateur
+- Variables d’environnement isolées (.env.local)
+- Fichiers sensibles exclus du versioning (.gitignore)
+- Code structuré par fonctionnalités et responsabilités
 
 ## 🧠 Ce que j’ai réalisé
 
@@ -62,7 +83,7 @@ yarn install
 ### Variable d'environnement
 
 Créer un fichier .env.local à la racine du projet
-(un fichier .env.local.example est fournie pour l'exemple):
+(un fichier .env.local.example est fourni):
 
 ```env
 API_URL=http://localhost:3000
@@ -75,9 +96,10 @@ yarn start
 ```
 
 puis :
--a pour android
--i pour IOS
--ou scan du QR code avec Expo Go(recommandé)
+
+- a → Android
+- i → IOS
+- ou scan du QR code avec Expo Go (recommandé)
 
 ### Backend
 
@@ -86,3 +108,21 @@ Le frontend communique avec une API REST déceloppée en Node.js/Express.
 ### Respository backend:
 
 https://github.com/Nouramrine/kidsweek-backend.git
+
+---
+
+## 📌 Statut du projet
+
+### 🛠️ En cours de développement (MVP fonctionnel)
+
+Nouvelles fonctionnalités et améliorations prévues.
+
+---
+
+## 👤 Auteur
+
+Nour El Islam AMRINE
+Concepteur développeur d'application web & mobile - Full-stack JavaScript (MERN)
+
+Projet personnel réalisé dans le cadre d’une montée en compétences
+orientée produit, performance et bonnes pratiques professionnelles.
