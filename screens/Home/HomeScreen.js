@@ -1,12 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import {
-  View,
-  StyleSheet,
-  FlatList,
-  ScrollView,
-  TouchableOpacity,
-  Image,
-} from "react-native";
+import { View, StyleSheet, FlatList, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -32,10 +25,7 @@ import KWText from "../../components/KWText";
 import KWButton from "../../components/KWButton";
 import { colors } from "../../theme/colors";
 import { Ionicons } from "@expo/vector-icons";
-import KWCollapsible from "../../components/KWCollapsible";
 import TutorialBanner from "../../components/TutorialBanner";
-import { FontAwesome5 } from "@expo/vector-icons";
-import BouncyCheckbox from "react-native-bouncy-checkbox";
 import ChildSelector from "./components/ChildSelector";
 import HomeHeader from "./components/HomeHeader";
 import PlanningCard from "./components/PlaningCard";

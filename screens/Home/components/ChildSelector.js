@@ -9,16 +9,19 @@ const ChildSelector = ({ childrenList, selectedChild, onSelect }) => {
     return <KWText>Aucun enfant enregistré.</KWText>;
   }
 
+  const moiPalette = colors.purple;
+  const isMoiSelected = !selectedChild;
+
   return (
     <View style={{ flexDirection: "row" }}>
       <KWButton
         title="Moi"
-        bgColor={!selectedChild ? colors.purple[1] : "white"}
-        color={!selectedChild ? "white" : colors.purple[2]}
+        bgColor={isMoiSelected ? "white" : moiPalette[0]}
+        color={moiPalette[2]}
         onPress={() => onSelect(null)}
         style={{
           borderWidth: 1,
-          borderColor: colors.purple[2],
+          borderColor: moiPalette[2],
           padding: 5,
           paddingHorizontal: 15,
           marginRight: 5,

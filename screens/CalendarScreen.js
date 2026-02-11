@@ -150,7 +150,7 @@ export default function CalendarScreen() {
 
     // Filtrer les activités de cette date
     const filtred = activities.filter(
-      (a) => a.dateBegin && a.dateBegin.split("T")[0] === day.dateString
+      (a) => a.dateBegin && a.dateBegin.split("T")[0] === day.dateString,
     );
     setActivitiesOfDay(filtred);
   };
@@ -189,7 +189,7 @@ export default function CalendarScreen() {
           taskId,
           isOk: isChecked,
           token: user.token,
-        })
+        }),
       ).unwrap();
 
       if (result) {
@@ -200,11 +200,11 @@ export default function CalendarScreen() {
               ? {
                   ...activity,
                   tasks: activity.tasks.map((t) =>
-                    t._id === taskId ? { ...t, isOk: isChecked } : t
+                    t._id === taskId ? { ...t, isOk: isChecked } : t,
                   ),
                 }
-              : activity
-          )
+              : activity,
+          ),
         );
       }
     } catch (error) {
@@ -384,10 +384,10 @@ export default function CalendarScreen() {
 
                   const subtitle = isMultiDay
                     ? `du ${formatDate(item.dateBegin)} au ${formatDate(
-                        item.dateEnd
+                        item.dateEnd,
                       )}`
                     : `de ${formatHour(item.dateBegin)} → ${formatHour(
-                        item.dateEnd
+                        item.dateEnd,
                       )}`;
                   return (
                     <KWCollapsible
@@ -405,7 +405,7 @@ export default function CalendarScreen() {
                               {
                                 backgroundColor:
                                   calculateTaskCompletionPercentage(
-                                    item.tasks
+                                    item.tasks,
                                   ) < 50
                                     ? colors.red[1]
                                     : colors.green[1],
@@ -419,8 +419,7 @@ export default function CalendarScreen() {
                               style={{ marginRight: 5, padding: 3 }}
                             />
                             <KWText style={styles.percentageText}>
-                              {calculateTaskCompletionPercentage(item.tasks)}
-                              %
+                              {calculateTaskCompletionPercentage(item.tasks)}%
                             </KWText>
                           </View>
                         ) : null
@@ -429,17 +428,17 @@ export default function CalendarScreen() {
                       <View style={styles.activityContent}>
                         {item.note && (
                           <>
-                          <View style={styles.infoRow}>
-                            <FontAwesome5
-                              name="map-marker-alt"
-                              size={14}
-                              color={activityPalette[2]}
-                            />
-                            <KWText style={styles.infoText}>
-                              Lieu :
+                            <View style={styles.infoRow}>
+                              <FontAwesome5
+                                name="map-marker-alt"
+                                size={14}
+                                color={activityPalette[2]}
+                              />
+                              <KWText style={styles.infoText}>Lieu :</KWText>
+                            </View>
+                            <KWText style={styles.activityInfo}>
+                              {item.place}
                             </KWText>
-                          </View>
-                          <KWText style={styles.activityInfo}>{item.place}</KWText>
                           </>
                         )}
                         {item.members?.length > 0 && (
@@ -451,18 +450,17 @@ export default function CalendarScreen() {
                                 color={activityPalette[2]}
                               />
                               <KWText
-                                style={[
-                                  styles.infoText,
-                                  { fontWeight: "600" },
-                                ]}
+                                style={[styles.infoText, { fontWeight: "600" }]}
                               >
                                 Membres :
                               </KWText>
                             </View>
                             <View style={styles.memberList}>
-                              {item.members
-                                .map((m, i) => (<KWText key={i} style={styles.activityInfo}>{m.firstName}</KWText>))
-                              }
+                              {item.members.map((m, i) => (
+                                <KWText key={i} style={styles.activityInfo}>
+                                  {m.firstName}
+                                </KWText>
+                              ))}
                             </View>
                           </View>
                         )}
@@ -479,10 +477,7 @@ export default function CalendarScreen() {
                               </KWText>
                             </View>
                             {item.tasks.map((task) => (
-                              <View
-                                key={task._id}
-                                style={styles.checklistItem}
-                              >
+                              <View key={task._id} style={styles.checklistItem}>
                                 <BouncyCheckbox
                                   size={20}
                                   fillColor={colors.green[2]}
@@ -496,7 +491,7 @@ export default function CalendarScreen() {
                                     handleTaskToggle(
                                       item._id,
                                       task._id,
-                                      isChecked
+                                      isChecked,
                                     );
                                   }}
                                 />
@@ -512,17 +507,15 @@ export default function CalendarScreen() {
                                 size={14}
                                 color={activityPalette[2]}
                               />
-                              <KWText style={styles.infoText}>
-                                Note :
-                              </KWText>
+                              <KWText style={styles.infoText}>Note :</KWText>
                             </View>
-                            <KWText style={styles.activityInfo}>{item.note}</KWText>
+                            <KWText style={styles.activityInfo}>
+                              {item.note}
+                            </KWText>
                           </>
                         )}
 
-                        <View
-                          style={{ alignItems: "center", marginTop: 0 }}
-                        >
+                        <View style={{ alignItems: "center", marginTop: 0 }}>
                           <KWButton
                             title="Modifier"
                             icon="edit"
@@ -531,7 +524,7 @@ export default function CalendarScreen() {
                             style={{ minWidth: 150 }}
                             onPress={() =>
                               navigation.navigate("AddScreen", {
-                                activityToEdit: a,
+                                activityToEdit: item,
                               })
                             }
                           />
@@ -597,14 +590,14 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   memberList: {
-    flexDirection: 'row',
+    flexDirection: "row",
     fontSize: 13,
     color: "#555",
     marginTop: 10,
   },
   activityInfo: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     padding: 5,
     paddingHorizontal: 15,
     borderRadius: 5,

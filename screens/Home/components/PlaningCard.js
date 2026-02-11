@@ -29,6 +29,7 @@ const PlanningCard = ({
   expandedActivityId,
   onToggleActivity,
   onTaskToggle,
+  onEditActivity,
 }) => {
   return (
     <KWCard style={style.card}>
@@ -82,6 +83,7 @@ const PlanningCard = ({
                     isExpanded={expandedActivityId === activity._id}
                     onToggle={() => onToggleActivity(activity._id)}
                     onTaskToggle={onTaskToggle}
+                    onEdit={onEditActivity}
                   />
                 ))}
               </View>
