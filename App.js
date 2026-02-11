@@ -19,7 +19,7 @@ import AddScreen from "./screens/AddScreen";
 import AuthScreen from "./screens/AuthScreen";
 import CalendarScreen from "./screens/CalendarScreen";
 import FamillyScreen from "./screens/FamillyScreen";
-import HomeScreen from "./screens/HomeScreen";
+import HomeScreen from "./screens/Home/HomeScreen";
 import ProfileScreen from "./screens/ProfileScreen";
 import ActivityDetailsScreen from "./screens/ActivityDetailsScreen";
 import user from "./reducers/user";
