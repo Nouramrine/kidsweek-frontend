@@ -12,23 +12,13 @@ import {
   respondToInvitationAsync,
 } from "../../reducers/notifications";
 import { dismissTutorialAsync } from "../../reducers/user";
-
-import KWModal from "../../components/KWModal";
-import {
-  KWCard,
-  KWCardHeader,
-  KWCardTitle,
-  KWCardBody,
-  KWCardIcon,
-} from "../../components/KWCard";
-import KWText from "../../components/KWText";
-import KWButton from "../../components/KWButton";
 import { colors } from "../../theme/colors";
-import { Ionicons } from "@expo/vector-icons";
 import TutorialBanner from "../../components/TutorialBanner";
 import ChildSelector from "./components/ChildSelector";
 import HomeHeader from "./components/HomeHeader";
 import PlanningCard from "./components/PlaningCard";
+import PastActivitiesCard from "./components/PastActivitiesCard";
+import NotificationsModal from "./components/NotificationsModal";
 
 const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -309,116 +299,21 @@ const HomeScreen = ({ navigation }) => {
           }
         />
 
-        <KWCard style={styles.planningCard}>
-          <KWCardHeader>
-            <KWCardIcon>
-              <Ionicons
-                name="time-outline"
-                size={30}
-                color={colors.purple[2]}
-              />
-            </KWCardIcon>
-            <KWCardTitle>
-              <KWText type="h2" style={{ color: colors.purple[2] }}>
-                Activités passées
-              </KWText>
-            </KWCardTitle>
-          </KWCardHeader>
-
-          <KWCardBody>
-            {pastActivities.length === 0 ? (
-              <KWText style={{ width: "100%", textAlign: "center" }}>
-                Aucune activité récente.
-              </KWText>
-            ) : (
-              pastActivities.map((a) => {
-                const palette = colors[a.color] || colors.gray;
-                return (
-                  <View
-                    key={a._id}
-                    style={{
-                      marginBottom: 10,
-                      backgroundColor: palette[0],
-                      borderRadius: 10,
-                      padding: 10,
-                    }}
-                  >
-                    <KWText
-                      type="h3"
-                      style={{ color: palette[2], fontWeight: "bold" }}
-                    >
-                      {a.name}
-                    </KWText>
-                    <KWText>{`📅 ${new Date(a.dateBegin).toLocaleDateString(
-                      "fr-FR",
-                    )}`}</KWText>
-                    <KWText>{`🕒 ${formatTime(a.dateBegin)} → ${formatTime(
-                      a.dateEnd,
-                    )}`}</KWText>
-                    {a.place && <KWText>📍 {a.place}</KWText>}
-                  </View>
-                );
-              })
-            )}
-          </KWCardBody>
-        </KWCard>
+        <PastActivitiesCard
+          pastActivities={pastActivities}
+          formatTime={formatTime}
+        />
       </ScrollView>
 
-      <KWModal visible={isModalVisible} onRequestClose={toggleModal}>
-        <KWText type="h2" style={{ marginBottom: 10, color: colors.purple[2] }}>
-          Notifications
-        </KWText>
-        {loading ? (
-          <KWText>Chargement...</KWText>
-        ) : modalNotifications.length === 0 ? (
-          <KWText>Aucune notification.</KWText>
-        ) : (
-          <FlatList
-            data={modalNotifications}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => (
-              <KWCard
-                style={{
-                  width: "100%",
-                  marginBottom: 10,
-                  backgroundColor:
-                    item.type === "reminder"
-                      ? colors.purple[0]
-                      : colors.pink[0],
-                }}
-              >
-                <KWText>{item.message}</KWText>
-                {item.type === "validation" && (
-                  <View style={styles.actionButtons}>
-                    <KWButton
-                      title="Accepter"
-                      bgColor={colors.green[1]}
-                      onPress={() => handleResponse(item.activityId, true)}
-                      style={{ minWidth: 100 }}
-                    />
-                    <KWButton
-                      title="Refuser"
-                      bgColor={colors.red[1]}
-                      onPress={() => handleResponse(item.activityId, false)}
-                      style={{ minWidth: 100 }}
-                    />
-                  </View>
-                )}
-                {item.type === "reminder" && (
-                  <View style={styles.actionButtons}>
-                    <KWButton
-                      title="OK"
-                      bgColor={colors.purple[1]}
-                      onPress={() => handleDismissReminder(item.id)}
-                      style={{ minWidth: 100 }}
-                    />
-                  </View>
-                )}
-              </KWCard>
-            )}
-          />
-        )}
-      </KWModal>
+      <NotificationsModal
+        visible={isModalVisible}
+        onClose={toggleModal}
+        loading={loading}
+        notifications={modalNotifications}
+        onAccept={(activityId) => handleResponse(activityId, true)}
+        onRefuse={(activityId) => handleResponse(activityId, false)}
+        onDismissReminder={handleDismissReminder}
+      />
     </SafeAreaView>
   );
 };
