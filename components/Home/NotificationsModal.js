@@ -1,10 +1,10 @@
 import React from "react";
 import { View, FlatList } from "react-native";
-import KWModal from "../../../components/KWModal";
-import { KWCard, KWCardBody } from "../../../components/KWCard";
-import KWText from "../../../components/KWText";
-import KWButton from "../../../components/KWButton";
-import { colors } from "../../../theme/colors";
+import KWModal from "../KWModal";
+import { KWCard, KWCardBody } from "../KWCard";
+import KWText from "../KWText";
+import KWButton from "../KWButton";
+import { colors } from "../../theme/colors";
 
 const NotificationsModal = ({
   visible,

@@ -2,23 +2,20 @@ import React, { useEffect, useState, useRef } from "react";
 import { View, StyleSheet, FlatList, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchActivitiesAsync,
-  updateTaskAsync,
-} from "../../reducers/activities";
-import { fetchMembersAsync } from "../../reducers/members";
+import { fetchActivitiesAsync, updateTaskAsync } from "../reducers/activities";
+import { fetchMembersAsync } from "../reducers/members";
 import {
   fetchNotificationsAsync,
   respondToInvitationAsync,
-} from "../../reducers/notifications";
-import { dismissTutorialAsync } from "../../reducers/user";
-import { colors } from "../../theme/colors";
-import TutorialBanner from "../../components/TutorialBanner";
-import ChildSelector from "./components/ChildSelector";
-import HomeHeader from "./components/HomeHeader";
-import PlanningCard from "./components/PlaningCard";
-import PastActivitiesCard from "./components/PastActivitiesCard";
-import NotificationsModal from "./components/NotificationsModal";
+} from "../reducers/notifications";
+import { dismissTutorialAsync } from "../reducers/user";
+import { colors } from "../theme/colors";
+import TutorialBanner from "../components/TutorialBanner";
+import ChildSelector from "../components/Home/ChildSelector";
+import HomeHeader from "../components/Home/HomeHeader";
+import PlanningCard from "../components/Home/PlaningCard";
+import PastActivitiesCard from "../components/Home/PastActivitiesCard";
+import NotificationsModal from "../components/Home/NotificationsModal";
 
 const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();

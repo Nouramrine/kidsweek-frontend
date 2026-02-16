@@ -6,7 +6,7 @@ import { useNavigation } from "@react-navigation/native";
 import { colors } from "../theme/colors";
 import KWText from "../components/KWText";
 import { updateTaskAsync } from "../reducers/activities";
-import ActivityItem from "./Home/components/ActivityItem";
+import ActivityItem from "../components/Home/ActivityItem";
 
 export default function CalendarScreen() {
   const navigation = useNavigation();

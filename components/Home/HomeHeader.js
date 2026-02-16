@@ -1,14 +1,14 @@
 import React from "react";
 import { View, Image, TouchableOpacity, StyleSheet } from "react-native";
-import KWText from "../../../components/KWText";
+import KWText from "../KWText";
 import { FontAwesome5 } from "@expo/vector-icons";
-import { colors } from "../../../theme/colors";
+import { colors } from "../../theme/colors";
 
 const HomeHeader = ({ notificationCount, onBellPress }) => {
   return (
     <View style={styles.header}>
       <Image
-        source={require("../../../assets/titre.png")}
+        source={require("../../assets/titre.png")}
         style={styles.logo}
         resizeMode="contain"
       />

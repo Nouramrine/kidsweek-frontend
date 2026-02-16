@@ -1,11 +1,11 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
-import KWCollapsible from "../../../components/KWCollapsible";
-import KWText from "../../../components/KWText";
-import KWButton from "../../../components/KWButton";
+import KWCollapsible from "../KWCollapsible";
+import KWText from "../KWText";
+import KWButton from "../KWButton";
 import { FontAwesome5 } from "@expo/vector-icons";
 import BouncyCheckbox from "react-native-bouncy-checkbox";
-import { colors } from "../../../theme/colors";
+import { colors } from "../../theme/colors";
 
 const ActivityItem = ({
   activity,

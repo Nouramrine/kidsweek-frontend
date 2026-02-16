@@ -8,21 +8,26 @@ import {
   KWCardIcon,
   KWCardTitle,
   KWCardButton,
-  KWCardBody,
 } from "../components/KWCard";
 import KWText from "../components/KWText";
 import KWModal from "../components/KWModal";
-import KWButton from "../components/KWButton";
 import KWDropDown from "../components/KWDropDown";
 import ZoneForm from "../components/zone/Form";
 import MemberForm from "../components/member/Form";
 import MemberAdd from "../components/member/Add";
 import InviteForm from "../components/member/Invite";
 import TutorialBanner from "../components/TutorialBanner";
+import ZoneCard from "../components/zone/Zonecard";
+import MemberCardSimple from "../components/member/Membercardsimple";
 
 import { FontAwesome5 } from "@expo/vector-icons";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchZonesAsync, deleteZoneAsync, removeMemberFromZoneAsync, addMemberToZoneAsync } from "../reducers/zones";
+import {
+  fetchZonesAsync,
+  deleteZoneAsync,
+  removeMemberFromZoneAsync,
+  addMemberToZoneAsync,
+} from "../reducers/zones";
 import { fetchMembersAsync, deleteMemberAsync } from "../reducers/members";
 import { dismissTutorialAsync } from "../reducers/user";
 
@@ -32,22 +37,17 @@ const FamillyScreen = () => {
   const zones = useSelector((state) => state.zones.value);
   const members = useSelector((state) => state.members.value);
   const user = useSelector((state) => state.user.value);
-  const invites = useSelector((state) => state.invites.value);
 
-  // Modals
+  // États pour les modals
   const [zoneModal, setZoneModal] = useState(false);
   const [selectedZone, setSelectedZone] = useState(null);
-
   const [memberModal, setMemberModal] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
-
   const [addMemberToZoneModal, setAddMemberToZoneModal] = useState(false);
-
-  // Pour affichage modal d'invitation
   const [invitationModal, setInvitationModal] = useState(false);
+  const [openDropdownId, setOpenDropdownId] = useState(null);
 
-  const [openDropdownId, setOpenDropdownId] = useState(null); // id du membre sur lequel le dropdown est ouvert (dropdown unique)
-
+  // Fetch initial des données
   useEffect(() => {
     dispatch(fetchZonesAsync());
     dispatch(fetchMembersAsync());
@@ -57,15 +57,10 @@ const FamillyScreen = () => {
     dispatch(fetchZonesAsync());
   }, [members]);
 
-  //console.log("Zone Members : ", zones[0])
-  //console.log("Members : ", members)
-
-  // Logique du tuto
+  // Logique des tutoriels
   const dismissedTooltips = user.tutorialState?.dismissedTooltips || [];
-
   const shouldShowZoneTutorial =
     zones.length === 0 && !dismissedTooltips.includes("createZone");
-
   const shouldShowMemberTutorial =
     members.length === 0 &&
     !dismissedTooltips.includes("createMember") &&
@@ -75,10 +70,47 @@ const FamillyScreen = () => {
     dispatch(dismissTutorialAsync({ token: user.token, tooltipId }));
   };
 
+  // Handlers pour les zones
+  const handleEditZone = (zone) => {
+    setSelectedZone(zone);
+    setZoneModal(true);
+  };
+
+  const handleDeleteZone = (zoneId) => {
+    dispatch(deleteZoneAsync(zoneId));
+  };
+
+  const handleAddMemberToZone = (zone) => {
+    setSelectedZone(zone);
+    setAddMemberToZoneModal(true);
+  };
+
+  const handleRemoveMemberFromZone = (zoneId, memberId) => {
+    dispatch(removeMemberFromZoneAsync({ zoneId, memberId }));
+  };
+
+  // Handlers pour les membres
+  const handleEditMember = (member) => {
+    setSelectedMember({ member });
+    setMemberModal(true);
+    setOpenDropdownId(null);
+  };
+
+  const handleDeleteMember = (memberId) => {
+    dispatch(deleteMemberAsync(memberId));
+    setOpenDropdownId(null);
+  };
+
+  const handleInviteMember = (member) => {
+    setSelectedMember({ member });
+    setInvitationModal(true);
+    setOpenDropdownId(null);
+  };
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       <ScrollView>
-        {/* Tuto banners */}
+        {/* Tutoriels */}
         <TutorialBanner
           id="createZone"
           message="Créez votre première zone familiale pour organiser votre foyer (maison, grands-parents...)"
@@ -107,6 +139,7 @@ const FamillyScreen = () => {
           bgColor={colors.green[0]}
         />
 
+        {/* Modals */}
         <KWModal visible={zoneModal}>
           <ZoneForm
             zone={selectedZone}
@@ -117,7 +150,6 @@ const FamillyScreen = () => {
           />
         </KWModal>
 
-        {/* Modal Ajout d'un membre à la zone */}
         <KWModal visible={addMemberToZoneModal}>
           <MemberAdd
             currentMembers={selectedZone?.members}
@@ -127,7 +159,7 @@ const FamillyScreen = () => {
                   addMemberToZoneAsync({
                     zoneId: selectedZone?._id,
                     memberId: member._id,
-                  })
+                  }),
                 );
               setSelectedZone(null);
               setAddMemberToZoneModal(false);
@@ -135,7 +167,6 @@ const FamillyScreen = () => {
           />
         </KWModal>
 
-        {/* Modal invitation */}
         <KWModal visible={invitationModal}>
           <InviteForm
             data={selectedMember}
@@ -143,6 +174,16 @@ const FamillyScreen = () => {
               setSelectedMember(null);
               setOpenDropdownId(null);
               setInvitationModal(false);
+            }}
+          />
+        </KWModal>
+
+        <KWModal visible={memberModal}>
+          <MemberForm
+            data={selectedMember}
+            onReturn={() => {
+              setMemberModal(false);
+              setOpenDropdownId(null);
             }}
           />
         </KWModal>
@@ -179,6 +220,7 @@ const FamillyScreen = () => {
                 </KWText>
               </KWCard>
             </TouchableOpacity>
+
             <TouchableOpacity
               style={styles.topButton}
               onPress={() => {
@@ -202,174 +244,37 @@ const FamillyScreen = () => {
             </TouchableOpacity>
           </View>
 
-          {/* Zones */}
+          {/* Section Zones familiales */}
           <View style={styles.zonesContainer}>
             <KWText type="h2">Zones familiales</KWText>
             {!zones.length && (
               <KWText style={styles.emptyText}>Aucune zone</KWText>
             )}
             {zones.map((zone, i) => (
-              <KWCard
+              <ZoneCard
                 key={i}
-                color={colors[zone.color][0]}
-                style={styles.zoneCard}
-              >
-                <KWCardHeader>
-                  <KWCardIcon>
-                    <View
-                      style={{
-                        backgroundColor: colors[zone.color][2],
-                        padding: 10,
-                        borderRadius: 10,
-                      }}
-                    >
-                      <FontAwesome5 name="home" size={24} color="white" />
-                    </View>
-                  </KWCardIcon>
-                  <KWCardTitle>
-                    <KWText>{zone.name}</KWText>
-                    <KWText>{zone.members.length} membres</KWText>
-                  </KWCardTitle>
-                  <KWCardButton>
-                    {zone.authLevel === "admin" && (
-                      <KWDropDown
-                        id={zone._id}
-                        icon="ellipsis-v"
-                        options={[
-                          { action: "edit", label: "Modifier", icon: "pen" },
-                          {
-                            action: "delete",
-                            label: "Supprimer",
-                            color: colors.error[0],
-                            icon: "trash",
-                          },
-                        ]}
-                        openId={openDropdownId}
-                        setOpenId={setOpenDropdownId}
-                        onSelect={(action) => {
-                          if (action === "edit") {
-                            setSelectedZone(zone);
-                            setZoneModal(true);
-                          }
-                          if (action === "delete") {
-                            dispatch(deleteZoneAsync(zone._id));
-                            setOpenDropdownId(null);
-                          }
-                        }}
-                      />
-                    )}
-                  </KWCardButton>
-                </KWCardHeader>
-
-                <KWCardBody>
-                  {/* Membres de la zone */}
-                  {zone.members.map((member, j) => {
-                    //const member = members.filter((m) => zoneMember._id === m._id)[0] // n'affiche pas l'utilisateur courant
-                    return (
-                      <KWCard
-                        key={j}
-                        color={colors.background[1]}
-                        style={styles.memberCard}
-                      >
-                        <KWCardHeader>
-                          <KWCardIcon>
-                            <View
-                              style={{
-                                backgroundColor: colors[zone.color][2],
-                                padding: 10,
-                                borderRadius: 10,
-                              }}
-                            >
-                              <FontAwesome5
-                                name="user"
-                                size={24}
-                                color="white"
-                              />
-                            </View>
-                          </KWCardIcon>
-                          <KWCardTitle>
-                            <KWText>{member.firstName}</KWText>
-                          </KWCardTitle>
-                          <KWCardButton>
-                            <View
-                              style={{
-                                backgroundColor: colors.background[1],
-                                justifyContent: "center",
-                                alignItems: "center",
-                                paddingVertical: 5,
-                                paddingHorizontal: 10,
-                                borderRadius: 100,
-                              }}
-                            >
-                              {member.isChildren ? (
-                                <KWText color={colors.blue[1]}>Enfant</KWText>
-                              ) : (
-                                <KWText color={colors.red[1]}>
-                                  {member.authLevel === "admin"
-                                    ? "Propriétaire"
-                                    : "Parent"}
-                                </KWText>
-                              )}
-                            </View>
-                            {member.authLevel === 'read' && !member.isCurrent && (
-                              <TouchableOpacity
-                                style={styles.iconBtn}
-                                onPress={() =>
-                                  dispatch(
-                                    removeMemberFromZoneAsync({
-                                      zoneId: zone._id,
-                                      memberId: member._id,
-                                    })
-                                  )
-                                }
-                              >
-                                <FontAwesome5
-                                  name="minus"
-                                  size={13}
-                                  color="white"
-                                />
-                              </TouchableOpacity>
-                            )}
-                          </KWCardButton>
-                        </KWCardHeader>
-                      </KWCard>
-                    );
-                  })}
-                  <KWButton
-                    icon="plus"
-                    title="Ajouter un membre"
-                    bgColor={colors.background[1]}
-                    color={colors.text[0]}
-                    onPress={() => {
-                      setSelectedZone(zone);
-                      setAddMemberToZoneModal(true);
-                    }}
-                    testID="add-member-btn"
-                  />
-                </KWCardBody>
-              </KWCard>
+                zone={zone}
+                onEdit={handleEditZone}
+                onDelete={handleDeleteZone}
+                onAddMember={handleAddMemberToZone}
+                onRemoveMember={handleRemoveMemberFromZone}
+                openDropdownId={openDropdownId}
+                setOpenDropdownId={setOpenDropdownId}
+              />
             ))}
           </View>
 
-          {/* Modal création / édition de Membre */}
-          <KWModal visible={memberModal}>
-            <MemberForm
-              data={selectedMember}
-              onReturn={() => {
-                setMemberModal(false);
-                setOpenDropdownId(null);
-              }}
-            />
-          </KWModal>
-
-          {/* Membres */}
+          {/* Section Tous les membres */}
           <View style={styles.membersContainer}>
             <KWText type="h2">Tous les membres</KWText>
             {!members.length && (
               <KWText style={styles.emptyText}>Aucun membre</KWText>
             )}
             {members.map((member, j) => {
-              if(member.isCurrent) return;
+              // Ne pas afficher l'utilisateur courant
+              if (member.isCurrent) return null;
+
+              // Options du dropdown
               const options = [
                 { action: "edit", label: "Modifier", icon: "pen" },
                 {
@@ -379,12 +284,16 @@ const FamillyScreen = () => {
                   icon: "trash",
                 },
               ];
-              if (member.type === "local")
+
+              // Ajouter l'option d'invitation pour les membres locaux
+              if (member.type === "local") {
                 options.unshift({
                   action: "invitation",
                   label: "Inviter",
                   icon: "paper-plane",
                 });
+              }
+
               return (
                 <KWCard
                   key={j}
@@ -395,19 +304,12 @@ const FamillyScreen = () => {
                 >
                   <KWCardHeader>
                     <KWCardIcon>
-                      <View
-                        style={{
-                          backgroundColor: "#d4d4d4ff",
-                          padding: 10,
-                          borderRadius: 10,
-                        }}
-                      >
+                      <View style={styles.iconContainer}>
                         <FontAwesome5 name="user" size={24} color="white" />
                       </View>
                     </KWCardIcon>
                     <KWCardTitle>
                       <KWText>{member.firstName}</KWText>
-                      {/* <KWText>1000 ans</KWText> */}
                     </KWCardTitle>
                     <KWCardButton>
                       <KWDropDown
@@ -418,18 +320,13 @@ const FamillyScreen = () => {
                         setOpenId={setOpenDropdownId}
                         onSelect={(action) => {
                           if (action === "invitation") {
-                            setSelectedMember({ member });
-                            setInvitationModal(true);
-                            setOpenDropdownId(null);
+                            handleInviteMember(member);
                           }
                           if (action === "edit") {
-                            setSelectedMember({ member });
-                            setMemberModal(true);
-                            setOpenDropdownId(null);
+                            handleEditMember(member);
                           }
                           if (action === "delete") {
-                            dispatch(deleteMemberAsync(member._id));
-                            setOpenDropdownId(null);
+                            handleDeleteMember(member._id);
                           }
                         }}
                       />
@@ -477,21 +374,18 @@ const styles = StyleSheet.create({
   buttonSubTitle: {
     fontSize: 12,
   },
-  zoneCard: {
-    marginBottom: 20,
-  },
   memberCard: {
     marginTop: 10,
     padding: 10,
+  },
+  iconContainer: {
+    backgroundColor: "#d4d4d4ff",
+    padding: 10,
+    borderRadius: 10,
   },
   emptyText: {
     padding: 25,
     width: "100%",
     textAlign: "center",
-  },
-  iconBtn: {
-    padding: 5,
-    borderRadius: 50,
-    backgroundColor: colors.error[0],
   },
 });

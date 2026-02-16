@@ -6,10 +6,10 @@ import {
   KWCardTitle,
   KWCardBody,
   KWCardIcon,
-} from "../../../components/KWCard";
-import KWText from "../../../components/KWText";
+} from "../KWCard";
+import KWText from "../KWText";
 import { Ionicons } from "@expo/vector-icons";
-import { colors } from "../../../theme/colors";
+import { colors } from "../../theme/colors";
 import ActivityItem from "./ActivityItem";
 
 const dayColors = {

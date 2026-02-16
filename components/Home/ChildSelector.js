@@ -1,8 +1,8 @@
 import React from "react";
 import { View } from "react-native";
-import KWButton from "../../../components/KWButton";
-import KWText from "../../../components/KWText";
-import { colors } from "../../../theme/colors";
+import KWButton from "../KWButton";
+import KWText from "../KWText";
+import { colors } from "../../theme/colors";
 
 const ChildSelector = ({ childrenList, selectedChild, onSelect }) => {
   if (!childrenList || childrenList.length === 0) {
