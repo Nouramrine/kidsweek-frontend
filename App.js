@@ -15,7 +15,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
-import AddScreen from "./screens/AddScreen";
+import AddScreen from "./screens/AddActivity/AddScreen";
 import AuthScreen from "./screens/AuthScreen";
 import CalendarScreen from "./screens/CalendarScreen";
 import FamillyScreen from "./screens/FamillyScreen";
