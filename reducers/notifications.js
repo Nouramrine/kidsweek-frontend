@@ -2,9 +2,12 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
+/**
+ * Récupère les notifications (invitations et rappels) depuis le backend
+ */
 export const fetchNotificationsAsync = createAsyncThunk(
   "notifications/fetchNotificationsAsync",
-  async (token) => {
+  async (token, { rejectWithValue }) => {
     try {
       const response = await fetch(`${BACKEND_URL}/activities/notifications`, {
         method: "GET",
@@ -13,32 +16,30 @@ export const fetchNotificationsAsync = createAsyncThunk(
           Authorization: `Bearer ${token}`,
         },
       });
+
       const data = await response.json();
 
-      // console.log("📬 Notifications reçues:", {
-      //   invitations: data.invitations?.length || 0,
-      //   reminders: data.reminders?.length || 0,
-      // });
-
-      if (!response.ok) throw new Error(data.message || "Erreur serveur");
+      if (!response.ok) {
+        return rejectWithValue(data.message || "Erreur serveur");
+      }
 
       return {
         invitations: data.invitations || [],
         reminders: data.reminders || [],
       };
     } catch (err) {
-      // console.error("❌ Erreur de fetch notifications:", err);
-      throw err;
+      return rejectWithValue(err.message || "Erreur réseau");
     }
-  }
+  },
 );
 
+/**
+ * Répond à une invitation d'activité (accepter ou refuser)
+ */
 export const respondToInvitationAsync = createAsyncThunk(
   "notifications/respondToInvitationAsync",
-  async ({ token, activityId, validate }) => {
+  async ({ token, activityId, validate }, { rejectWithValue }) => {
     try {
-      // console.log("📤 Réponse à l'invitation:", { activityId, validate });
-
       const response = await fetch(
         `${BACKEND_URL}/activities/${activityId}/validate`,
         {
@@ -48,23 +49,20 @@ export const respondToInvitationAsync = createAsyncThunk(
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ validate }),
-        }
+        },
       );
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Erreur serveur");
+        return rejectWithValue(data.message || "Erreur serveur");
       }
-
-      // console.log("✅ Réponse enregistrée:", data);
 
       return { activityId, validate };
     } catch (err) {
-      console.error("❌ Erreur réponse invitation:", err);
-      throw err;
+      return rejectWithValue(err.message || "Erreur réseau");
     }
-  }
+  },
 );
 
 const notificationSlice = createSlice({
@@ -79,10 +77,15 @@ const notificationSlice = createSlice({
     clearNotifications: (state) => {
       state.invitations = [];
       state.reminders = [];
+      state.error = null;
+    },
+    clearError: (state) => {
+      state.error = null;
     },
   },
   extraReducers: (builder) => {
     builder
+      // Fetch notifications
       .addCase(fetchNotificationsAsync.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -91,34 +94,32 @@ const notificationSlice = createSlice({
         state.loading = false;
         state.invitations = action.payload.invitations;
         state.reminders = action.payload.reminders;
+        state.error = null;
       })
       .addCase(fetchNotificationsAsync.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload || action.error.message;
       })
+      // Répondre à une invitation
       .addCase(respondToInvitationAsync.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(respondToInvitationAsync.fulfilled, (state, action) => {
         state.loading = false;
         const { activityId } = action.payload;
-
-        // ✅ Filtrer par activityId._id dans les invitations
+        // Retirer l'invitation de la liste
         state.invitations = state.invitations.filter(
-          (inv) => inv.activityId?._id !== activityId
+          (inv) => inv.activityId?._id !== activityId,
         );
-
-        // console.log(
-        //   "✅ Invitation supprimée du state, reste:",
-        //   state.invitations.length
-        // );
+        state.error = null;
       })
       .addCase(respondToInvitationAsync.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload || action.error.message;
       });
   },
 });
 
-export const { clearNotifications } = notificationSlice.actions;
+export const { clearNotifications, clearError } = notificationSlice.actions;
 export default notificationSlice.reducer;

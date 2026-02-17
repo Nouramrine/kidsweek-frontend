@@ -10,7 +10,7 @@ import {
 import KWText from "../KWText";
 import { Ionicons } from "@expo/vector-icons";
 import { colors } from "../../theme/colors";
-import ActivityItem from "./ActivityItem";
+import ActivityItem from "../ActivityItem";
 
 const dayColors = {
   lundi: colors.blue,

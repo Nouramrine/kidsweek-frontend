@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import {
   useFonts,
@@ -9,6 +9,7 @@ import {
 import {
   JosefinSans_400Regular,
   JosefinSans_300Light,
+  JosefinSans_600SemiBold,
 } from "@expo-google-fonts/josefin-sans";
 
 import { NavigationContainer } from "@react-navigation/native";
@@ -22,19 +23,21 @@ import FamillyScreen from "./screens/FamillyScreen";
 import HomeScreen from "./screens/HomeScreen";
 import ProfileScreen from "./screens/ProfileScreen";
 import ActivityDetailsScreen from "./screens/ActivityDetailsScreen";
+
 import user from "./reducers/user";
 import members from "./reducers/members";
 import activities from "./reducers/activities";
 import zones from "./reducers/zones";
 import notifications from "./reducers/notifications";
 import invites from "./reducers/invites";
+
 import { Provider, useSelector } from "react-redux";
 import { persistStore, persistReducer } from "redux-persist";
 import { PersistGate } from "redux-persist/integration/react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { useRef } from "react";
+import { usePushNotifications } from "./services/hooks/usePushNotifications";
 
 const userPersistConfig = {
   key: "user",
@@ -58,10 +61,7 @@ const store = configureStore({
 
 const persistor = persistStore(store);
 
-/*persistor.pause();
-persistor.flush().then(() => {
-  return persistor.purge();
-});*/
+// ─── Navigation ─────────────────────────────────────────────────────────────
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -83,16 +83,7 @@ const TabNavigator = () => {
             iconName = "person-outline";
           } else if (route.name === "add") {
             return (
-              <View
-                style={{
-                  width: 60,
-                  height: 60,
-                  borderRadius: 30,
-                  backgroundColor: "#8E7EED",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
+              <View style={styles.addButton}>
                 <Ionicons name="add" size={32} color="white" />
               </View>
             );
@@ -110,9 +101,7 @@ const TabNavigator = () => {
       <Tab.Screen
         name="add"
         component={AddScreen}
-        options={{
-          tabBarLabel: "",
-        }}
+        options={{ tabBarLabel: "" }}
       />
       <Tab.Screen name="Famille" component={FamillyScreen} />
       <Tab.Screen name="Profil" component={ProfileScreen} />
@@ -120,43 +109,56 @@ const TabNavigator = () => {
   );
 };
 
+// ─── Composant principal (hors de App pour éviter les re-renders) ────────────
+
+// ✅ Composant séparé DANS NavigationContainer pour que useNavigation fonctionne
+const AppNavigator = () => {
+  const userData = useSelector((state) => state.user.value);
+
+  // ✅ useNavigation fonctionne ici car on est dans NavigationContainer
+  usePushNotifications();
+
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      {!userData?.isLogged ? (
+        <Stack.Screen name="auth" component={AuthScreen} />
+      ) : (
+        <>
+          <Stack.Screen name="TabNavigator" component={TabNavigator} />
+          <Stack.Screen name="AddScreen" component={AddScreen} />
+          <Stack.Screen
+            name="ActivityDetails"
+            component={ActivityDetailsScreen}
+          />
+          <Stack.Screen name="FamillyScreen" component={FamillyScreen} />
+        </>
+      )}
+    </Stack.Navigator>
+  );
+};
+
+const DisplayIsLogged = () => {
+  return (
+    <NavigationContainer>
+      <AppNavigator />
+    </NavigationContainer>
+  );
+};
+
+// ─── App ─────────────────────────────────────────────────────────────────────
+
 export default function App() {
   const [fontsLoaded] = useFonts({
     Gluten_700Bold,
     Gluten_500Medium,
     JosefinSans_400Regular,
     JosefinSans_300Light,
+    JosefinSans_600SemiBold, // ✅ Ajout de la police manquante
   });
-
-  const navigationRef = useRef();
 
   if (!fontsLoaded) {
     return null;
   }
-
-  const DisplayIsLogged = () => {
-    const userData = useSelector((state) => state.user.value);
-
-    return (
-      <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          {!userData?.isLogged ? (
-            <Stack.Screen name="auth" component={AuthScreen} />
-          ) : (
-            <>
-              <Stack.Screen name="TabNavigator" component={TabNavigator} />
-              <Stack.Screen name="AddScreen" component={AddScreen} />
-              <Stack.Screen
-                name="ActivityDetails"
-                component={ActivityDetailsScreen}
-              />
-              <Stack.Screen name="FamillyScreen" component={FamillyScreen} />
-            </>
-          )}
-        </Stack.Navigator>
-      </NavigationContainer>
-    );
-  };
 
   return (
     <SafeAreaProvider>
@@ -169,11 +171,15 @@ export default function App() {
   );
 }
 
+// ─── Styles ──────────────────────────────────────────────────────────────────
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#ffffffff",
-    alignItems: "center",
+  addButton: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "#8E7EED",
     justifyContent: "center",
+    alignItems: "center",
   },
 });
