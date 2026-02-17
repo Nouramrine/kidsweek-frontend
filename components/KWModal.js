@@ -11,7 +11,11 @@ const KWModal = ({ visible, onRequestClose, children }) => {
       onRequestClose={onRequestClose}
     >
       <Pressable style={styles.modalOverlay} onPress={onRequestClose}>
-        <Pressable style={styles.modalContent}>
+        {/* Ajout de onPress avec stopPropagation pour bloquer la fermeture */}
+        <Pressable
+          style={styles.modalContent}
+          onPress={(e) => e.stopPropagation()} // ✅ Empêche la fermeture au clic intérieur
+        >
           {children}
         </Pressable>
       </Pressable>
@@ -32,6 +36,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 20,
     width: "100%",
+    maxWidth: 500, // ✅ Ajout d'une largeur max pour les grands écrans
     alignItems: "center",
     elevation: 5,
     shadowColor: "#000",
