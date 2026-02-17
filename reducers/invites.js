@@ -12,7 +12,7 @@ export const sendInviteAsync = createAsyncThunk(
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ invite, url }),
+      body: JSON.stringify({ inviteId: invite._id, url }),
     });
     const data = await response.json();
     if (!data.result)

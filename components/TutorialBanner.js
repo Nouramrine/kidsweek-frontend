@@ -5,17 +5,6 @@ import KWText from "./KWText";
 import KWButton from "./KWButton";
 import { colors } from "../theme/colors";
 
-/**
- * Composant de bannière de tutoriel non-intrusive
- *
- * @param {string} id - Identifiant unique du tooltip (ex: "createZone")
- * @param {string} message - Message à afficher
- * @param {string} ctaLabel - Label du bouton d'action
- * @param {function} onCta - Callback quand l'utilisateur clique sur le CTA
- * @param {function} onDismiss - Callback quand l'utilisateur ferme le tooltip
- * @param {boolean} visible - Si le tooltip doit être affiché
- * @param {string} bgColor - Couleur de fond (optionnel)
- */
 const TutorialBanner = ({
   id,
   message,

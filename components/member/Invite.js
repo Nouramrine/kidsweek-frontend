@@ -16,7 +16,7 @@ const InviteForm = ({ data, onReturn }) => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.value);
 
-  const [emailInput, setEmailInput] = useState("aurelien05@gmail.com");
+  const [emailInput, setEmailInput] = useState("");
   const [formErrors, setFormErrors] = useState({});
   const [inviteUrl, setInviteUrl] = useState(null);
 
@@ -30,28 +30,6 @@ const InviteForm = ({ data, onReturn }) => {
     return Object.keys(newErrors).length > 0 ? false : true;
   };
 
-  // Envoi de l'invitation par mail
-  const sendInvite = async (InviteData) => {
-    const token = user.token;
-    const response = await fetch(`${BACKEND_URL}/invites/send`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(InviteData),
-    });
-    const data = await response.json();
-
-    if (!data.result)
-      throw console.log(
-        "Invite SendInvite : ",
-        data.error || "Erreur lors de l'envoi de l'invitation"
-      );
-
-    return data.result;
-  };
-
   const handleSubmit = async () => {
     if (formValidation()) {
       try {
@@ -59,7 +37,7 @@ const InviteForm = ({ data, onReturn }) => {
           createInviteAsync({
             invitedId: data?.member._id,
             emailAddress: emailInput,
-          })
+          }),
         ).unwrap();
 
         const url = Linking.createURL("invite", {
@@ -69,7 +47,7 @@ const InviteForm = ({ data, onReturn }) => {
         setInviteUrl(url);
 
         const sendMail = await dispatch(
-          sendInviteAsync({ invite, url })
+          sendInviteAsync({ invite, url }),
         ).unwrap();
 
         if (!sendMail) {
@@ -89,12 +67,12 @@ const InviteForm = ({ data, onReturn }) => {
     return (
       <View style={styles.container}>
         <KWText type="h1">Inviter un proche</KWText>
-          <KWTextInput
-            label="Email"
-            value={emailInput}
-            error={formErrors?.emailInput || null}
-            onChangeText={setEmailInput}
-          />
+        <KWTextInput
+          label="Email"
+          value={emailInput}
+          error={formErrors?.emailInput || null}
+          onChangeText={setEmailInput}
+        />
         <View style={styles.buttonsFooter}>
           <KWButton
             title="Annuler"
@@ -164,8 +142,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   inputEmail: {
-    width: '100%',
-  }
+    width: "100%",
+  },
 });
 
 export default InviteForm;

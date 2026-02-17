@@ -15,16 +15,6 @@ import KWDropDown from "../KWDropDown";
 import MemberCardSimple from "../member/Membercardsimple";
 import { colors } from "../../theme/colors";
 
-/**
- * Composant d'affichage d'une zone familiale avec ses membres
- * @param {Object} zone - L'objet zone à afficher
- * @param {Function} onEdit - Callback pour éditer la zone
- * @param {Function} onDelete - Callback pour supprimer la zone
- * @param {Function} onAddMember - Callback pour ajouter un membre à la zone
- * @param {Function} onRemoveMember - Callback pour retirer un membre de la zone
- * @param {String} openDropdownId - ID du dropdown actuellement ouvert
- * @param {Function} setOpenDropdownId - Setter pour l'ID du dropdown ouvert
- */
 const ZoneCard = ({
   zone,
   onEdit,
