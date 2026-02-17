@@ -110,7 +110,6 @@ export function usePushNotifications() {
   };
 
   return {
-    // Vous pouvez exposer des fonctions si nécessaire
     updateBadgeCount,
   };
 }

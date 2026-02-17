@@ -1,5 +1,5 @@
 import { View, StyleSheet, ScrollView } from "react-native";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { colors, userColorSelection } from "../../theme/colors";
 import KWText from "../KWText";
 import KWTextInput from "../KWTextInput";
@@ -13,7 +13,7 @@ const ZoneForm = ({ zone, onReturn }) => {
   // modif pour sécuriser les accés a zone pour le tuto
   const [nameInput, setNameInput] = useState(zone?.name || "");
   const [selectedColor, setSelectedColor] = useState(
-    zone?.color || userColorSelection[0]
+    zone?.color || userColorSelection[0],
   );
   const [formErrors, setFormErrors] = useState({});
 
@@ -34,7 +34,7 @@ const ZoneForm = ({ zone, onReturn }) => {
               id: zone._id,
               name: nameInput,
               color: selectedColor,
-            })
+            }),
           );
       if (savedZone) {
         setNameInput("");

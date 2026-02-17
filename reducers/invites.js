@@ -18,7 +18,7 @@ export const sendInviteAsync = createAsyncThunk(
     if (!data.result)
       throw new Error(data.error || "Erreur lors de l'envoi de l'invitation");
     return data.result;
-  }
+  },
 );
 
 // Fetch toutes les Invites du membre connecté
@@ -35,11 +35,11 @@ export const fetchInvitesAsync = createAsyncThunk(
       },
     });
     const data = await response.json();
-    console.log("retour back: ", data)
+    console.log("retour back: ", data);
     if (!data.result)
       throw new Error(data.error || "Erreur lors du fetch des invitations");
     return data.invites || [];
-  }
+  },
 );
 
 // Créer une nouvelle Invite
@@ -57,13 +57,12 @@ export const createInviteAsync = createAsyncThunk(
       body: JSON.stringify(InviteData),
     });
     const data = await response.json();
-    //console.log(data)
     if (!data.result)
       throw new Error(
-        data.error || "Erreur lors de la création de l'invitation"
+        data.error || "Erreur lors de la création de l'invitation",
       );
     return data.invites || [];
-  }
+  },
 );
 
 //Mettre à jour une Invite
@@ -83,10 +82,10 @@ export const updateInviteAsync = createAsyncThunk(
     const data = await response.json();
     if (!data.result)
       throw new Error(
-        data.error || "Erreur lors de la mise à jour de l'invitation"
+        data.error || "Erreur lors de la mise à jour de l'invitation",
       );
     return data.invites[0] || [];
-  }
+  },
 );
 
 //Supprimer une Invite
@@ -105,10 +104,10 @@ export const deleteInviteAsync = createAsyncThunk(
     const data = await response.json();
     if (!data.result)
       throw new Error(
-        data.error || "Erreur lors de la suppression de l'invitation"
+        data.error || "Erreur lors de la suppression de l'invitation",
       );
     return data.invites[0] || "";
-  }
+  },
 );
 
 // Slice
@@ -149,7 +148,7 @@ export const InvitesSlice = createSlice({
       // Update
       .addCase(updateInviteAsync.fulfilled, (state, action) => {
         const index = state.value.findIndex(
-          (invite) => invite._id === action.payload._id
+          (invite) => invite._id === action.payload._id,
         );
         if (index !== -1) {
           state.value[index] = action.payload;
@@ -158,7 +157,7 @@ export const InvitesSlice = createSlice({
       // Delete
       .addCase(deleteInviteAsync.fulfilled, (state, action) => {
         state.value = state.value.filter(
-          (invite) => invite._id !== action.payload._id
+          (invite) => invite._id !== action.payload._id,
         );
       });
   },

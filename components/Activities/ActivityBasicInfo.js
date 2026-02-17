@@ -23,7 +23,7 @@ export default function ActivityBasicInfo({ state, setters, handlers, error }) {
     setDateBegin,
     setTimeBegin,
     setDateEnd,
-    setTimeEnd, // ✅ Corrigé : seTimeEnd → setTimeEnd
+    setTimeEnd,
     setReminderNumber,
     setReminderUnit,
   } = setters;

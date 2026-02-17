@@ -18,7 +18,6 @@ import MemberAdd from "../components/member/Add";
 import InviteForm from "../components/member/Invite";
 import TutorialBanner from "../components/TutorialBanner";
 import ZoneCard from "../components/zone/Zonecard";
-import MemberCardSimple from "../components/member/Membercardsimple";
 
 import { FontAwesome5 } from "@expo/vector-icons";
 import { useSelector, useDispatch } from "react-redux";

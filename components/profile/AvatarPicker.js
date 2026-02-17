@@ -4,9 +4,6 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import KWText from "../KWText";
 import { colors } from "../../theme/colors";
 
-/**
- * Liste d'icônes disponibles pour les avatars
- */
 const AVATAR_ICONS = [
   "user",
   "user-circle",
@@ -40,11 +37,6 @@ const AVATAR_ICONS = [
   "chess-queen",
 ];
 
-/**
- * Composant de sélection d'avatar
- * @param {String} selectedIcon - Icône actuellement sélectionnée
- * @param {Function} onSelect - Callback lors de la sélection d'une icône
- */
 const AvatarPicker = ({ selectedIcon = "user", onSelect }) => {
   return (
     <View style={styles.container}>

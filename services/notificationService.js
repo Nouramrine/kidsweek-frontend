@@ -12,10 +12,6 @@ Notifications.setNotificationHandler({
   }),
 });
 
-/**
- * Enregistre l'appareil pour recevoir des notifications push
- * @returns {Promise<string|null>} Le token Expo Push ou null en cas d'erreur
- */
 export async function registerForPushNotificationsAsync() {
   let token;
 
@@ -57,11 +53,6 @@ export async function registerForPushNotificationsAsync() {
   return token;
 }
 
-/**
- * Envoie le token push au backend pour l'enregistrer
- * @param {string} token - Token Expo Push
- * @param {string} userToken - Token d'authentification de l'utilisateur
- */
 export async function savePushTokenToBackend(token, userToken) {
   try {
     const response = await fetch(
@@ -90,12 +81,6 @@ export async function savePushTokenToBackend(token, userToken) {
   }
 }
 
-/**
- * Affiche une notification locale (pour test)
- * @param {string} title - Titre de la notification
- * @param {string} body - Corps de la notification
- * @param {Object} data - Données additionnelles
- */
 export async function scheduleLocalNotification(title, body, data = {}) {
   await Notifications.scheduleNotificationAsync({
     content: {
@@ -104,16 +89,10 @@ export async function scheduleLocalNotification(title, body, data = {}) {
       data,
       sound: true,
     },
-    trigger: null, // Afficher immédiatement
+    trigger: null,
   });
 }
 
-/**
- * Configure les listeners de notifications
- * @param {Function} onNotificationReceived - Callback quand une notification est reçue
- * @param {Function} onNotificationTapped - Callback quand une notification est tapée
- * @returns {Object} Objet avec les fonctions de nettoyage
- */
 export function setupNotificationListeners(
   onNotificationReceived,
   onNotificationTapped,
@@ -153,10 +132,6 @@ export async function getBadgeCount() {
   return await Notifications.getBadgeCountAsync();
 }
 
-/**
- * Définit le badge count
- * @param {number} count - Nombre à afficher sur le badge
- */
 export async function setBadgeCount(count) {
   await Notifications.setBadgeCountAsync(count);
 }

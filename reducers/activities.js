@@ -17,7 +17,7 @@ export const updateTaskAsync = createAsyncThunk(
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ isOk }),
-        }
+        },
       );
 
       const data = await response.json();
@@ -34,7 +34,7 @@ export const updateTaskAsync = createAsyncThunk(
       console.error("Erreur lors de la mise à jour de la tâche:", error);
       return null;
     }
-  }
+  },
 );
 
 // Fetch toutes les activités
@@ -51,11 +51,10 @@ export const fetchActivitiesAsync = createAsyncThunk(
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       const data = await response.json();
-      //console.log("Fetch activities response:", data);
 
       if (!response.ok) {
         throw new Error(data.message || "Erreur lors du fetch");
@@ -66,7 +65,7 @@ export const fetchActivitiesAsync = createAsyncThunk(
       console.error("Erreur réseau:", error);
       throw error;
     }
-  }
+  },
 );
 
 // Créer une nouvelle activité
@@ -110,7 +109,6 @@ export const createActivityAsync = createAsyncThunk(
       });
 
       const data = await response.json();
-      //console.log("Create activity response:", data.activity);
       if (data.activity) {
         dispatch(
           addActivity({
@@ -125,7 +123,7 @@ export const createActivityAsync = createAsyncThunk(
             dateEndRecurrence: data.dateEndRecurrence,
             color: data.color,
             members: data.members,
-          })
+          }),
         );
       } else {
         console.warn("Erreur create activity :", data);
@@ -136,7 +134,7 @@ export const createActivityAsync = createAsyncThunk(
       console.error("Erreur réseau :", error);
       throw error;
     }
-  }
+  },
 );
 
 // Mettre à jour une activité
@@ -182,7 +180,6 @@ export const updateActivityAsync = createAsyncThunk(
       });
 
       const data = await response.json();
-      // console.log("Update activity response:", data);
 
       if (!response.ok) {
         throw new Error(data.message || "Erreur lors de la mise à jour");
@@ -193,7 +190,7 @@ export const updateActivityAsync = createAsyncThunk(
       console.error("Erreur réseau:", error);
       throw error;
     }
-  }
+  },
 );
 // Supprimer une activité
 export const deleteActivityAsync = createAsyncThunk(
@@ -208,7 +205,7 @@ export const deleteActivityAsync = createAsyncThunk(
         },
       });
       const data = await response.json();
-      //console.log("Delete activity response:", data);
+
       if (!response.ok) {
         throw new Error(data.message || "Erreur lors de la suppression");
       }
@@ -217,7 +214,7 @@ export const deleteActivityAsync = createAsyncThunk(
       console.error("Erreur réseau:", error);
       throw error;
     }
-  }
+  },
 );
 
 const initialState = {
@@ -238,7 +235,7 @@ export const activitiesSlice = createSlice({
     },
     updateActivity: (state, action) => {
       const index = state.value.findIndex(
-        (act) => act._id === action.payload._id
+        (act) => act._id === action.payload._id,
       );
       if (index !== -1) {
         state.value[index] = action.payload;
@@ -270,7 +267,7 @@ export const activitiesSlice = createSlice({
       // Update
       .addCase(updateActivityAsync.fulfilled, (state, action) => {
         const index = state.value.findIndex(
-          (act) => act._id === action.payload._id
+          (act) => act._id === action.payload._id,
         );
         if (index !== -1) {
           state.value[index] = action.payload;

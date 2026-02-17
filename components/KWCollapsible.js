@@ -151,7 +151,6 @@ const styles = StyleSheet.create({
   wrapper: {
     borderRadius: 12,
     marginBottom: 8,
-    //overflow: "hidden",
     paddingHorizontal: 0,
   },
   header: {
@@ -169,7 +168,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   expandableSection: {
-    //overflow: "hidden",
     borderBottomLeftRadius: 12,
     borderBottomRightRadius: 12,
     paddingHorizontal: 20,

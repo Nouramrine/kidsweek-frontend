@@ -8,12 +8,6 @@ import KWColorPicker from "../KWColorPicker";
 import AvatarPicker from "./AvatarPicker";
 import { colors, userColorSelection } from "../../theme/colors";
 
-/**
- * Formulaire de modification du profil utilisateur
- * @param {Object} member - Objet membre contenant les données actuelles
- * @param {Function} onSave - Callback lors de la sauvegarde
- * @param {Function} onCancel - Callback lors de l'annulation
- */
 const ProfileEditForm = ({ member, onSave, onCancel }) => {
   const [firstName, setFirstName] = useState(member?.firstName || "");
   const [lastName, setLastName] = useState(member?.lastName || "");

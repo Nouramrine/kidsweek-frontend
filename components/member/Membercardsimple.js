@@ -11,14 +11,6 @@ import {
 import KWText from "../KWText";
 import { colors } from "../../theme/colors";
 
-/**
- * Composant d'affichage d'un membre
- * Utilisé dans les zones ET dans la liste globale des membres
- * @param {Object} member - L'objet membre à afficher
- * @param {String} zoneColor - Couleur de la zone (optionnel, pour affichage dans une zone)
- * @param {Boolean} showRemoveButton - Afficher le bouton de retrait
- * @param {Function} onRemove - Callback pour retirer le membre
- */
 const MemberCardSimple = ({
   member,
   zoneColor = null,

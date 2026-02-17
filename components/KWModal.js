@@ -1,5 +1,5 @@
 import React from "react";
-import { View, StyleSheet, Modal, Pressable } from "react-native";
+import { StyleSheet, Modal, Pressable } from "react-native";
 import { colors } from "../theme/colors";
 
 const KWModal = ({ visible, onRequestClose, children }) => {
@@ -14,7 +14,7 @@ const KWModal = ({ visible, onRequestClose, children }) => {
         {/* Ajout de onPress avec stopPropagation pour bloquer la fermeture */}
         <Pressable
           style={styles.modalContent}
-          onPress={(e) => e.stopPropagation()} // ✅ Empêche la fermeture au clic intérieur
+          onPress={(e) => e.stopPropagation()}
         >
           {children}
         </Pressable>
@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 20,
     width: "100%",
-    maxWidth: 500, // ✅ Ajout d'une largeur max pour les grands écrans
+    maxWidth: 500,
     alignItems: "center",
     elevation: 5,
     shadowColor: "#000",

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, TextInput, Button, StyleSheet, Platform, KeyboardAvoidingView } from "react-native";
+import { View } from "react-native";
 import { useDispatch } from "react-redux";
 import KWButton from "../../components/KWButton";
 import KWTextInput from "../../components/KWTextInput";
@@ -8,12 +8,12 @@ import { signUpAsync } from "../../reducers/user";
 
 const SignUp = ({ inviteToken }) => {
   const dispatch = useDispatch();
-  const [signUpFirstName, setSignUpFirstName] = useState('');
-  const [signUpLastName, setSignUpLastName] = useState('');
-  const [signUpEmail, setSignUpEmail] = useState('');
-  const [signUpPassword, setSignUpPassword] = useState('');
-  const [signUpConfirm, setSignUpConfirm] = useState('');
-  const [signUpError, setSignUpError] = useState('');
+  const [signUpFirstName, setSignUpFirstName] = useState("");
+  const [signUpLastName, setSignUpLastName] = useState("");
+  const [signUpEmail, setSignUpEmail] = useState("");
+  const [signUpPassword, setSignUpPassword] = useState("");
+  const [signUpConfirm, setSignUpConfirm] = useState("");
+  const [signUpError, setSignUpError] = useState("");
 
   const handleSignUp = async () => {
     if (signUpPassword !== signUpConfirm) {
@@ -33,60 +33,23 @@ const SignUp = ({ inviteToken }) => {
         lastName: signUpLastName,
         email: signUpEmail,
         password: signUpPassword,
-        inviteToken
-      })
+        inviteToken,
+      }),
     ).unwrap();
 
-    if(signUp.result) {
+    if (signUp.result) {
       setSignUpFirstName("");
       setSignUpLastName("");
       setSignUpEmail("");
       setSignUpPassword("");
       setSignUpConfirm("");
     } else {
-      setSignUpError(signUp.error)
+      setSignUpError(signUp.error);
     }
   };
 
   return (
     <View>
-      {/* <View style={{ marginBottom: 20 }}>
-        <KWButton 
-          title="User1" 
-          onPress={() => { 
-            setSignUpEmail("user@kidsweek.fr");
-            setSignUpFirstName("Parent");
-            setSignUpLastName("Famille1");
-            setSignUpPassword('Pass12345!');
-            setSignUpConfirm('Pass12345!');
-            
-          }}
-        />
-        <KWButton 
-          title="User2" 
-          onPress={() => { 
-            setSignUpEmail("user2@kidsweek.fr");
-            setSignUpFirstName("Parent2");
-            setSignUpLastName("Famille1");
-            setSignUpPassword('Pass12345!');
-            setSignUpConfirm('Pass12345!');
-            
-          }}
-        />
-        <KWButton 
-          title="User3" 
-          onPress={() => { 
-            setSignUpEmail("user3@kidsweek.fr");
-            setSignUpFirstName("Parent3");
-            setSignUpLastName("Famille1");
-            setSignUpPassword('Pass12345!');
-            setSignUpConfirm('Pass12345!');
-            
-          }}
-        />
-      </View>*/}
-
-
       <KWTextInput
         label="Prénom"
         value={signUpFirstName}
@@ -118,7 +81,6 @@ const SignUp = ({ inviteToken }) => {
       />
       <KWText type="inputError">{signUpError}</KWText>
       <KWButton title="S'inscrire" onPress={handleSignUp} />
-
     </View>
   );
 };

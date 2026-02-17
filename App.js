@@ -1,4 +1,3 @@
-import { StatusBar } from "expo-status-bar";
 import { StyleSheet, View } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import {
@@ -111,11 +110,9 @@ const TabNavigator = () => {
 
 // ─── Composant principal (hors de App pour éviter les re-renders) ────────────
 
-// ✅ Composant séparé DANS NavigationContainer pour que useNavigation fonctionne
 const AppNavigator = () => {
   const userData = useSelector((state) => state.user.value);
 
-  // ✅ useNavigation fonctionne ici car on est dans NavigationContainer
   usePushNotifications();
 
   return (
@@ -153,7 +150,7 @@ export default function App() {
     Gluten_500Medium,
     JosefinSans_400Regular,
     JosefinSans_300Light,
-    JosefinSans_600SemiBold, // ✅ Ajout de la police manquante
+    JosefinSans_600SemiBold,
   });
 
   if (!fontsLoaded) {
