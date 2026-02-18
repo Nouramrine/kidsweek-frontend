@@ -167,7 +167,10 @@ const AddScreen = ({ navigation, route }) => {
         {/* Header */}
         <View style={styles.header}>
           {isEditMode ? (
-            <KWText type="h1" style={styles.headerText}>
+            <KWText
+              type="h1"
+              style={{ textAlign: "left", flex: 1, padding: 0 }}
+            >
               Modification de l'activité
             </KWText>
           ) : (
@@ -314,7 +317,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     height: 50,
     width: "100%",
-    justifyContent: "center",
+    justifyContent: "space-between",
     alignItems: "center",
     marginTop: 20,
     marginBottom: 10,
