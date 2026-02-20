@@ -7,12 +7,6 @@ export const sendInviteAsync = createAsyncThunk(
   async ({ invite, url }, { getState }) => {
     const token = getState().user.value.token;
 
-    console.log("📤 Envoi invitation:", {
-      inviteId: invite._id,
-      url,
-      backend: BACKEND_URL,
-    });
-
     const response = await fetch(`${BACKEND_URL}/invites/send`, {
       method: "POST",
       headers: {
@@ -22,11 +16,7 @@ export const sendInviteAsync = createAsyncThunk(
       body: JSON.stringify({ inviteId: invite._id, url }),
     });
 
-    console.log("📥 Response status:", response.status);
-
     const data = await response.json();
-
-    console.log("📥 Response data:", data);
 
     if (!data.result)
       throw new Error(data.error || "Erreur lors de l'envoi de l'invitation");
