@@ -12,6 +12,8 @@ import { createInviteAsync, sendInviteAsync } from "../../reducers/invites";
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
+console.log("🌐 Backend URL:", BACKEND_URL);
+
 const InviteForm = ({ data, onReturn }) => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.value);
