@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import { View, Text, StyleSheet, Dimensions } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
-import * as Linking from 'expo-linking';
+import * as Linking from "expo-linking";
 import KWButton from "../KWButton";
 import { colors } from "../../theme/colors";
+import { API_URL } from "../../config/api";
 
-const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
+const BACKEND_URL = API_URL;
 const { width } = Dimensions.get("window");
 const CAMERA_SIZE = width * 0.7;
 
@@ -36,7 +37,7 @@ const ScanModal = ({ onReturn }) => {
   }
 
   const handleBarCodeScanned = async ({ data }) => {
-    if (scanned) return; 
+    if (scanned) return;
     setScanned(true);
 
     try {
@@ -59,7 +60,7 @@ const ScanModal = ({ onReturn }) => {
       // Vérifier le token côté backend
       const response = await fetch(`${BACKEND_URL}/invites/${token}`);
       const responseData = await response.json();
-      
+
       if (!responseData.result) {
         throw new Error("Token invalide");
       }
@@ -74,7 +75,7 @@ const ScanModal = ({ onReturn }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Scanner un QR code d'invitation</Text>
-      
+
       <View style={styles.cameraWrapper}>
         <View style={styles.cameraContainer}>
           <CameraView
@@ -82,13 +83,13 @@ const ScanModal = ({ onReturn }) => {
             style={styles.camera}
             facing="back"
             barcodeScannerSettings={{
-              barcodeTypes: ["qr"]
+              barcodeTypes: ["qr"],
             }}
             onBarcodeScanned={handleBarCodeScanned}
           />
         </View>
       </View>
-      
+
       <View style={styles.buttonContainer}>
         <KWButton
           title="Retour"

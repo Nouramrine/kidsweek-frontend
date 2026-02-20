@@ -9,8 +9,9 @@ import KWTextInput from "../KWTextInput";
 import KWButton from "../KWButton";
 import { useDispatch, useSelector } from "react-redux";
 import { createInviteAsync, sendInviteAsync } from "../../reducers/invites";
+import { API_URL } from "../../config/api";
 
-const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
+const BACKEND_URL = API_URL;
 
 const InviteForm = ({ data, onReturn }) => {
   const dispatch = useDispatch();

@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { API_URL } from "../config/api";
 
-const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
+const BACKEND_URL = API_URL;
 
 // Fetch toutes les zones
 export const fetchZonesAsync = createAsyncThunk(
@@ -16,16 +17,18 @@ export const fetchZonesAsync = createAsyncThunk(
         },
       });
       const data = await res.json();
-      
+
       if (!res.ok) {
-        return rejectWithValue(data.error || "Erreur lors de la récupération des zones");
+        return rejectWithValue(
+          data.error || "Erreur lors de la récupération des zones",
+        );
       }
-      
+
       return data.zones || [];
     } catch (error) {
       return rejectWithValue(error.message || "Erreur réseau");
     }
-  }
+  },
 );
 
 // Créer une zone
@@ -43,16 +46,18 @@ export const createZoneAsync = createAsyncThunk(
         body: JSON.stringify(zoneData),
       });
       const data = await res.json();
-      
+
       if (!res.ok) {
-        return rejectWithValue(data.error || "Erreur lors de la création de la zone");
+        return rejectWithValue(
+          data.error || "Erreur lors de la création de la zone",
+        );
       }
-      
+
       return data.zones[0];
     } catch (error) {
       return rejectWithValue(error.message || "Erreur réseau");
     }
-  }
+  },
 );
 
 // Mettre à jour une zone
@@ -70,16 +75,18 @@ export const updateZoneAsync = createAsyncThunk(
         body: JSON.stringify({ name: zoneData.name, color: zoneData.color }),
       });
       const data = await res.json();
-      
+
       if (!data.result) {
-        return rejectWithValue(data.error || "Erreur lors de la mise à jour de la zone");
+        return rejectWithValue(
+          data.error || "Erreur lors de la mise à jour de la zone",
+        );
       }
-      
+
       return data.zones[0];
     } catch (error) {
       return rejectWithValue(error.message || "Erreur réseau");
     }
-  }
+  },
 );
 
 // Supprimer une zone
@@ -96,16 +103,18 @@ export const deleteZoneAsync = createAsyncThunk(
         },
       });
       const data = await res.json();
-      
+
       if (!data.result) {
-        return rejectWithValue(data.error || "Erreur lors de la suppression de la zone");
+        return rejectWithValue(
+          data.error || "Erreur lors de la suppression de la zone",
+        );
       }
-      
+
       return zoneId;
     } catch (error) {
       return rejectWithValue(error.message || "Erreur réseau");
     }
-  }
+  },
 );
 
 // Ajouter un membre
@@ -123,16 +132,18 @@ export const addMemberToZoneAsync = createAsyncThunk(
         body: JSON.stringify({ memberId }),
       });
       const data = await res.json();
-      
+
       if (!data.result) {
-        return rejectWithValue(data.error || "Erreur lors de l'ajout du membre");
+        return rejectWithValue(
+          data.error || "Erreur lors de l'ajout du membre",
+        );
       }
-      
+
       return data.zones[0];
     } catch (error) {
       return rejectWithValue(error.message || "Erreur réseau");
     }
-  }
+  },
 );
 
 // Retirer un membre
@@ -150,16 +161,18 @@ export const removeMemberFromZoneAsync = createAsyncThunk(
         body: JSON.stringify({ memberId }),
       });
       const data = await res.json();
-      
+
       if (!data.result) {
-        return rejectWithValue(data.error || "Erreur lors du retrait du membre");
+        return rejectWithValue(
+          data.error || "Erreur lors du retrait du membre",
+        );
       }
-      
+
       return data.zones[0];
     } catch (error) {
       return rejectWithValue(error.message || "Erreur réseau");
     }
-  }
+  },
 );
 
 const initialState = { value: [], loading: false, error: null };

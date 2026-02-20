@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { API_URL } from "../config/api";
 
-const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
+const BACKEND_URL = API_URL;
 
 //  Dismiss un tooltip
 export const dismissTutorialAsync = createAsyncThunk(
@@ -27,7 +28,7 @@ export const dismissTutorialAsync = createAsyncThunk(
       console.error("Erreur dismiss tooltip:", error);
       return null;
     }
-  }
+  },
 );
 
 //  signInAsync récupère tutorialState
@@ -53,7 +54,7 @@ export const signInAsync = createAsyncThunk(
             tutorialState: data.member.tutorialState || {
               dismissedTooltips: [],
             },
-          })
+          }),
         );
         return { result: true };
       } else {
@@ -63,7 +64,7 @@ export const signInAsync = createAsyncThunk(
       console.error("Erreur réseau :", error);
       return { result: false, error: "Erreur réseau" };
     }
-  }
+  },
 );
 
 // signUpAsync récupère tutorialState
@@ -96,7 +97,7 @@ export const signUpAsync = createAsyncThunk(
             tutorialState: data.member.tutorialState || {
               dismissedTooltips: [],
             },
-          })
+          }),
         );
         return { result: true };
       } else {
@@ -106,7 +107,7 @@ export const signUpAsync = createAsyncThunk(
       console.error("Erreur réseau :", error);
       return { result: false, error: "Erreur réseau" };
     }
-  }
+  },
 );
 
 const initialState = {

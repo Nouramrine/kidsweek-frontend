@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { API_URL } from "../config/api";
 
-const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
+const BACKEND_URL = API_URL;
 
 export const updateTaskAsync = createAsyncThunk(
   "activities/updateTaskAsync",

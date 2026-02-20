@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { API_URL } from "../config/api";
 
-const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
+const BACKEND_URL = API_URL;
 
 // Fetch tous les membres
 export const fetchMembersAsync = createAsyncThunk(
@@ -19,7 +20,7 @@ export const fetchMembersAsync = createAsyncThunk(
 
       if (!data.result) {
         return rejectWithValue(
-          data.error || "Erreur lors de la récupération des membres"
+          data.error || "Erreur lors de la récupération des membres",
         );
       }
 
@@ -27,7 +28,7 @@ export const fetchMembersAsync = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.message || "Erreur réseau");
     }
-  }
+  },
 );
 
 // Créer un membre
@@ -48,7 +49,7 @@ export const createMemberAsync = createAsyncThunk(
 
       if (!data.result) {
         return rejectWithValue(
-          data.error || "Erreur lors de la création du membre"
+          data.error || "Erreur lors de la création du membre",
         );
       }
 
@@ -56,7 +57,7 @@ export const createMemberAsync = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.message || "Erreur réseau");
     }
-  }
+  },
 );
 
 // Mettre à jour un membre
@@ -77,7 +78,7 @@ export const updateMemberAsync = createAsyncThunk(
 
       if (!data.result) {
         return rejectWithValue(
-          data.error || "Erreur lors de la mise à jour du membre"
+          data.error || "Erreur lors de la mise à jour du membre",
         );
       }
 
@@ -85,7 +86,7 @@ export const updateMemberAsync = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.message || "Erreur réseau");
     }
-  }
+  },
 );
 
 // Supprimer un membre
@@ -105,7 +106,7 @@ export const deleteMemberAsync = createAsyncThunk(
 
       if (!data.result) {
         return rejectWithValue(
-          data.error || "Erreur lors de la suppression du membre"
+          data.error || "Erreur lors de la suppression du membre",
         );
       }
 
@@ -113,7 +114,7 @@ export const deleteMemberAsync = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.message || "Erreur réseau");
     }
-  }
+  },
 );
 
 const initialState = { value: [], loading: false, error: null };
