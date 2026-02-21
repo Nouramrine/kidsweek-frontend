@@ -36,6 +36,7 @@
       "androidCollapsedTitle": "KidsWeek"
     },
     "extra": {
+      "apiUrl": "https://kidsweek-backend.onrender.com",
       "eas": {
         "projectId": "079f6038-61f8-44d5-995d-e4b813fec6cc"
       }

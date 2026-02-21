@@ -8,7 +8,11 @@ import KWText from "../KWText";
 import KWTextInput from "../KWTextInput";
 import KWButton from "../KWButton";
 import { useDispatch, useSelector } from "react-redux";
-import { createInviteAsync, sendInviteAsync } from "../../reducers/invites";
+import {
+  createInviteAsync,
+  sendInviteAsync,
+  fetchInvitesAsync,
+} from "../../reducers/invites";
 import { API_URL } from "../../config/api";
 
 const BACKEND_URL = API_URL;
@@ -53,6 +57,8 @@ const InviteForm = ({ data, onReturn }) => {
 
         if (!sendMail) {
           setFormErrors({ emailInput: `Echec d'envoi du mail d'invitation` });
+        } else {
+          await dispatch(fetchInvitesAsync()).unwrap();
         }
       } catch (err) {
         console.warn("Invite validation : ", err);
