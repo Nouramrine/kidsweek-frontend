@@ -1,17 +1,20 @@
 import React, { useState } from "react";
-import { View, TextInput, Button, StyleSheet } from "react-native";
+import { View } from "react-native";
 import { useDispatch } from "react-redux";
+import { useNavigation } from "@react-navigation/native";
+
 import KWTextInput from "../../components/KWTextInput";
 import KWButton from "../../components/KWButton";
 import KWText from "../../components/KWText";
 import { signInAsync } from "../../reducers/user";
 
 const SignIn = () => {
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
+
   const [signInEmail, setSignInEmail] = useState("");
   const [signInPassword, setSignInPassword] = useState("");
   const [signInError, setSignInError] = useState("");
-
-  const dispatch = useDispatch();
 
   const handleSignIn = async () => {
     const signIn = await dispatch(
@@ -26,6 +29,11 @@ const SignIn = () => {
     } else {
       setSignInError(signIn.error);
     }
+  };
+
+  const handleForgotPass = () => {
+    navigation.navigate("ForgetPassword", { email: signInEmail });
+    setSignInPassword("");
   };
 
   return (
@@ -45,6 +53,7 @@ const SignIn = () => {
       />
       <KWText type="inputError">{signInError}</KWText>
       <KWButton title="Se connecter" onPress={handleSignIn} />
+      <KWButton title="Mot de passe oublié" onPress={handleForgotPass} />
     </View>
   );
 };

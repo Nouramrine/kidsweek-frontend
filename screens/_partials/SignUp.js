@@ -21,6 +21,11 @@ const SignUp = ({ inviteToken }) => {
       return;
     }
 
+    if (signUpPassword.length < 8) {
+      setMessage("Le mot de passe doit contenir au moins 8 caractères.");
+      return;
+    }
+
     const emailRegex =
       /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/i;
     if (!emailRegex.test(signUpEmail)) {

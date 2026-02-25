@@ -22,6 +22,8 @@ import FamillyScreen from "./screens/FamillyScreen";
 import HomeScreen from "./screens/HomeScreen";
 import ProfileScreen from "./screens/ProfileScreen";
 import ActivityDetailsScreen from "./screens/ActivityDetailsScreen";
+import ForgetPassword from "./screens/ForgetPassword";
+import ResetPassword from "./screens/ResetPassword";
 
 import user from "./reducers/user";
 import members from "./reducers/members";
@@ -59,6 +61,18 @@ const store = configureStore({
 });
 
 const persistor = persistStore(store);
+
+const linking = {
+  prefixes: ["kidsweek://", "https://kidsweek.app"],
+  config: {
+    screens: {
+      ResetPassword: {
+        path: "reset-password",
+        parse: { token: (token) => token },
+      },
+    },
+  },
+};
 
 // ─── Navigation ─────────────────────────────────────────────────────────────
 
@@ -118,7 +132,15 @@ const AppNavigator = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {!userData?.isLogged ? (
-        <Stack.Screen name="auth" component={AuthScreen} />
+        <>
+          <Stack.Screen name="auth" component={AuthScreen} />
+          <Stack.Screen
+            name="ForgetPassword"
+            component={ForgetPassword}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen name="ResetPassword" component={ResetPassword} />
+        </>
       ) : (
         <>
           <Stack.Screen name="TabNavigator" component={TabNavigator} />
@@ -128,6 +150,7 @@ const AppNavigator = () => {
             component={ActivityDetailsScreen}
           />
           <Stack.Screen name="FamillyScreen" component={FamillyScreen} />
+          <Stack.Screen name="ResetPassword" component={ResetPassword} />
         </>
       )}
     </Stack.Navigator>
@@ -136,7 +159,7 @@ const AppNavigator = () => {
 
 const DisplayIsLogged = () => {
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking}>
       <AppNavigator />
     </NavigationContainer>
   );
