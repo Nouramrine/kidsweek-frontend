@@ -13,11 +13,10 @@
     },
     "scheme": "kidsweek",
     "ios": {
-      "supportsTablet": true,
-      "associatedDomains": ["applinks:kidsweek.app"]
+      "supportsTablet": true
     },
     "android": {
-      "package": "com.jerguer.kidsweek",
+      "package": "com.nour.kidsweek",
       "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",

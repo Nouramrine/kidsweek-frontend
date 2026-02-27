@@ -110,6 +110,40 @@ export const signUpAsync = createAsyncThunk(
   },
 );
 
+//google auth
+export const googleAuthAsync = createAsyncThunk(
+  "user/googleAuthAsync",
+  async ({ idToken }, { dispatch }) => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/members/google-auth`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken }),
+      });
+      const data = await response.json();
+
+      if (data.result) {
+        dispatch(
+          login({
+            token: data.member.token,
+            firstName: data.member.firstName,
+            lastName: data.member.lastName,
+            email: data.member.email,
+            tutorialState: data.member.tutorialState || {
+              dismissedTooltips: [],
+            },
+          }),
+        );
+        return { result: true };
+      } else {
+        return { result: false, error: data.error };
+      }
+    } catch (error) {
+      return { result: false, error: "Erreur réseau" };
+    }
+  },
+);
+
 const initialState = {
   value: {
     token: null,
@@ -163,3 +197,4 @@ export const userSlice = createSlice({
 
 export const { login, logout } = userSlice.actions;
 export default userSlice.reducer;
+export { googleAuthAsync };

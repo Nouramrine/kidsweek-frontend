@@ -22,7 +22,7 @@ const SignUp = ({ inviteToken }) => {
     }
 
     if (signUpPassword.length < 8) {
-      setMessage("Le mot de passe doit contenir au moins 8 caractères.");
+      setSignUpError("Le mot de passe doit contenir au moins 8 caractères.");
       return;
     }
 
