@@ -45,10 +45,15 @@ const AuthScreen = () => {
   const [qrModal, setQrModal] = useState(false);
   const [googleError, setGoogleError] = useState("");
 
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    webClientId:
-      "803261479896-rjr0gfd2gfmumv9aqrdfuai7k2m1i11q.apps.googleusercontent.com",
-  });
+  const [request, response, promptAsync] = Google.useAuthRequest(
+    {
+      androidClientId:
+        "803261479896-5t3bns7i8td85eslhvtu1a36c77cofgg.apps.googleusercontent.com",
+      webClientId:
+        "803261479896-rjr0gfd2gfmumv9aqrdfuai7k2m1i11q.apps.googleusercontent.com",
+    },
+    { useProxy: true },
+  );
 
   useEffect(() => {
     const getInitialURL = async () => {
