@@ -11,7 +11,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "scheme": "kidsweek",
+    "scheme": ["kidsweek", "host.exp.exponent"],
     "ios": {
       "supportsTablet": true
     },
@@ -27,7 +27,7 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": ["expo-font"],
+    "plugins": ["expo-font", "expo-web-browser"],
     "notification": {
       "icon": "./assets/icon.png",
       "color": "#ffffff",
