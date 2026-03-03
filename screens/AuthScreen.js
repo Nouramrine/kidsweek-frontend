@@ -8,8 +8,11 @@ import {
   Platform,
 } from "react-native";
 import * as Linking from "expo-linking";
-import * as WebBrowser from "expo-web-browser";
-import * as Google from "expo-auth-session/providers/google";
+import {
+  GoogleSignin,
+  GoogleSigninButton,
+  statusCodes,
+} from "@react-native-google-signin/google-signin";
 import { useDispatch } from "react-redux";
 
 import SignIn from "./_partials/SignIn";
@@ -19,24 +22,10 @@ import KWModal from "../components/KWModal";
 import ScanModal from "../components/auth/Scan";
 import { googleAuthAsync } from "../reducers/user";
 
-WebBrowser.maybeCompleteAuthSession();
-
-const GoogleButton = ({ onPress, disabled }) => (
-  <TouchableOpacity
-    onPress={onPress}
-    disabled={disabled}
-    style={styles.googleButton}
-    activeOpacity={0.8}
-  >
-    <Image
-      source={{
-        uri: "https://developers.google.com/identity/images/g-logo.png",
-      }}
-      style={styles.googleLogo}
-    />
-    <KWText style={styles.googleButtonText}>Continuer avec Google</KWText>
-  </TouchableOpacity>
-);
+GoogleSignin.configure({
+  webClientId:
+    "803261479896-rjr0gfd2gfmumv9aqrdfuai7k2m1i11q.apps.googleusercontent.com",
+});
 
 const AuthScreen = () => {
   const dispatch = useDispatch();
@@ -44,16 +33,6 @@ const AuthScreen = () => {
   const [inviteToken, setInviteToken] = useState(null);
   const [qrModal, setQrModal] = useState(false);
   const [googleError, setGoogleError] = useState("");
-
-  const [request, response, promptAsync] = Google.useAuthRequest(
-    {
-      androidClientId:
-        "803261479896-5t3bns7i8td85eslhvtu1a36c77cofgg.apps.googleusercontent.com",
-      webClientId:
-        "803261479896-rjr0gfd2gfmumv9aqrdfuai7k2m1i11q.apps.googleusercontent.com",
-    },
-    { useProxy: true },
-  );
 
   useEffect(() => {
     const getInitialURL = async () => {
@@ -65,15 +44,6 @@ const AuthScreen = () => {
     return () => subscription.remove();
   }, []);
 
-  useEffect(() => {
-    if (response?.type === "success") {
-      const { id_token } = response.params;
-      handleGoogleAuth(id_token);
-    } else if (response?.type === "error") {
-      setGoogleError("Erreur lors de la connexion Google.");
-    }
-  }, [response]);
-
   const handleDeepLink = ({ url }) => {
     const { path, queryParams } = Linking.parse(url);
     if (path === "invite" && queryParams?.token) {
@@ -82,10 +52,32 @@ const AuthScreen = () => {
     }
   };
 
-  const handleGoogleAuth = async (idToken) => {
-    const result = await dispatch(googleAuthAsync({ idToken })).unwrap();
-    if (!result.result) {
-      setGoogleError(result.error || "Erreur Google Auth");
+  const handleGoogleSignIn = async () => {
+    setGoogleError("");
+    try {
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+      const idToken = userInfo.data?.idToken || userInfo.idToken;
+
+      if (!idToken) {
+        setGoogleError("Impossible de récupérer le token Google.");
+        return;
+      }
+
+      const result = await dispatch(googleAuthAsync({ idToken })).unwrap();
+      if (!result.result) {
+        setGoogleError(result.error || "Erreur Google Auth");
+      }
+    } catch (error) {
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        // L'utilisateur a annulé, pas d'erreur à afficher
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        setGoogleError("Connexion déjà en cours.");
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        setGoogleError("Google Play Services non disponible.");
+      } else {
+        setGoogleError("Une erreur est survenue avec Google.");
+      }
     }
   };
 
@@ -116,9 +108,11 @@ const AuthScreen = () => {
 
       {googleError ? <KWText type="inputError">{googleError}</KWText> : null}
 
-      <GoogleButton
-        onPress={() => promptAsync({ useProxy: true })}
-        disabled={!request}
+      <GoogleSigninButton
+        style={styles.googleButton}
+        size={GoogleSigninButton.Size.Wide}
+        color={GoogleSigninButton.Color.Light}
+        onPress={handleGoogleSignIn}
       />
 
       <TouchableOpacity
@@ -168,30 +162,8 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   googleButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#fff",
-    borderWidth: 1,
-    borderColor: "#DADCE0",
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    marginTop: 16,
     width: "100%",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  googleLogo: {
-    width: 20,
-    height: 20,
-    marginRight: 12,
-  },
-  googleButtonText: {
-    color: "#3C4043",
-    fontSize: 15,
-    fontWeight: "500",
+    height: 48,
+    marginTop: 16,
   },
 });

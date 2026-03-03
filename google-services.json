@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "803261479896",
+    "project_id": "kidsweek-488700",
+    "storage_bucket": "kidsweek-488700.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:803261479896:android:f2095606cf2d6b6c2950ad",
+        "android_client_info": {
+          "package_name": "com.nour.kidsweek"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "803261479896-5t3bns7i8td85eslhvtu1a36c77cofgg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nour.kidsweek",
+            "certificate_hash": "c72f5a4d5b8bf7dcfde32baaa0de5140efabfc83"
+          }
+        },
+        {
+          "client_id": "803261479896-rjr0gfd2gfmumv9aqrdfuai7k2m1i11q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBPInfvwQAJJRpQXYFvgrQafog6UpG1udg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "803261479896-rjr0gfd2gfmumv9aqrdfuai7k2m1i11q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
