@@ -15,12 +15,18 @@
       "distribution": "internal",
       "android": {
         "buildType": "apk"
+      },
+      "envSecretFiles": {
+        "GOOGLE_SERVICES_JSON": "./google-services.json"
       }
     },
     "production": {
       "autoIncrement": true,
       "android": {
         "buildType": "app-bundle"
+      },
+      "envSecretFiles": {
+        "GOOGLE_SERVICES_JSON": "./google-services.json"
       }
     }
   },
