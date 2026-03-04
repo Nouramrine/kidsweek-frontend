@@ -67,3 +67,6 @@ __tests__/
 
 #ignore expo
 .expo
+
+#google service
+google-services.json

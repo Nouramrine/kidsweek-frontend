@@ -30,6 +30,7 @@ const ProfilScreen = ({ navigation }) => {
 
   useEffect(() => {
     dispatch(fetchInvitesAsync());
+    dispatch(fetchMembersAsync());
   }, []);
 
   const handledisconnect = () => {
