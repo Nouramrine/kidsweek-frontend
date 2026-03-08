@@ -1,0 +1,46 @@
+export default {
+  expo: {
+    name: "KidsWeek",
+    slug: "kidsweek",
+    version: "1.0.0",
+    orientation: "portrait",
+    icon: "./assets/icon.png",
+    userInterfaceStyle: "automatic",
+    splash: {
+      image: "./assets/images/splash-icon.png",
+      resizeMode: "contain",
+      backgroundColor: "#ffffff",
+    },
+    scheme: "kidsweek",
+    ios: {
+      supportsTablet: true,
+    },
+    android: {
+      package: "com.nour.kidsweek",
+      versionCode: 1,
+      googleServicesFile:
+        process.env.GOOGLE_SERVICES_JSON ?? "./google-services.json",
+      adaptiveIcon: {
+        foregroundImage: "./assets/adaptive-icon.png",
+        backgroundColor: "#ffffff",
+      },
+      permissions: ["android.permission.POST_NOTIFICATIONS"],
+    },
+    web: {
+      favicon: "./assets/favicon.png",
+    },
+    plugins: ["expo-font", "@react-native-google-signin/google-signin"],
+    notification: {
+      icon: "./assets/icon.png",
+      color: "#ffffff",
+      androidMode: "default",
+      androidCollapsedTitle: "KidsWeek",
+    },
+    extra: {
+      apiUrl: "https://kidsweek-backend.onrender.com",
+      eas: {
+        projectId: "079f6038-61f8-44d5-995d-e4b813fec6cc",
+      },
+    },
+  },
+};
