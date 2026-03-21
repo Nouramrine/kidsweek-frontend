@@ -40,6 +40,8 @@ import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { usePushNotifications } from "./services/hooks/usePushNotifications";
 
+import listenerMiddleware from "./store/listeners";
+
 const userPersistConfig = {
   key: "user",
   storage: AsyncStorage,
@@ -57,7 +59,9 @@ const rootReducer = combineReducers({
 const store = configureStore({
   reducer: rootReducer,
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({ serializableCheck: false }),
+    getDefaultMiddleware({ serializableCheck: false }).prepend(
+      listenerMiddleware.middleware,
+    ),
 });
 
 const persistor = persistStore(store);
