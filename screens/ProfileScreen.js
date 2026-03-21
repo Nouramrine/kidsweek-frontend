@@ -16,6 +16,7 @@ import {
 import { fetchInvitesAsync } from "../reducers/invites";
 import { updateMemberAsync, fetchMembersAsync } from "../reducers/members";
 import ProfileEditForm from "../components/profile/ProfileEditForm";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
 const ProfilScreen = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -33,7 +34,10 @@ const ProfilScreen = ({ navigation }) => {
     dispatch(fetchMembersAsync());
   }, []);
 
-  const handledisconnect = () => {
+  const handledisconnect = async () => {
+    try {
+      await GoogleSignin.signOut();
+    } catch (e) {}
     dispatch(logout());
   };
 
