@@ -112,12 +112,14 @@ const AuthScreen = () => {
 
       {googleError ? <KWText type="inputError">{googleError}</KWText> : null}
 
-      <GoogleSigninButton
-        style={styles.googleButton}
-        size={GoogleSigninButton.Size.Wide}
-        color={GoogleSigninButton.Color.Light}
-        onPress={handleGoogleSignIn}
-      />
+      {!inviteToken && (
+        <GoogleSigninButton
+          style={styles.googleButton}
+          size={GoogleSigninButton.Size.Wide}
+          color={GoogleSigninButton.Color.Light}
+          onPress={handleGoogleSignIn}
+        />
+      )}
 
       <TouchableOpacity
         onPress={() => setIsSignIn(!isSignIn)}

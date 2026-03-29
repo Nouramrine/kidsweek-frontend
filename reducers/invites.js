@@ -39,7 +39,7 @@ export const fetchInvitesAsync = createAsyncThunk(
       },
     });
     const data = await response.json();
-    console.log("retour back: ", data);
+
     if (!data.result)
       throw new Error(data.error || "Erreur lors du fetch des invitations");
     return data.invites || [];
