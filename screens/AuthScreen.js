@@ -103,7 +103,11 @@ const AuthScreen = () => {
       </KWModal>
 
       <View style={styles.formContainer}>
-        {!isSignIn ? <SignUp inviteToken={inviteToken} /> : <SignIn />}
+        {!isSignIn ? (
+          <SignUp inviteToken={inviteToken} />
+        ) : (
+          <SignIn inviteToken={inviteToken} />
+        )}
       </View>
 
       {googleError ? <KWText type="inputError">{googleError}</KWText> : null}

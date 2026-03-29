@@ -21,6 +21,7 @@ const SignIn = () => {
       signInAsync({
         email: signInEmail,
         password: signInPassword,
+        inviteToken,
       }),
     ).unwrap();
     if (signIn.result) {

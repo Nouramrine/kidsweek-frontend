@@ -35,12 +35,12 @@ export const dismissTutorialAsync = createAsyncThunk(
 export const signInAsync = createAsyncThunk(
   "user/signInAsync",
   async (payload, { dispatch }) => {
-    const { email, password } = payload;
+    const { email, password, inviteToken } = payload;
     try {
       const response = await fetch(`${BACKEND_URL}/members/signin`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, inviteToken }),
       });
       const data = await response.json();
 
