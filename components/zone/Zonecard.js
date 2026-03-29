@@ -63,7 +63,7 @@ const ZoneCard = ({
                   onEdit(zone);
                 }
                 if (action === "delete") {
-                  onDelete(zone._id);
+                  onDelete(zone._id, zone.name);
                   setOpenDropdownId(null);
                 }
               }}

@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "../theme/colors";
 import {
@@ -75,8 +81,22 @@ const FamillyScreen = () => {
     setZoneModal(true);
   };
 
-  const handleDeleteZone = (zoneId) => {
-    dispatch(deleteZoneAsync(zoneId));
+  const handleDeleteZone = (zoneId, zoneName) => {
+    Alert.alert(
+      "Supprimer la zone",
+      `Êtes-vous sûr de vouloir supprimer la zone ${zoneName} ?`,
+      [
+        { text: "Annuler", style: "cancel" },
+        {
+          text: "Supprimer",
+          style: "destructive",
+          onPress: () => {
+            dispatch(deleteZoneAsync(zoneId));
+            setOpenDropdownId(null);
+          },
+        },
+      ],
+    );
   };
 
   const handleAddMemberToZone = (zone) => {
@@ -95,9 +115,22 @@ const FamillyScreen = () => {
     setOpenDropdownId(null);
   };
 
-  const handleDeleteMember = (memberId) => {
-    dispatch(deleteMemberAsync(memberId));
-    setOpenDropdownId(null);
+  const handleDeleteMember = (memberId, memberName) => {
+    Alert.alert(
+      "Supprimer le membre",
+      `Êtes-vous sûr de vouloir supprimer ${memberName} ?`,
+      [
+        { text: "Annuler", style: "cancel" },
+        {
+          text: "Supprimer",
+          style: "destructive",
+          onPress: () => {
+            dispatch(deleteMemberAsync(memberId));
+            setOpenDropdownId(null);
+          },
+        },
+      ],
+    );
   };
 
   const handleInviteMember = (member) => {
@@ -325,7 +358,7 @@ const FamillyScreen = () => {
                             handleEditMember(member);
                           }
                           if (action === "delete") {
-                            handleDeleteMember(member._id);
+                            handleDeleteMember(member._id, member.firstName);
                           }
                         }}
                       />
